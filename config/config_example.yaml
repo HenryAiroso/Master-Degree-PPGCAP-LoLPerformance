@@ -1,0 +1,47 @@
+# Riot Games API Configuration
+# Copy this file to config.yaml and add your API key
+
+riot_api:
+  # Get your API key from https://developer.riotgames.com/
+  api_key: "YOUR_RIOT_API_KEY_HERE"
+  
+  # API endpoints
+  region: "americas"  # americas, asia, europe, sea
+  platform: "br1"     # br1, euw1, kr, na1, etc.
+  
+  # Rate limiting (adjust based on your API key tier)
+  rate_limit:
+    requests_per_second: 20
+    requests_per_two_minutes: 100
+
+# Data collection settings
+data_collection:
+  # Starting point for match collection
+  start_summoner: "YOUR_SUMMONER_NAME"
+  
+  # Number of matches to collect
+  max_matches: 1000
+  
+  # Match filters
+  queue_type: "RANKED_SOLO_5x5"  # RANKED_SOLO_5x5, RANKED_FLEX_SR, etc.
+  
+  # Output directory
+  output_dir: "data/raw"
+
+# Analysis settings
+analysis:
+  # Features to extract from matches
+  features:
+    - "championId"
+    - "win"
+    - "kills"
+    - "deaths"
+    - "assists"
+    - "goldEarned"
+    - "totalDamageDealt"
+    - "visionScore"
+  
+  # Model parameters (for future ML work)
+  model:
+    test_size: 0.2
+    random_state: 42
