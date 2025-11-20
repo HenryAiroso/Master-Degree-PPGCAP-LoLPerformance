@@ -1,13 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>LoL Performance – AI Research</title>
+    <title>Pesquisa em IA e LoL Performance (Animada)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!--
+      IMPORTANTE:
+      Para esta demonstração funcionar, você deve ter a imagem de fundo
+      (a arte pixelada com os robôs e a cidade) salva como 'lab-base.png'
+      e os scripts 'styles.css' e 'lab-fx.js' incluídos.
+    -->
+    <style>
+      /* Carregamento do Tailwind CSS para utilitários modernos (ajuste o nome se for outro) */
+    </style>
     <link rel="stylesheet" href="styles.css" />
 
-    <!-- Fontes -->
+    <!-- Fontes (JetBrains Mono para corpo, Press Start 2P para títulos) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,90 +26,96 @@
   </head>
   <body>
     <div class="scene">
-      <!-- arte base do lab de robôs -->
+      <!-- Arte base do laboratório de robôs (Cena Principal) -->
+      <!-- O 'lab-base.png' é definido no CSS como fundo fixo -->
       <div class="scene__base"></div>
 
-      <!-- efeitos animados em cima da arte -->
+      <!-- Efeitos animados (Canvas + Elementos CSS de Glows/Faíscas) -->
       <div class="scene__fx">
+        <!-- Canvas para nuvens e partículas animadas (JS) -->
         <canvas id="fx-canvas"></canvas>
 
-        <!-- glows nas telas da arte -->
+        <!-- Elementos de Glows Simulando Telas Ligadas (CSS Animation) -->
+        <!-- Posições ajustadas sobre as telas na arte de fundo -->
         <div class="screen-glow screen-glow--center"></div>
         <div class="screen-glow screen-glow--upper-left"></div>
         <div class="screen-glow screen-glow--upper-right"></div>
         <div class="screen-glow screen-glow--bottom-left"></div>
         <div class="screen-glow screen-glow--bottom-right"></div>
 
-        <!-- faísca do robô soldando -->
+        <!-- Faísca do robô soldando (CSS Animation) -->
+        <!-- Posição ajustada sobre o robô trabalhando -->
         <div class="spark spark--welder"></div>
       </div>
 
-      <!-- PAINÉIS INTEGRADOS NA CENA -->
+      <!-- PAINÉIS DE CONTEÚDO (HUD/Holográficos) INTEGRADOS NA CENA -->
       <main class="overlay">
-        <!-- Outdoor do título (topo) -->
+        <!-- Outdoor do título (topo da construção) -->
         <section class="panel panel-title">
-          <span class="badge">Master's Thesis · Academic Research</span>
+          <span class="badge">Tese de Mestrado · Pesquisa Acadêmica</span>
           <h1>
             LoL Performance<br />
             <span>AI Research</span>
           </h1>
           <p class="subtitle">
-            Master’s dissertation in Applied Computing using League of Legends
-            match data for machine learning research.
+            Dissertação de mestrado em Computação Aplicada usando dados de
+            partidas de League of Legends para pesquisa em machine learning.
           </p>
         </section>
 
         <!-- Painel grande central (overview) -->
         <section class="panel panel-overview">
-          <h2>Project Overview</h2>
+          <h2>Visão Geral do Projeto</h2>
           <p>
-            <strong>Master-Degree-PPGCAP-LoLPerformance</strong> is a
-            non-commercial master’s dissertation project focused on
-            <strong>League of Legends Performance AI</strong>. The research
-            analyzes historical League of Legends matches using machine learning
-            and deep learning to model team and player performance over time.
+            <strong>Master-Degree-PPGCAP-LoLPerformance</strong> é um projeto de
+            dissertação de mestrado não comercial focado em
+            <strong>IA de Desempenho no League of Legends</strong>. A pesquisa
+            analisa partidas históricas usando machine learning e deep learning
+            para modelar o desempenho de equipes e jogadores ao longo do tempo.
           </p>
         </section>
 
         <!-- Painéis lado a lado sobre os andares do meio -->
         <section class="panel panel-goals">
-          <h3>Goals</h3>
+          <h3>Objetivos</h3>
           <ul>
             <li>
-              Collect historical ranked (and, when allowed, competitive) match
-              data.
+              Coletar dados históricos de partidas ranqueadas (e, quando
+              permitido, competitivas).
             </li>
             <li>
-              Build structured timelines (gold, XP, objectives, kills, etc.).
+              Construir cronogramas estruturados (ouro, XP, objetivos, abates,
+              etc.).
             </li>
             <li>
-              Train and evaluate predictive models (e.g., win probability,
-              game state classification).
+              Treinar e avaliar modelos preditivos (ex: probabilidade de
+              vitória, classificação de estado do jogo).
             </li>
             <li>
-              Produce aggregated, anonymized statistics for academic analysis
-              and publications.
+              Produzir estatísticas agregadas e anonimizadas para análise e
+              publicações acadêmicas.
             </li>
           </ul>
         </section>
 
         <section class="panel panel-api">
-          <h3>Riot Games API Usage</h3>
+          <h3>Uso da API da Riot Games</h3>
           <p>
-            The project uses the official Riot Games API only for offline,
-            research-oriented data collection:
+            O projeto usa a API oficial da Riot Games apenas para coleta de
+            dados off-line e orientada à pesquisa:
           </p>
           <ul>
             <li>
-              <code>account-v1</code> / <code>summoner-v4</code> – resolve Riot
-              IDs and PUUIDs to seed match collection.
+              <code>account-v1</code> / <code>summoner-v4</code> – resolve IDs e
+              PUUIDs para iniciar a coleta de partidas.
             </li>
             <li>
-              <code>match-v5</code> – retrieve match details and timelines for
-              feature engineering and model training.
+              <code>match-v5</code> – recupera detalhes da partida e cronogramas
+              para engenharia de recursos e treinamento de modelos.
             </li>
             <li>
-              Data Dragon / static LoL data – champion, item and rune metadata.
+              Data Dragon / dados estáticos do LoL – metadados de campeões,
+              itens e runas.
             </li>
           </ul>
         </section>
@@ -110,33 +125,34 @@
           <h3>Tech Stack</h3>
           <ul>
             <li>
-              Python – data collection, preprocessing, feature engineering.
+              Python – coleta de dados, pré-processamento, engenharia de
+              recursos.
             </li>
             <li>
-              Jupyter Notebooks – experiments, models, visualizations.
+              Jupyter Notebooks – experimentos, modelos, visualizações.
             </li>
             <li>
               Riot Games API – <code>account-v1</code>,
               <code>summoner-v4</code>, <code>match-v5</code>.
             </li>
-            <li>Data Dragon – champions, items, runes.</li>
+            <li>Data Dragon – campeões, itens, runas.</li>
           </ul>
         </section>
 
         <section class="panel panel-ethics">
-          <h3>Ethics and Data Use</h3>
+          <h3>Ética e Uso de Dados</h3>
           <ul>
             <li>
-              Non-commercial, academic-only use in a controlled research
-              environment.
+              Uso não comercial, apenas acadêmico em um ambiente de pesquisa
+              controlado.
             </li>
             <li>
-              Data is analyzed in aggregate; individual players are not
-              identified or profiled.
+              Os dados são analisados de forma agregada; jogadores individuais
+              não são identificados ou perfilados.
             </li>
             <li>
-              No overlays, scripts, bots, boosting, betting or tools that
-              provide unfair competitive advantage.
+              Sem overlays, scripts, bots, boosting, apostas ou ferramentas que
+              ofereçam vantagem competitiva injusta.
             </li>
           </ul>
         </section>
@@ -145,11 +161,11 @@
         <section class="panel panel-legal">
           <h3>Legal</h3>
           <p>
-            This project isn’t endorsed by Riot Games and doesn’t reflect the
-            views or opinions of Riot Games or anyone officially involved in
-            producing or managing Riot Games properties. Riot Games and all
-            associated properties are trademarks or registered trademarks of
-            Riot Games, Inc.
+            Este projeto não é endossado pela Riot Games e não reflete as
+            opiniões da Riot Games ou de qualquer pessoa oficialmente envolvida
+            na produção ou gerenciamento das propriedades da Riot Games. Riot
+            Games e todas as propriedades associadas são marcas comerciais ou
+            marcas registradas da Riot Games, Inc.
           </p>
 
           <ul class="tags">
@@ -164,13 +180,13 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            View research repo
+            Ver repositório da pesquisa
           </a>
         </section>
       </main>
     </div>
 
-    <!-- JS opcional com nuvens/partículas (aquele lab-fx.js) -->
+    <!-- Script de animações (Nuvens e Partículas) -->
     <script src="lab-fx.js"></script>
   </body>
 </html>
