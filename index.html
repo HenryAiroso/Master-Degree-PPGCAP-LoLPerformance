@@ -19,7 +19,7 @@
 
     <style>
       /* =========================================
-         CORE STYLE
+         CORE STYLE (Industrial Retro Refined)
          ========================================= */
       :root {
         --bg-dark: #0a0a0a;
@@ -28,7 +28,10 @@
         --accent-gold: #ffcd75;
         --accent-red: #e53b44;
         --metal-dark: #1a1c2c;
-        --ui-shadow: 4px 4px 0 rgba(0,0,0,1);
+        --metal-plate: #3e2b22; 
+        --paper-bg: #dcdacb;     
+        --monitor-bg: #05080a;   
+        --ui-shadow: 6px 6px 0 rgba(0,0,0,0.8); 
       }
 
       * { box-sizing: border-box; }
@@ -44,18 +47,17 @@
         width: 100vw;
       }
 
-      /* CAMADAS VISUAIS (Ordem Importa) */
+      /* CAMADAS VISUAIS */
 
       /* 1. A TORRE (Fundo Fixo) */
       .layer-structure {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        /* Tenta carregar de diferentes locais comuns */
-        background-image: url('assets/lab-base.png'), url('lab-base.png');
+        background-image: url('assets/lab-base.png'), url('lab-base.png'), url('assets/lab-base.jpg');
         background-position: center bottom;
         background-size: cover;
         background-repeat: no-repeat;
-        image-rendering: pixelated; /* Essencial para a arte não borrar */
+        image-rendering: pixelated; 
         z-index: 0;
       }
 
@@ -75,121 +77,156 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between;
+        justify-content: space-between; 
         padding: 2vh 2vw;
         pointer-events: none;
-        /* Vinheta suave via CSS para focar no centro */
-        background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.6) 100%);
+        background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5) 100%);
       }
 
       .interactive { pointer-events: auto; }
 
       /* =========================================
-         UI COMPONENTS (Industrial Pixel)
+         UI COMPONENTS (Refined Industrial)
          ========================================= */
       
-      /* PLACA */
+      /* PLACA (Signboard) */
       .sign-container {
         margin-top: 15px;
-        animation: floatSign 4s ease-in-out infinite;
+        animation: floatSign 5s ease-in-out infinite;
         position: relative;
       }
       .sign-container::before, .sign-container::after {
         content: ""; position: absolute; top: -100vh; width: 4px; height: 100vh;
-        background: #1a1c2c; border-left: 2px solid #000; z-index: -1;
+        background: #222; border-left: 2px solid #000; z-index: -1;
       }
-      .sign-container::before { left: 10px; transform: rotate(2deg); }
-      .sign-container::after { right: 10px; transform: rotate(-2deg); }
+      .sign-container::before { left: 15px; transform: rotate(1deg); }
+      .sign-container::after { right: 15px; transform: rotate(-1deg); }
 
       .sign-board {
-        background: #b56c45; /* Ferrugem */
-        border: 4px solid #1a1c2c;
-        padding: 15px 25px;
+        background: linear-gradient(160deg, #d64531 0%, #d64531 70%, #4a6b8a 85%, #2f4050 100%);
+        border: 4px solid #1a1c2c;      
+        padding: 12px 24px;
         box-shadow: var(--ui-shadow);
         text-align: center;
+        position: relative;
       }
+      
+      .sign-board::before, .sign-board::after {
+        content: "+"; position: absolute; top: 2px; color: #111; font-size: 10px;
+      }
+      .sign-board::before { left: 5px; } .sign-board::after { right: 5px; }
 
       .sign-title {
-        font-size: 0.9rem; color: #fff; text-shadow: 3px 3px 0 #000; margin: 0; text-transform: uppercase;
+        font-size: 0.95rem; color: #fff; 
+        text-shadow: 2px 2px 0 #3e1010; 
+        margin: 0; text-transform: uppercase; letter-spacing: 1px;
       }
       .sign-sub {
-        font-size: 0.45rem; color: var(--accent-gold); display: block; margin-top: 5px; letter-spacing: 1px; background: rgba(0,0,0,0.4); padding: 2px;
+        font-size: 0.5rem; color: var(--accent-gold); display: block; margin-top: 6px; letter-spacing: 1px; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px;
       }
 
-      /* MONITOR */
+      /* MONITOR (CRT Screen) */
       .monitor-wrapper {
-        background: #1a1c2c;
+        background: #222;
         padding: 8px;
-        border-radius: 2px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
-        width: 100%; max-width: 600px;
+        border-radius: 4px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+        width: 100%; max-width: 680px;
         position: relative;
-        border: 3px solid #000;
+        border: 3px solid #111;
+        margin-top: 10px;
       }
       .monitor-wrapper::before {
-        content:""; position:absolute; top:100%; left:50%; width:80%; height:20px;
-        background: #000; opacity:0.5; filter:blur(10px); transform:translateX(-50%);
+        content:""; position:absolute; top:100%; left:50%; width:90%; height:10px;
+        background: #000; opacity:0.6; filter:blur(8px); transform:translateX(-50%); 
       }
+      
       .crt-screen {
-        background: #090b10;
-        border: 2px solid #333;
-        height: 160px;
-        padding: 20px;
+        background: var(--monitor-bg);
+        border: 2px solid #444;
+        height: 150px;
+        padding: 15px;
         overflow: hidden;
         position: relative;
         color: var(--accent-green);
-        font-size: 0.6rem; line-height: 1.6;
-        text-shadow: 0 0 3px rgba(68, 214, 92, 0.5);
+        font-size: 0.55rem; 
+        line-height: 1.5;
+        text-shadow: 0 0 2px rgba(68, 214, 92, 0.5);
+        white-space: pre-wrap; 
       }
 
-      /* GRIDS */
+      .crt-screen::after {
+        content: ""; position: absolute; inset: 0;
+        background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+        pointer-events: none;
+      }
+
+      /* GRIDS DE INFORMAÇÃO */
       .deck-grid {
-        display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 700px;
+        display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 750px;
       }
+      
       .clipboard {
-        background: #dcdacb; color: #1a1c2c; padding: 10px; position: relative;
-        box-shadow: var(--ui-shadow); border: 2px solid #1a1c2c; flex: 1;
+        background: var(--paper-bg); 
+        color: #1a1c2c;
+        padding: 12px;
+        position: relative;
+        box-shadow: var(--ui-shadow);
+        border: 2px solid #555;
+        flex: 1;
+        display: flex; flex-direction: column;
       }
-      .clipboard::before {
-        content: ""; position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
-        width: 40px; height: 10px; background: #5d6d7e; border: 2px solid #1a1c2c;
-      }
-      .clip-title {
-        background: #1a1c2c; color: #fff; padding: 4px; text-align: center; font-size: 0.5rem; margin-bottom: 8px;
-      }
-      .clip-content ul {
-        list-style: none; padding: 0; margin: 0; font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 0.8rem;
-      }
-      .clip-content li { margin-bottom: 4px; padding-left: 10px; position: relative; }
-      .clip-content li::before { content: "•"; color: var(--accent-red); position: absolute; left: 0; }
 
-      /* FOOTER */
+      .clipboard::before {
+        content: ""; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+        width: 40px; height: 12px; background: #555; border: 2px solid #222; border-radius: 2px;
+      }
+
+      .clip-title {
+        background: #222; color: #fff; padding: 5px; text-align: center; font-size: 0.55rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;
+      }
+
+      .clip-content { flex-grow: 1; }
+      .clip-content ul {
+        list-style: none; padding: 0; margin: 0; font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 0.75rem; 
+        line-height: 1.3;
+      }
+      .clip-content li { margin-bottom: 4px; padding-left: 12px; position: relative; }
+      .clip-content li::before { content: "►"; color: var(--accent-red); font-size: 0.5rem; position: absolute; left: 0; top: 3px; }
+
+      /* RODAPÉ */
       .cargo-crate {
-        background: #3e2b22; border: 3px solid #1a1c2c; padding: 10px;
-        width: 100%; max-width: 600px; text-align: center; position: relative;
-        box-shadow: var(--ui-shadow); margin-bottom: 10px;
+        background: #4a3c31; 
+        border: 3px solid #2e221b;
+        padding: 12px;
+        width: 100%; max-width: 650px;
+        text-align: center;
+        position: relative;
+        box-shadow: var(--ui-shadow);
+        margin-bottom: 15px;
       }
       .cargo-crate::after {
         content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
-        background: repeating-linear-gradient(-45deg, #ffcd75, #ffcd75 10px, #1a1c2c 10px, #1a1c2c 20px);
+        background: repeating-linear-gradient(-45deg, #ffcd75, #ffcd75 10px, #222 10px, #222 20px);
       }
+
       .legal-text {
-        font-family: "Rajdhani", sans-serif; font-weight: 600; font-size: 0.7rem; color: #a09080; margin-bottom: 8px;
+        font-family: "Rajdhani", sans-serif; font-weight: 600; font-size: 0.7rem; color: #cbbfae; margin-bottom: 8px; line-height: 1.2;
       }
+
       .btn-pixel {
         display: inline-block; background: var(--accent-gold); color: #000; text-decoration: none;
-        padding: 6px 12px; border: 2px solid #000; box-shadow: 2px 2px 0 #000; font-size: 0.5rem; font-weight: bold;
+        padding: 6px 14px; border: 2px solid #000; box-shadow: 2px 2px 0 #000; font-size: 0.55rem; font-weight: bold;
         transition: transform 0.1s;
       }
-      .btn-pixel:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0 #000; }
+      .btn-pixel:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0 #000; }
 
-      /* Animations */
-      @keyframes floatSign { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
-      .cursor { display: inline-block; width: 6px; height: 10px; background: var(--accent-green); animation: blink 1s infinite; }
+      @keyframes floatSign { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+      .cursor { display: inline-block; width: 5px; height: 10px; background: var(--accent-green); animation: blink 1s infinite; vertical-align: middle; }
       @keyframes blink { 50% { opacity: 0; } }
 
       @media (max-width: 768px) {
-        #ui-layer { height: auto; overflow-y: auto; }
+        #ui-layer { height: auto; overflow-y: auto; padding-top: 50px; }
         .deck-grid { flex-direction: column; }
         .monitor-wrapper, .cargo-crate { width: 95%; }
       }
@@ -197,14 +234,11 @@
   </head>
   <body>
 
-    <!-- 1. A TORRE (Fundo) -->
     <div class="layer-structure"></div>
-
-    <!-- 2. SIMULAÇÃO (Canvas Transparente) -->
     <div id="game-stage"></div>
 
-    <!-- 3. UI -->
     <div id="ui-layer">
+      
       <header class="sign-container interactive">
         <div class="sign-board">
           <h1 class="sign-title">LOL PERFORMANCE</h1>
@@ -221,30 +255,34 @@
           <div class="clip-title">PROJECT GOALS</div>
           <div class="clip-content">
             <ul>
-              <li>Collect match-v5 data via API.</li>
-              <li>Build structured datasets (Gold/XP).</li>
-              <li>Train Deep Learning models.</li>
-              <li>Predict Win Probability.</li>
+              <li>Collect historical ranked match data (Riot API).</li>
+              <li>Build structured datasets (gold, XP, objectives).</li>
+              <li>Train predictive models (Deep Learning).</li>
+              <li>Produce aggregated statistics for analysis.</li>
             </ul>
           </div>
         </article>
 
-        <article class="clipboard interactive" style="background: #cfd8dc;">
-          <div class="clip-title">TECH STACK</div>
+        <article class="clipboard interactive" style="background: #d3dce0;">
+          <div class="clip-title">TECH & ETHICS</div>
           <div class="clip-content">
             <ul>
-              <li><strong>CORE:</strong> Python 3.9+</li>
+              <li><strong>CORE:</strong> Python (Data Collection/Eng.)</li>
               <li><strong>ML:</strong> PyTorch & Scikit-Learn</li>
-              <li><strong>DATA:</strong> Pandas / NumPy</li>
-              <li><strong>ENV:</strong> Jupyter Lab</li>
+              <li><strong>DATA:</strong> Pandas / Jupyter Notebooks</li>
+              <li><strong>API:</strong> Riot (match-v5, summoner-v4)</li>
             </ul>
+            <hr style="border: 0; border-top: 1px dashed #555; margin: 8px 0;">
+            <div style="font-size: 0.65rem; font-family: 'Rajdhani', sans-serif; line-height: 1.2; color: #444;">
+              <strong>ETHICS:</strong> Non-commercial. Aggregate analysis. Individual players not profiled.
+            </div>
           </div>
         </article>
       </section>
 
       <footer class="cargo-crate interactive">
         <p class="legal-text">
-          This project isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games.
+          This project isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
         </p>
         <a href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance" target="_blank" class="btn-pixel">
           ACCESS REPOSITORY
@@ -254,12 +292,11 @@
 
     <script>
       (function() {
-        
         // ============================================
         // CONFIGURAÇÃO DO PIXI.JS (Simulação)
         // ============================================
         const app = new PIXI.Application({
-          backgroundAlpha: 0, // TRANSPARENTE para ver o fundo CSS
+          backgroundAlpha: 0, 
           resizeTo: window,
           antialias: false,
           resolution: window.devicePixelRatio || 1,
@@ -269,95 +306,97 @@
         const world = new PIXI.Container();
         app.stage.addChild(world);
 
-        // Cores da Arte
+        // CORES
         const C = {
-          SHADOW: 0x111111,
-          DARK_BLUE: 0x2e3b4e, // Cor dos robôs da imagem
-          RUST: 0xb56c45,      // Cor enferrujada
-          TEAL_LIGHT: 0x00f3ff,
-          GREEN_LIGHT: 0x44d65c,
+          ROBOT_BASE_LIGHT: 0xb0c4de, 
+          ROBOT_BASE_DARK: 0x6a81a0,
+          ROBOT_ORANGE: 0xd67831,
+          ROBOT_BLUE_TECH: 0x4a90e2,
+          ROBOT_SCREEN_CYAN: 0x00f3ff,
+          ROBOT_SCREEN_RED: 0xff4555,
+          METAL_LIGHT: 0xdddddd,
+          METAL_DARK: 0x333333,
           WHITE: 0xffffff,
           BLACK: 0x000000
         };
 
         // ============================================
-        // 1. SPRITE FACTORY (Robôs 8x8 Blocky)
+        // 1. SPRITE FACTORY (64x64 Creative Robots)
         // ============================================
-        // Aqui desenhamos pixel a pixel num grid virtual 8x8
-        // Cada "pixel" do desenho tem 8px de tamanho real (total 64px)
-        
         function createPixelBotTexture(type) {
           const g = new PIXI.Graphics();
-          const p = 8; // Tamanho do "pixel" grande
+          const p = 2; // Scale factor (2px per drawing unit -> 32x32 grid = 64x64 texture)
 
-          const drawPixel = (x, y, color, alpha=1) => {
+          const rect = (x, y, w, h, color, alpha=1) => {
             g.beginFill(color, alpha);
-            g.drawRect(x*p, y*p, p, p);
+            g.drawRect(x*p, y*p, w*p, h*p);
             g.endFill();
           };
 
-          // MAPA DE PIXELS (0=vazio, 1=corpo, 2=visor, 3=sombra, 4=perna)
-          // Grid 8x8
-          let map = [];
-          let bodyColor = C.DARK_BLUE;
-          let visorColor = C.TEAL_LIGHT;
+          if (type === 'drone') {
+            // DRONE (Floating, round-ish, single eye)
+            // Body
+            rect(10, 10, 12, 10, C.ROBOT_BASE_DARK);
+            rect(11, 11, 10, 8, C.ROBOT_BASE_LIGHT);
+            
+            // Propellers (Top)
+            rect(6, 8, 20, 2, C.METAL_DARK);
+            rect(4, 6, 4, 2, C.METAL_LIGHT); // Left prop
+            rect(24, 6, 4, 2, C.METAL_LIGHT); // Right prop
 
-          if (type === 'tech') {
-            // Robô Azul (Estilo da imagem)
-            map = [
-              [0,0,1,1,1,1,0,0],
-              [0,1,1,1,1,1,1,0],
-              [1,1,2,2,2,2,1,1], // Visor largo
-              [1,1,1,1,1,1,1,1],
-              [1,1,1,3,3,1,1,1], // Detalhe peito
-              [0,1,1,1,1,1,1,0],
-              [0,0,4,0,0,4,0,0], // Pernas
-              [0,4,4,0,0,4,4,0]  // Pés
-            ];
-            bodyColor = C.DARK_BLUE;
-            visorColor = C.TEAL_LIGHT;
-          } 
-          else if (type === 'rusty') {
-            // Robô Ferrugem (Menor)
-            map = [
-              [0,0,0,1,1,0,0,0], // Antena
-              [0,1,1,1,1,1,1,0],
-              [0,1,2,2,1,1,1,0], // Olho pequeno
-              [0,1,1,1,1,1,1,0],
-              [0,1,3,3,3,3,1,0], // Grade
-              [0,1,1,1,1,1,1,0],
-              [0,4,0,0,0,0,4,0],
-              [0,4,0,0,0,0,4,0]
-            ];
-            bodyColor = C.RUST;
-            visorColor = C.GREEN_LIGHT;
+            // Eye
+            rect(14, 13, 4, 4, C.ROBOT_SCREEN_CYAN);
+            rect(15, 14, 1, 1, C.WHITE);
+
+            // Arms/Tools hanging
+            rect(12, 20, 2, 4, C.METAL_DARK);
+            rect(18, 20, 2, 4, C.METAL_DARK);
+
+          } else if (type === 'worker') {
+            // WORKER (Orange, boxy, tracks)
+            // Tracks
+            rect(8, 24, 16, 6, C.METAL_DARK);
+            rect(10, 25, 12, 4, C.METAL_LIGHT);
+            // Body
+            rect(8, 12, 16, 12, C.ROBOT_ORANGE);
+            // Shadow/Detail
+            rect(8, 22, 16, 2, C.BLACK, 0.3);
+
+            // Screen/Face
+            rect(10, 14, 12, 5, C.BLACK);
+            rect(12, 15, 8, 2, C.ROBOT_SCREEN_RED);
+
+            // Arm (Holding something)
+            rect(22, 16, 6, 2, C.METAL_LIGHT); // Arm extension
+            rect(26, 14, 2, 6, C.METAL_DARK);  // Tool tip
+
+          } else if (type === 'tech') {
+            // TECH (Blue, tall, bipedal)
+            // Legs
+            rect(12, 22, 2, 8, C.METAL_DARK);
+            rect(18, 22, 2, 8, C.METAL_DARK);
+            rect(11, 30, 4, 2, C.METAL_LIGHT); // Feet
+            rect(17, 30, 4, 2, C.METAL_LIGHT);
+
+            // Body
+            rect(10, 10, 12, 12, C.ROBOT_BLUE_TECH);
+            // Detail
+            rect(10, 16, 12, 2, C.ROBOT_BASE_DARK);
+
+            // Head
+            rect(12, 6, 8, 4, C.ROBOT_BASE_LIGHT);
+            rect(13, 7, 6, 2, C.ROBOT_SCREEN_CYAN);
+
+            // Antenna
+            rect(18, 2, 1, 4, C.METAL_DARK);
           }
-
-          // Renderizar o mapa
-          for(let y=0; y<8; y++) {
-            for(let x=0; x<8; x++) {
-              const val = map[y][x];
-              if(val === 0) continue;
-              
-              if(val === 1) { // Corpo
-                drawPixel(x, y, C.SHADOW); // Contorno implícito
-                // Draw inner rect slightly smaller for pixel art look? No, full block.
-                g.beginFill(bodyColor); g.drawRect(x*p, y*p, p, p);
-                
-                // Highlight Top/Left
-                if (x<4 && y<4) { g.beginFill(C.WHITE, 0.2); g.drawRect(x*p, y*p, p, p); }
-              }
-              if(val === 2) drawPixel(x, y, visorColor); // Visor
-              if(val === 3) drawPixel(x, y, C.BLACK, 0.5); // Detalhe Escuro
-              if(val === 4) drawPixel(x, y, 0x222222); // Perna
-            }
-          }
-
+          
           return app.renderer.generateTexture(g);
         }
 
+        const texDrone = createPixelBotTexture('drone');
+        const texWorker = createPixelBotTexture('worker');
         const texTech = createPixelBotTexture('tech');
-        const texRusty = createPixelBotTexture('rusty');
 
         // ============================================
         // 2. ENTIDADES
@@ -368,101 +407,102 @@
             this.container.x = x;
             this.container.y = y;
 
-            // Sombra no chão (Integração)
+            // Shadow
             const shadow = new PIXI.Graphics();
-            shadow.beginFill(0x000000, 0.5);
-            shadow.drawEllipse(32, 60, 16, 4);
+            shadow.beginFill(0x000000, 0.4);
+            shadow.drawEllipse(32*scale, 64*scale, 12*scale, 4*scale);
             shadow.endFill();
             this.container.addChild(shadow);
 
             this.sprite = new PIXI.Sprite(texture);
-            this.sprite.anchor.set(0.5);
             this.sprite.scale.set(scale);
             this.container.addChild(this.sprite);
             
             world.addChild(this.container);
             
             this.homeX = x;
-            this.state = 'idle';
+            this.homeY = y;
             this.walkTimer = Math.random() * 100;
+            
+            // Particle system for Worker
+            this.sparks = [];
           }
 
           update(delta) {
             this.walkTimer += delta;
-            // Idle Animation (Bobbing)
+            // Bobbing
             this.sprite.y = Math.sin(this.walkTimer / 20) * 2;
           }
 
           walkTo(targetX) {
              const dx = targetX - this.container.x;
-             if(Math.abs(dx) > 2) {
+             if(Math.abs(dx) > 1) {
                const dir = Math.sign(dx);
-               this.container.x += dir * 0.6;
-               // Flip suave
-               if(dir > 0) this.sprite.scale.x = Math.abs(this.sprite.scale.x);
-               else this.sprite.scale.x = -Math.abs(this.sprite.scale.x);
+               this.container.x += dir * 0.5;
+               
+               // Flip logic (pivot center adjustment)
+               if(dir < 0) {
+                 this.sprite.scale.x = -Math.abs(this.sprite.scale.x);
+                 this.sprite.x = 64 * Math.abs(this.sprite.scale.y); // Adjust x pos when flipped
+               } else {
+                 this.sprite.scale.x = Math.abs(this.sprite.scale.x);
+                 this.sprite.x = 0;
+               }
              }
+          }
+
+          emitSpark() {
+             const s = new PIXI.Graphics();
+             s.beginFill(0xFFFF00);
+             s.drawRect(0,0,2,2);
+             s.endFill();
+             s.x = this.container.x + 40;
+             s.y = this.container.y + 20;
+             world.addChild(s);
+             gsap.to(s, {x: s.x + (Math.random()-0.5)*20, y: s.y + 20, alpha: 0, duration: 0.5, onComplete: ()=>s.destroy()});
           }
         }
 
         // ============================================
-        // 3. POSICIONAMENTO (NavMesh)
+        // 3. POSICIONAMENTO
         // ============================================
-        // Ajustado para não sobrepor a UI
         const W = window.innerWidth;
         const H = window.innerHeight;
 
-        // Nível Superior (Pequeno robô Rusty) - Acima do monitor
-        const botTop = new Robot(texRusty, W * 0.15, H * 0.22, 0.8);
+        // Drone (Top Left - Hovering)
+        const bot1 = new Robot(texDrone, W * 0.15, H * 0.15, 2);
         
-        // Nível Médio (Tech Robot) - Ao lado do monitor
-        const botMid = new Robot(texTech, W * 0.85, H * 0.50, 1.0);
+        // Worker (Middle Right - Fixing Wall)
+        const bot2 = new Robot(texWorker, W * 0.85, H * 0.50, 2);
 
-        // Nível Inferior (Tech Robot) - Abaixo das pranchetas
-        const botLow = new Robot(texTech, W * 0.20, H * 0.78, 1.0);
+        // Tech (Bottom Left - Walking)
+        const bot3 = new Robot(texTech, W * 0.10, H * 0.75, 2);
 
         // ============================================
-        // 4. ATMOSFERA (Névoa Sutil)
+        // 4. LOOP
         // ============================================
-        const clouds = [];
-        for(let i=0; i<8; i++) {
-          const c = new PIXI.Graphics();
-          // Nuvem branca muito transparente
-          c.beginFill(0xFFFFFF, 0.05); 
-          c.drawRect(0,0, 100 + Math.random()*100, 20 + Math.random()*20);
-          c.endFill();
-          c.x = Math.random() * W;
-          c.y = Math.random() * H;
-          c.speed = 0.1 + Math.random() * 0.2;
-          world.addChildAt(c, 0); // Atrás dos robôs
-          clouds.push(c);
-        }
-
-        // LOOP
         app.ticker.add((delta) => {
-          // Nuvens
-          clouds.forEach(c => {
-            c.x += c.speed * delta;
-            if(c.x > W) c.x = -200;
-          });
+          
+          // Bot 1: Hover
+          bot1.update(delta);
+          bot1.container.y = (H * 0.15) + Math.sin(Date.now()/1000)*10;
 
-          // Robôs (Comportamento simples)
-          botTop.update(delta);
-          botTop.walkTo(W * 0.15 + Math.sin(Date.now()/2000) * 50); // Patrulha curta
+          // Bot 2: Fixing (Sparks)
+          bot2.update(delta);
+          if(Math.random() < 0.05) bot2.emitSpark();
 
-          botMid.update(delta);
-          // Ocasionalmente olha para o monitor
-          if(Math.random() < 0.01) botMid.sprite.scale.x *= -1;
+          // Bot 3: Patrol
+          bot3.update(delta);
+          const target = W * 0.10 + Math.cos(Date.now()/3000) * 100;
+          bot3.walkTo(target);
 
-          botLow.update(delta);
-          botLow.walkTo(W * 0.20 + Math.cos(Date.now()/3000) * 80);
         });
 
       })();
 
       // --- UI TYPEWRITER ---
       (function() {
-        const text = `> SYSTEM ONLINE.\n> MODULE: LoL_Performance_AI\n> DATA: Riot Match-V5\n\nSTATUS: ACADEMIC RESEARCH.`;
+        const text = `> SYSTEM READY.\n> LOADING: Master's Dissertation\n> SUBJECT: LoL Performance AI (Applied Computing)\n\nANALYSIS: Matches analyzed via Machine Learning to model player/team performance over time.`;
         const el = document.getElementById('console-output');
         let i = 0;
         function type() {
