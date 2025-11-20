@@ -48,7 +48,8 @@
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
-        background: #111 url('assets/lab-base.png') no-repeat center bottom;
+        /* CAMINHO DA IMAGEM - Certifique-se que assets/lab-base.jpg existe */
+        background: #111 url('assets/lab-base.jpg') no-repeat center bottom;
         background-size: cover;
         image-rendering: pixelated;
         z-index: 0;
@@ -302,138 +303,173 @@
     </div>
 
     <script>
-      // ============================================
-      // SIMULAÇÃO DE ROBÔS (PIXI.JS)
-      // ============================================
-      
-      const app = new PIXI.Application({
-        backgroundAlpha: 0,
-        resizeTo: window,
-        antialias: false,
-        resolution: window.devicePixelRatio || 1,
-      });
-      document.getElementById('game-stage').appendChild(app.view);
+      (function() { // IIFE START - Protege o escopo para evitar erro de variáveis duplicadas
+        
+        // ============================================
+        // SIMULAÇÃO DE ROBÔS (PIXI.JS)
+        // ============================================
+        
+        const app = new PIXI.Application({
+          backgroundAlpha: 0, // Fundo transparente essencial
+          resizeTo: window,
+          antialias: false,
+          resolution: window.devicePixelRatio || 1,
+        });
+        document.getElementById('game-stage').appendChild(app.view);
 
-      const world = new PIXI.Container();
-      app.stage.addChild(world);
+        const world = new PIXI.Container();
+        app.stage.addChild(world);
 
-      // --- SPRITE GENERATION (Estilo da Arte) ---
-      // Cores: Rusty Orange (#b56c45), Dark Teal (#3a5263), Metal (#88939e)
-      function createBotTexture(mainColor, accentColor) {
-        const g = new PIXI.Graphics();
-        const s = 24; // Tamanho base
+        // --- 1. SPRITE GENERATION (64-BIT SHADING) ---
+        // Desenha sprites programaticamente com volume e luz para integrar com a arte
+        function createBotTexture(mainColor, accentColor) {
+          const g = new PIXI.Graphics();
+          const s = 32; // Resolução aumentada para detalhe
 
-        // Contorno
-        g.beginFill(0x111111);
-        g.drawRect(0, 0, s, s);
-
-        // Corpo (Base)
-        g.beginFill(mainColor); 
-        g.drawRect(2, 2, 20, 20);
-
-        // Detalhes "Enferrujados" / Sombreamento
-        g.beginFill(0x000000, 0.25);
-        g.drawRect(2, 18, 20, 4); // Fundo
-        g.drawRect(18, 2, 4, 20); // Lateral
-
-        // Visor
-        g.beginFill(0x111111);
-        g.drawRect(4, 6, 16, 6);
-        g.beginFill(accentColor); // Luz do visor
-        g.drawRect(6, 7, 4, 4);
-        g.beginFill(0xffffff, 0.6); // Brilho
-        g.drawRect(7, 7, 1, 1);
-
-        // Perninhas
-        g.beginFill(0x333333);
-        g.drawRect(4, 22, 4, 2);
-        g.drawRect(16, 22, 4, 2);
-
-        return app.renderer.generateTexture(g);
-      }
-
-      // Texturas
-      const texWorker = createBotTexture(0x88939e, 0x44d65c); // Cinza/Verde
-      const texDrone = createBotTexture(0x3a5263, 0xffcd75);  // Azulado/Amarelo
-      const texRusty = createBotTexture(0xb56c45, 0xe53b44);  // Ferrugem/Vermelho
-
-      // --- ENTITY CLASS ---
-      class Entity {
-        constructor(texture, x, y, scale=2) {
-          this.sprite = new PIXI.Sprite(texture);
-          this.sprite.anchor.set(0.5, 1);
-          this.sprite.scale.set(scale);
-          this.sprite.x = x;
-          this.sprite.y = y;
-          world.addChild(this.sprite);
+          // Sombra Projetada (Drop Shadow) - CRUCIAL para integração com o chão
+          // Desenhamos fora do sprite principal depois, mas preparamos a lógica
           
-          this.homeX = x;
-          this.state = 'idle';
-          this.timer = 0;
+          // Corpo Base
+          g.beginFill(0x1a1a1a); // Contorno escuro
+          g.drawRect(0, 0, s, s);
+
+          // Metal Base (Gradiente simulado)
+          g.beginFill(mainColor); 
+          g.drawRect(2, 2, 28, 28);
+          
+          // High-Light (Luz vindo de cima/esquerda, como na imagem)
+          g.beginFill(0xFFFFFF, 0.2);
+          g.drawRect(2, 2, 26, 2); // Topo
+          g.drawRect(2, 2, 2, 26); // Esquerda
+
+          // Sombreamento (Lado oposto à luz)
+          g.beginFill(0x000000, 0.3);
+          g.drawRect(4, 26, 24, 4); // Fundo
+          g.drawRect(26, 4, 4, 26); // Direita
+
+          // Visor (Brilhante)
+          g.beginFill(0x111111);
+          g.drawRect(6, 8, 20, 8);
+          g.beginFill(accentColor); // Cor do LED
+          g.drawRect(8, 10, 6, 4);
+          g.beginFill(0xffffff, 0.8); // Reflexo especular forte
+          g.drawRect(8, 10, 2, 2);
+
+          // Detalhes Mecânicos (Vents/Joints)
+          g.beginFill(0x333333);
+          g.drawRect(6, 28, 6, 4); // Perna Esq
+          g.drawRect(20, 28, 6, 4); // Perna Dir
+          
+          // Antena
+          g.beginFill(0x555555);
+          g.drawRect(4, -4, 2, 6);
+
+          return app.renderer.generateTexture(g);
         }
 
-        walkTo(targetX) {
-          const dist = targetX - this.sprite.x;
-          if (Math.abs(dist) > 2) {
-            const dir = Math.sign(dist);
-            this.sprite.x += dir * 0.8; // Velocidade
-            this.sprite.scale.x = Math.abs(this.sprite.scale.x) * dir; // Virar
+        // Texturas usando a paleta da imagem de fundo (Color Picked)
+        const texWorker = createBotTexture(0x8ca0b0, 0x44d65c); // Cinza-Azulado da parede + Verde
+        const texDrone = createBotTexture(0x4a5c6a, 0xffcd75);  // Azul escuro + Amarelo
+        const texRusty = createBotTexture(0x9e6752, 0xe53b44);  // Ferrugem da tubulação + Vermelho
+
+        // --- 2. ENTIDADES ---
+        class Entity {
+          constructor(texture, x, y, scale=1.5) {
+            this.container = new PIXI.Container();
+            this.container.x = x;
+            this.container.y = y;
+
+            // Sombra no chão (Oval preta semitransparente)
+            const shadow = new PIXI.Graphics();
+            shadow.beginFill(0x000000, 0.4);
+            shadow.drawEllipse(0, 16 * scale, 10 * scale, 4 * scale); // Perspectiva isométrica fake
+            shadow.endFill();
+            this.container.addChild(shadow);
+
+            // Sprite do Robô
+            this.sprite = new PIXI.Sprite(texture);
+            this.sprite.anchor.set(0.5, 0.5); // Pivô no centro
+            this.sprite.scale.set(scale);
+            this.container.addChild(this.sprite);
             
-            // Animação "Bobbing" (Andar)
-            this.sprite.y = this.homeX + Math.sin(Date.now() / 100) * 2; 
+            world.addChild(this.container);
+            
+            this.homeX = x;
+            this.state = 'idle';
+          }
+
+          walkTo(targetX) {
+            const dist = targetX - this.container.x;
+            if (Math.abs(dist) > 2) {
+              const dir = Math.sign(dist);
+              this.container.x += dir * 0.8; // Velocidade
+              
+              // Virar o sprite (Flip horizontal)
+              // Mantemos a escala Y positiva, apenas invertemos X
+              const absScale = Math.abs(this.sprite.scale.x);
+              this.sprite.scale.x = absScale * dir; 
+              
+              // Animação "Bobbing" (Saltitar ao andar)
+              this.sprite.y = Math.sin(Date.now() / 100) * 2; 
+            }
           }
         }
-      }
 
-      // --- POSICIONAMENTO ESTRATÉGICO ---
-      // Colocar robôs onde NÃO tem UI
-      const w = window.innerWidth;
-      const h = window.innerHeight;
+        // --- POSICIONAMENTO ESTRATÉGICO (Integration) ---
+        const w = window.innerWidth;
+        const h = window.innerHeight;
 
-      // 1. Ponte Superior (Entre Header e Monitor)
-      const botTop = new Entity(texDrone, w * 0.2, h * 0.18, 2);
-      
-      // 2. Plataforma Média (Lados do Monitor)
-      const botLeft = new Entity(texRusty, w * 0.15, h * 0.5, 2.5);
-      const botRight = new Entity(texWorker, w * 0.85, h * 0.5, 2.5);
+        // Ajuste fino das posições Y para parecerem estar "em cima" das vigas
+        // Robô 1: Drone patrulhando a área superior vazia
+        const botTop = new Entity(texDrone, w * 0.2, h * 0.15, 1.5);
+        
+        // Robô 2: Trabalhador na plataforma média esquerda (ao lado do monitor)
+        const botLeft = new Entity(texRusty, w * 0.10, h * 0.48, 2.0);
+        
+        // Robô 3: Trabalhador na plataforma média direita
+        const botRight = new Entity(texWorker, w * 0.90, h * 0.48, 2.0);
 
-      // --- LOOP DE ANIMAÇÃO ---
-      let time = 0;
-      app.ticker.add((delta) => {
-        time += delta;
+        // --- LOOP DE ANIMAÇÃO ---
+        let time = 0;
+        app.ticker.add((delta) => {
+          time += delta;
 
-        // Bot Top: Patrulha
-        const patrolX = w * 0.2 + Math.sin(time / 200) * 100;
-        botTop.walkTo(patrolX);
-        botTop.sprite.y = h * 0.18 + Math.cos(time/50) * 5; // Flutuar
+          // Bot Top: Patrulha suave
+          const patrolX = w * 0.2 + Math.sin(time / 250) * 80;
+          botTop.walkTo(patrolX);
+          botTop.container.y = h * 0.15 + Math.cos(time/60) * 3; // Flutuar
 
-        // Bot Left: Trabalhando (Pula de vez em quando)
-        if (Math.random() < 0.01) {
-            botLeft.sprite.scale.y = 2.2; // Stretch
-            setTimeout(() => botLeft.sprite.scale.y = 2.5, 100);
+          // Bot Left: "Idle" ativo (olhando em volta)
+          if (Math.random() < 0.005) {
+             // Pulo de susto/trabalho
+             gsap.to(botLeft.sprite.scale, { y: 1.8, duration: 0.1, yoyo: true, repeat: 1 });
+          }
+
+          // Bot Right: Observando a UI
+          // Vira a cabeça ocasionalmente
+          if (Math.floor(time) % 400 === 0) {
+              botRight.sprite.scale.x *= -1;
+          }
+        });
+      })(); // IIFE END
+
+      // --- TYPEWRITER (Monitor UI) ---
+      (function() {
+        const text = `> SYSTEM READY.\n> LOADING PROJECT: LoL_Performance_AI\n> DATA SOURCE: Riot API (Match-V5)\n\nSTATUS: ACADEMIC RESEARCH ACTIVE.`;
+        const consoleDiv = document.getElementById('console-output');
+        let charI = 0;
+        function type() {
+          if(charI < text.length) {
+            const char = text.charAt(charI);
+            consoleDiv.innerHTML += char === '\n' ? '<br>' : char;
+            charI++;
+            setTimeout(type, 20);
+          } else {
+            consoleDiv.innerHTML += '<span class="cursor"></span>';
+          }
         }
-
-        // Bot Right: Observando (Vira a cabeça)
-        if (Math.floor(time) % 300 === 0) {
-            botRight.sprite.scale.x *= -1;
-        }
-      });
-
-      // --- TYPEWRITER (Monitor) ---
-      const text = `> SYSTEM READY.\n> LOADING PROJECT: LoL_Performance_AI\n> DATA SOURCE: Riot API (Match-V5)\n\nSTATUS: ACADEMIC RESEARCH ACTIVE.`;
-      const consoleDiv = document.getElementById('console-output');
-      let charI = 0;
-      function type() {
-        if(charI < text.length) {
-          const char = text.charAt(charI);
-          consoleDiv.innerHTML += char === '\n' ? '<br>' : char;
-          charI++;
-          setTimeout(type, 20);
-        } else {
-          consoleDiv.innerHTML += '<span class="cursor"></span>';
-        }
-      }
-      setTimeout(type, 500);
+        setTimeout(type, 500);
+      })();
 
     </script>
   </body>
