@@ -35,7 +35,7 @@ body {
   position: fixed;
   inset: 0;
   /* 🚨 SUBSTITUA 'lab-base.png' PELA SUA IMAGEM DE PIXEL ART COM OS ROBÔS 🚨 */
-  background-image: url("lab-base.png");
+  background-image: url("assets/lab-base.png");
   background-size: cover;
   background-position: center;
   /* Fundamental para manter o aspecto pixelado mesmo ao redimensionar */
