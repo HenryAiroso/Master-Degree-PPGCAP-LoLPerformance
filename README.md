@@ -1,5 +1,5 @@
 # Master-Degree-PPGCAP-LoLPerformance
-Master’s dissertation project in Applied Computing analyzing League of Legends matches with machine learning. Uses Riot Games API (match-v5, account-v1, summoner-v4) to build datasets and models of player and team performance for non-commercial research.
+Master’s dissertation project in Applied Computing analyzing League of Legends matches with machine learning. Uses Riot Games API (match-v5, account-v1, summoner-v4) to build datasets and models of player and team performance for non-commercial research. This repo represents a generic model for the problem, up to the full algorithm and it's specifications are under construction and in scientific research protection.
 
 # League of Legends Performance AI – Master’s Dissertation
 
