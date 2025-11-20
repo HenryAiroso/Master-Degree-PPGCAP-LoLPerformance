@@ -5,12 +5,10 @@
     <title>LoL Performance AI - Research Lab</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- LIBRARIES -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <!-- LIBRARIES --><script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-    <!-- FONTS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <!-- FONTS --><link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@600;700&display=swap"
@@ -28,10 +26,10 @@
         --accent-gold: #ffcd75;
         --accent-red: #e53b44;
         --metal-dark: #1a1c2c;
-        --metal-plate: #3e2b22; 
-        --paper-bg: #dcdacb;     
-        --monitor-bg: #05080a;   
-        --ui-shadow: 6px 6px 0 rgba(0,0,0,0.8); 
+        --metal-plate: #3e2b22;
+        --paper-bg: #dcdacb;
+        --monitor-bg: #05080a;
+        --ui-shadow: 6px 6px 0 rgba(0,0,0,0.8);
       }
 
       * { box-sizing: border-box; }
@@ -49,7 +47,7 @@
 
       /* CAMADAS VISUAIS */
 
-      /* 1. A TORRE (Fundo Fixo) */
+      /* 1. A TORRE (Fundo Fixo) - Prioridade PNG */
       .layer-structure {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -57,7 +55,7 @@
         background-position: center bottom;
         background-size: cover;
         background-repeat: no-repeat;
-        image-rendering: pixelated; 
+        image-rendering: pixelated;
         z-index: 0;
       }
 
@@ -77,10 +75,10 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: space-between; 
+        justify-content: space-between;
         padding: 2vh 2vw;
         pointer-events: none;
-        background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5) 100%);
+        background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.4) 100%);
       }
 
       .interactive { pointer-events: auto; }
@@ -88,13 +86,14 @@
       /* =========================================
          UI COMPONENTS (Refined Industrial)
          ========================================= */
-      
-      /* PLACA (Signboard) */
+
+      /* PLACA (Signboard) - Laranja Avermelhado com "Repintura" Azul */
       .sign-container {
         margin-top: 15px;
         animation: floatSign 5s ease-in-out infinite;
         position: relative;
       }
+      /* Cordas */
       .sign-container::before, .sign-container::after {
         content: ""; position: absolute; top: -100vh; width: 4px; height: 100vh;
         background: #222; border-left: 2px solid #000; z-index: -1;
@@ -103,26 +102,34 @@
       .sign-container::after { right: 15px; transform: rotate(-1deg); }
 
       .sign-board {
-        background: linear-gradient(160deg, #d64531 0%, #d64531 70%, #4a6b8a 85%, #2f4050 100%);
-        border: 4px solid #1a1c2c;      
+        /* Gradiente vibrante Laranja/Vermelho com desgaste */
+        background: linear-gradient(160deg,
+          #e65c40 0%,
+          #bf3626 60%,
+          #3a4a5e 85%, /* Mancha de metal azulado */
+          #242e38 100%
+        );
+        border: 4px solid #1a1c2c;
         padding: 12px 24px;
         box-shadow: var(--ui-shadow);
         text-align: center;
         position: relative;
+        border-radius: 2px;
       }
-      
+
+      /* Parafusos nos cantos */
       .sign-board::before, .sign-board::after {
-        content: "+"; position: absolute; top: 2px; color: #111; font-size: 10px;
+        content: "+"; position: absolute; top: 4px; color: #111; font-size: 10px;
       }
-      .sign-board::before { left: 5px; } .sign-board::after { right: 5px; }
+      .sign-board::before { left: 6px; } .sign-board::after { right: 6px; }
 
       .sign-title {
-        font-size: 0.95rem; color: #fff; 
-        text-shadow: 2px 2px 0 #3e1010; 
-        margin: 0; text-transform: uppercase; letter-spacing: 1px;
+        font-size: 1rem; color: #fff;
+        text-shadow: 2px 2px 0 #3e1010;
+        margin: 0; text-transform: uppercase; letter-spacing: 2px;
       }
       .sign-sub {
-        font-size: 0.5rem; color: var(--accent-gold); display: block; margin-top: 6px; letter-spacing: 1px; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px;
+        font-size: 0.55rem; color: var(--accent-gold); display: block; margin-top: 6px; letter-spacing: 1px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;
       }
 
       /* MONITOR (CRT Screen) */
@@ -138,9 +145,9 @@
       }
       .monitor-wrapper::before {
         content:""; position:absolute; top:100%; left:50%; width:90%; height:10px;
-        background: #000; opacity:0.6; filter:blur(8px); transform:translateX(-50%); 
+        background: #000; opacity:0.6; filter:blur(8px); transform:translateX(-50%);
       }
-      
+
       .crt-screen {
         background: var(--monitor-bg);
         border: 2px solid #444;
@@ -149,12 +156,13 @@
         overflow: hidden;
         position: relative;
         color: var(--accent-green);
-        font-size: 0.55rem; 
+        font-size: 0.55rem;
         line-height: 1.5;
         text-shadow: 0 0 2px rgba(68, 214, 92, 0.5);
-        white-space: pre-wrap; 
+        white-space: pre-wrap;
       }
 
+      /* Scanlines */
       .crt-screen::after {
         content: ""; position: absolute; inset: 0;
         background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
@@ -165,9 +173,9 @@
       .deck-grid {
         display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 750px;
       }
-      
+
       .clipboard {
-        background: var(--paper-bg); 
+        background: var(--paper-bg);
         color: #1a1c2c;
         padding: 12px;
         position: relative;
@@ -187,8 +195,9 @@
       }
 
       .clip-content { flex-grow: 1; }
+
       .clip-content ul {
-        list-style: none; padding: 0; margin: 0; font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 0.75rem; 
+        list-style: none; padding: 0; margin: 0; font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 0.75rem;
         line-height: 1.3;
       }
       .clip-content li { margin-bottom: 4px; padding-left: 12px; position: relative; }
@@ -196,7 +205,7 @@
 
       /* RODAPÉ */
       .cargo-crate {
-        background: #4a3c31; 
+        background: #4a3c31;
         border: 3px solid #2e221b;
         padding: 12px;
         width: 100%; max-width: 650px;
@@ -238,7 +247,7 @@
     <div id="game-stage"></div>
 
     <div id="ui-layer">
-      
+
       <header class="sign-container interactive">
         <div class="sign-board">
           <h1 class="sign-title">LOL PERFORMANCE</h1>
@@ -251,6 +260,7 @@
       </main>
 
       <section class="deck-grid">
+
         <article class="clipboard interactive">
           <div class="clip-title">PROJECT GOALS</div>
           <div class="clip-content">
@@ -278,6 +288,7 @@
             </div>
           </div>
         </article>
+
       </section>
 
       <footer class="cargo-crate interactive">
@@ -288,15 +299,17 @@
           ACCESS REPOSITORY
         </a>
       </footer>
+
     </div>
 
     <script>
       (function() {
+
         // ============================================
         // CONFIGURAÇÃO DO PIXI.JS (Simulação)
         // ============================================
         const app = new PIXI.Application({
-          backgroundAlpha: 0, 
+          backgroundAlpha: 0,
           resizeTo: window,
           antialias: false,
           resolution: window.devicePixelRatio || 1,
@@ -306,216 +319,246 @@
         const world = new PIXI.Container();
         app.stage.addChild(world);
 
-        // CORES
+        // Cores Vibrantes (Inspiradas nas Refs)
         const C = {
-          ROBOT_BASE_LIGHT: 0xb0c4de, 
-          ROBOT_BASE_DARK: 0x6a81a0,
-          ROBOT_ORANGE: 0xd67831,
-          ROBOT_BLUE_TECH: 0x4a90e2,
-          ROBOT_SCREEN_CYAN: 0x00f3ff,
-          ROBOT_SCREEN_RED: 0xff4555,
-          METAL_LIGHT: 0xdddddd,
-          METAL_DARK: 0x333333,
+          PURPLE: 0x6a4c93,
+          PURPLE_DARK: 0x402a5e,
+          ORANGE: 0xe07a5f,
+          ORANGE_DARK: 0xb04e35,
+          CYAN: 0x4ecdc4,
+          TEAL: 0x2b5c59,
+          YELLOW: 0xf7b731,
+          METAL: 0x95afc0,
+          METAL_DARK: 0x535c68,
+          BLACK: 0x1e272e,
           WHITE: 0xffffff,
-          BLACK: 0x000000
+          GREEN_PLANT: 0x6a9955,
+          GREEN_PLANT_DARK: 0x4a6e3c
         };
 
         // ============================================
-        // 1. SPRITE FACTORY (64x64 Creative Robots)
+        // 1. SPRITE FACTORY (Robôs Complexos & Únicos)
+        //    + Partes Móveis
         // ============================================
-        function createPixelBotTexture(type) {
+        // Desenhando em um Canvas 64x64 virtual, mas com shapes detalhados
+        function createRobotSprite(type, scale = 1) {
+          const container = new PIXI.Container();
           const g = new PIXI.Graphics();
-          const p = 2; // Scale factor (2px per drawing unit -> 32x32 grid = 64x64 texture)
+          container.addChild(g);
+          container.scale.set(scale);
 
-          const rect = (x, y, w, h, color, alpha=1) => {
-            g.beginFill(color, alpha);
-            g.drawRect(x*p, y*p, w*p, h*p);
-            g.endFill();
+          // Helper de Retângulo com Borda e Iluminação
+          const box = (gObj, x, y, w, h, fill, border = C.BLACK) => {
+            gObj.beginFill(border);
+            gObj.drawRect(x, y, w, h);
+            gObj.beginFill(fill);
+            gObj.drawRect(x + 2, y + 2, w - 4, h - 4);
+
+            // Iluminação sutil no topo
+            gObj.beginFill(C.WHITE, 0.2);
+            gObj.drawRect(x + 2, y + 2, w - 4, 2);
+            gObj.endFill();
           };
 
-          if (type === 'drone') {
-            // DRONE (Floating, round-ish, single eye)
-            // Body
-            rect(10, 10, 12, 10, C.ROBOT_BASE_DARK);
-            rect(11, 11, 10, 8, C.ROBOT_BASE_LIGHT);
+          if (type === 'tank') {
+            // ROBÔ "TANK" (Roxo, Pesado, Braço Garra) - Ref 1
+            // Partes fixas no 'g'
+            box(g, 10, 40, 12, 16, C.METAL_DARK); // Perna E
+            box(g, 38, 40, 12, 16, C.METAL_DARK); // Perna D
+            box(g, 8, 52, 16, 6, C.METAL); // Pé E
+            box(g, 36, 52, 16, 6, C.METAL); // Pé D
+            box(g, 12, 18, 36, 24, C.PURPLE); // Tronco
+            box(g, 20, 24, 20, 12, C.PURPLE_DARK); // Detalhe Peito
+            g.beginFill(C.CYAN);
+            g.drawCircle(30, 30, 3); // Núcleo de energia
+            g.beginFill(C.BLACK);
+            g.drawRect(22, 12, 16, 6); // Visor do Capacete
+
+            // Olho Vermelho (parte do visor)
+            const eye = new PIXI.Graphics();
+            eye.beginFill(0xff3333);
+            eye.drawRect(0, 0, 8, 4);
+            eye.x = 26; eye.y = 13;
+            g.addChild(eye); // Adicionar ao graphics principal
+
+            // Cabeça (separada para balançar)
+            const head = new PIXI.Graphics();
+            box(head, 0, 0, 24, 14, C.PURPLE);
+            head.x = 18; head.y = 8;
+            container.addChild(head);
+            this.head = head; // Referência para animação
+
+            // Braço Esquerdo (Garra Gigante) - Animado
+            const armL = new PIXI.Container();
+            box(armL.graphics, 0, 0, 12, 20, C.PURPLE_DARK);
+            box(armL.graphics, 0, 16, 12, 12, C.METAL); // Garra base
+            armL.graphics.beginFill(C.CYAN);
+            armL.graphics.drawRect(4, 20, 4, 4); // Luz da garra
+            armL.x = 0; armL.y = 20;
+            container.addChild(armL);
+            this.armL = armL;
+
+            // Braço Direito (fixo por enquanto)
+            box(g, 48, 20, 10, 24, C.PURPLE_DARK);
+
+          } else if (type === 'brain') {
+            // ROBÔ "CÉREBRO" (Laranja, Vidro, Tripé) - Ref 2
+
+            // Pernas (Tripé Fino)
+            g.lineStyle(4, C.METAL_DARK);
+            g.moveTo(20, 40); g.lineTo(15, 55);
+            g.moveTo(40, 40); g.lineTo(45, 55);
+            g.moveTo(30, 40); g.lineTo(30, 50);
+            g.lineStyle(0);
             
-            // Propellers (Top)
-            rect(6, 8, 20, 2, C.METAL_DARK);
-            rect(4, 6, 4, 2, C.METAL_LIGHT); // Left prop
-            rect(24, 6, 4, 2, C.METAL_LIGHT); // Right prop
+            // Corpo (Esférico/Ovoide)
+            g.beginFill(C.BLACK); g.drawCircle(30, 30, 16);
+            g.beginFill(C.ORANGE); g.drawCircle(30, 30, 14);
 
-            // Eye
-            rect(14, 13, 4, 4, C.ROBOT_SCREEN_CYAN);
-            rect(15, 14, 1, 1, C.WHITE);
+            // Cúpula de Vidro (parte da cabeça)
+            const dome = new PIXI.Graphics();
+            dome.beginFill(C.CYAN, 0.4);
+            dome.drawEllipse(0, 0, 10, 8);
+            dome.x = 30; dome.y = 14;
+            // Cérebro Rosa (brilhante)
+            const brainGlow = new PIXI.Graphics();
+            brainGlow.beginFill(0xff88aa);
+            brainGlow.drawEllipse(0, 0, 6, 4);
+            brainGlow.x = 0; brainGlow.y = 2; // Dentro da cúpula
+            dome.addChild(brainGlow);
+            g.addChild(dome);
+            this.brainGlow = brainGlow; // Para animar brilho
 
-            // Arms/Tools hanging
-            rect(12, 20, 2, 4, C.METAL_DARK);
-            rect(18, 20, 2, 4, C.METAL_DARK);
+            // Olho Grande (Ciclope)
+            g.beginFill(C.WHITE);
+            g.drawCircle(30, 30, 6);
+            g.beginFill(C.BLACK);
+            g.drawCircle(30, 30, 2);
 
-          } else if (type === 'worker') {
-            // WORKER (Orange, boxy, tracks)
-            // Tracks
-            rect(8, 24, 16, 6, C.METAL_DARK);
-            rect(10, 25, 12, 4, C.METAL_LIGHT);
-            // Body
-            rect(8, 12, 16, 12, C.ROBOT_ORANGE);
-            // Shadow/Detail
-            rect(8, 22, 16, 2, C.BLACK, 0.3);
+            // Antena (animada)
+            const antenna = new PIXI.Graphics();
+            antenna.beginFill(C.METAL);
+            antenna.drawRect(0, 0, 2, 10);
+            antenna.beginFill(C.RED);
+            antenna.drawCircle(1, 0, 2);
+            antenna.x = 40; antenna.y = 10;
+            antenna.pivot.y = 10; // Ponto de rotação na base
+            container.addChild(antenna);
+            this.antenna = antenna;
 
-            // Screen/Face
-            rect(10, 14, 12, 5, C.BLACK);
-            rect(12, 15, 8, 2, C.ROBOT_SCREEN_RED);
+          } else if (type === 'monitor') {
+            // ROBÔ "MONITOR" (Cabeça TV, Esteira) - Ref 3
 
-            // Arm (Holding something)
-            rect(22, 16, 6, 2, C.METAL_LIGHT); // Arm extension
-            rect(26, 14, 2, 6, C.METAL_DARK);  // Tool tip
+            // Esteira (Rodas)
+            box(g, 15, 45, 30, 10, C.METAL_DARK);
+            g.beginFill(C.BLACK);
+            g.drawCircle(20, 50, 3);
+            g.drawCircle(30, 50, 3);
+            g.drawCircle(40, 50, 3);
 
-          } else if (type === 'tech') {
-            // TECH (Blue, tall, bipedal)
-            // Legs
-            rect(12, 22, 2, 8, C.METAL_DARK);
-            rect(18, 22, 2, 8, C.METAL_DARK);
-            rect(11, 30, 4, 2, C.METAL_LIGHT); // Feet
-            rect(17, 30, 4, 2, C.METAL_LIGHT);
+            // Pescoço
+            box(g, 26, 35, 8, 10, C.METAL);
 
-            // Body
-            rect(10, 10, 12, 12, C.ROBOT_BLUE_TECH);
-            // Detail
-            rect(10, 16, 12, 2, C.ROBOT_BASE_DARK);
+            // Cabeça (Monitor CRT) - Parte animada
+            const monitorHead = new PIXI.Container();
+            box(monitorHead.graphics, 0, 0, 30, 20, C.METAL_LIGHT);
+            box(monitorHead.graphics, 3, 3, 24, 14, C.BLACK); // Tela
+            
+            // Rosto Digital (animação na tela)
+            const face = new PIXI.Graphics();
+            face.beginFill(C.CYAN);
+            face.drawRect(0, 0, 4, 4); // Olho E
+            face.drawRect(12, 0, 4, 4); // Olho D
+            face.drawRect(4, 6, 8, 2); // Boca
+            face.x = 22; face.y = 22;
+            monitorHead.addChild(face);
+            this.monitorFace = face;
 
-            // Head
-            rect(12, 6, 8, 4, C.ROBOT_BASE_LIGHT);
-            rect(13, 7, 6, 2, C.ROBOT_SCREEN_CYAN);
+            monitorHead.x = 15; monitorHead.y = 15;
+            container.addChild(monitorHead);
+            this.monitorHead = monitorHead; // Para animar rotação/inclinação
 
-            // Antenna
-            rect(18, 2, 1, 4, C.METAL_DARK);
+            // Braços Finos
+            const armL = new PIXI.Graphics();
+            armL.lineStyle(3, C.METAL_DARK);
+            armL.moveTo(0, 0); armL.lineTo(-10, -5);
+            armL.x = 15; armL.y = 40;
+            container.addChild(armL);
+            this.armL = armL;
+
+            const armR = new PIXI.Graphics();
+            armR.lineStyle(3, C.METAL_DARK);
+            armR.moveTo(0, 0); armR.lineTo(10, -5);
+            armR.x = 45; armR.y = 40;
+            container.addChild(armR);
+            this.armR = armR;
+
+          } else if (type === 'janitor') {
+            // JANITOR BOT (Vassoura) - Novo Robô
+
+            // Corpo Pequeno
+            box(g, 10, 10, 20, 16, C.METAL);
+            // Olho Simples
+            g.beginFill(C.BLACK); g.drawRect(15, 14, 10, 4);
+            g.beginFill(C.YELLOW); g.drawRect(17, 15, 6, 2);
+
+            // Pernas (rodas ou pequenas esteiras)
+            box(g, 12, 26, 8, 4, C.METAL_DARK);
+            box(g, 20, 26, 8, 4, C.METAL_DARK);
+
+            // Vassoura (animada)
+            const broom = new PIXI.Container();
+            // Cabo
+            broom.graphics.lineStyle(2, C.METAL);
+            broom.graphics.moveTo(0, 0); broom.graphics.lineTo(0, 15);
+            // Cerdas
+            broom.graphics.beginFill(0x8B4513);
+            broom.graphics.drawRect(-4, 15, 8, 5);
+            broom.x = 25; broom.y = 15;
+            broom.pivot.x = 0; broom.pivot.y = 0; // Ponto de rotação
+            container.addChild(broom);
+            this.broom = broom;
+
+          } else if (type === 'drone') {
+            // DRONE (Conector de Fio) - Novo Robô
+            
+            // Corpo Esférico
+            g.beginFill(C.METAL_DARK); g.drawCircle(20, 20, 10);
+            g.beginFill(C.METAL); g.drawCircle(20, 20, 8);
+            // Hélice
+            g.beginFill(C.BLACK); g.drawEllipse(20, 10, 15, 2); // Eixo
+            g.beginFill(C.METAL); g.drawRect(10, 9, 20, 2); // Lâmina
+            // Olho
+            g.beginFill(C.CYAN); g.drawCircle(20, 20, 3);
+
+            // Garra de Fio (animada)
+            const claw = new PIXI.Graphics();
+            claw.beginFill(C.METAL);
+            claw.drawRect(0, 0, 2, 8);
+            claw.x = 20; claw.y = 28;
+            claw.pivot.x = 1; claw.pivot.y = 0;
+            container.addChild(claw);
+            this.claw = claw;
+
           }
-          
-          return app.renderer.generateTexture(g);
+          return container;
         }
 
-        const texDrone = createPixelBotTexture('drone');
-        const texWorker = createPixelBotTexture('worker');
-        const texTech = createPixelBotTexture('tech');
-
         // ============================================
-        // 2. ENTIDADES
+        // 2. ENTIDADES (Comportamento & Animação)
         // ============================================
-        class Robot {
-          constructor(texture, x, y, scale=1) {
+        class GenericRobot {
+          constructor(type, x, y, scale=1) {
             this.container = new PIXI.Container();
             this.container.x = x;
             this.container.y = y;
 
-            // Shadow
+            // Sombra (sempre abaixo do sprite)
             const shadow = new PIXI.Graphics();
             shadow.beginFill(0x000000, 0.4);
-            shadow.drawEllipse(32*scale, 64*scale, 12*scale, 4*scale);
+            shadow.drawEllipse(30 * scale, 60 * scale, 20 * scale, 6 * scale);
             shadow.endFill();
             this.container.addChild(shadow);
 
-            this.sprite = new PIXI.Sprite(texture);
-            this.sprite.scale.set(scale);
-            this.container.addChild(this.sprite);
-            
-            world.addChild(this.container);
-            
-            this.homeX = x;
-            this.homeY = y;
-            this.walkTimer = Math.random() * 100;
-            
-            // Particle system for Worker
-            this.sparks = [];
-          }
-
-          update(delta) {
-            this.walkTimer += delta;
-            // Bobbing
-            this.sprite.y = Math.sin(this.walkTimer / 20) * 2;
-          }
-
-          walkTo(targetX) {
-             const dx = targetX - this.container.x;
-             if(Math.abs(dx) > 1) {
-               const dir = Math.sign(dx);
-               this.container.x += dir * 0.5;
-               
-               // Flip logic (pivot center adjustment)
-               if(dir < 0) {
-                 this.sprite.scale.x = -Math.abs(this.sprite.scale.x);
-                 this.sprite.x = 64 * Math.abs(this.sprite.scale.y); // Adjust x pos when flipped
-               } else {
-                 this.sprite.scale.x = Math.abs(this.sprite.scale.x);
-                 this.sprite.x = 0;
-               }
-             }
-          }
-
-          emitSpark() {
-             const s = new PIXI.Graphics();
-             s.beginFill(0xFFFF00);
-             s.drawRect(0,0,2,2);
-             s.endFill();
-             s.x = this.container.x + 40;
-             s.y = this.container.y + 20;
-             world.addChild(s);
-             gsap.to(s, {x: s.x + (Math.random()-0.5)*20, y: s.y + 20, alpha: 0, duration: 0.5, onComplete: ()=>s.destroy()});
-          }
-        }
-
-        // ============================================
-        // 3. POSICIONAMENTO
-        // ============================================
-        const W = window.innerWidth;
-        const H = window.innerHeight;
-
-        // Drone (Top Left - Hovering)
-        const bot1 = new Robot(texDrone, W * 0.15, H * 0.15, 2);
-        
-        // Worker (Middle Right - Fixing Wall)
-        const bot2 = new Robot(texWorker, W * 0.85, H * 0.50, 2);
-
-        // Tech (Bottom Left - Walking)
-        const bot3 = new Robot(texTech, W * 0.10, H * 0.75, 2);
-
-        // ============================================
-        // 4. LOOP
-        // ============================================
-        app.ticker.add((delta) => {
-          
-          // Bot 1: Hover
-          bot1.update(delta);
-          bot1.container.y = (H * 0.15) + Math.sin(Date.now()/1000)*10;
-
-          // Bot 2: Fixing (Sparks)
-          bot2.update(delta);
-          if(Math.random() < 0.05) bot2.emitSpark();
-
-          // Bot 3: Patrol
-          bot3.update(delta);
-          const target = W * 0.10 + Math.cos(Date.now()/3000) * 100;
-          bot3.walkTo(target);
-
-        });
-
-      })();
-
-      // --- UI TYPEWRITER ---
-      (function() {
-        const text = `> SYSTEM READY.\n> LOADING: Master's Dissertation\n> SUBJECT: LoL Performance AI (Applied Computing)\n\nANALYSIS: Matches analyzed via Machine Learning to model player/team performance over time.`;
-        const el = document.getElementById('console-output');
-        let i = 0;
-        function type() {
-          if(i < text.length) {
-            const c = text.charAt(i);
-            el.innerHTML += c === '\n' ? '<br>' : c;
-            i++; setTimeout(type, 30);
-          } else {
-            el.innerHTML += '<span class="cursor"></span>';
-          }
-        }
-        setTimeout(type, 800);
-      })();
-    </script>
-  </body>
-</html>
+            this.sprite = createRobotSprite(type, scale);
+            this.sprite.pivot.set(30, 58); //
