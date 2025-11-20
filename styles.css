@@ -1,5 +1,4 @@
 :root {
-  --bg-color: #050816;
   --accent: #4af7ff;
   --accent2: #ffb347;
   --screen-border: #22d3ee;
@@ -23,15 +22,29 @@ body {
   overflow-x: hidden;
 }
 
-/* Canvas de fundo */
-#pixel-bg {
+/* ====== CENA BASE (arte estática) ====== */
+
+.scene {
+  position: relative;
+  min-height: 100vh;
+}
+
+.scene__base {
   position: fixed;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: -2;
+  background-image: url("assets/lab-base.png"); /* <-- AJUSTE AQUI */
+  background-size: cover;
+  background-position: center;
   image-rendering: pixelated;
+  z-index: -3;
+}
+
+/* Efeitos animados por cima da arte */
+.scene__fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
 }
 
 /* vinheta pra focar no centro */
@@ -40,19 +53,120 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  box-shadow: inset 0 0 160px rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 0 170px rgba(0, 0, 0, 0.85);
   z-index: -1;
 }
 
-/* HUD de painéis (como as telas da referência) */
+/* ====== GLOWS DE TELAS ====== */
+
+.screen-glow {
+  position: absolute;
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.7);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.85);
+  border-radius: 4px;
+  animation: screenPulse 2.6s ease-in-out infinite;
+}
+
+/* posições aproximadas (em porcentagem da tela) para casar com a arte */
+.screen-glow--center {
+  left: 50%;
+  top: 54%;
+  width: 26vw;
+  height: 12vh;
+  transform: translate(-50%, -50%);
+}
+
+.screen-glow--upper-left {
+  left: 38%;
+  top: 39%;
+  width: 14vw;
+  height: 8vh;
+  transform: translate(-50%, -50%);
+}
+
+.screen-glow--upper-right {
+  left: 63%;
+  top: 37%;
+  width: 15vw;
+  height: 8vh;
+  transform: translate(-50%, -50%);
+}
+
+.screen-glow--bottom-left {
+  left: 41%;
+  top: 68%;
+  width: 15vw;
+  height: 7vh;
+  transform: translate(-50%, -50%);
+}
+
+.screen-glow--bottom-right {
+  left: 61%;
+  top: 71%;
+  width: 14vw;
+  height: 7vh;
+  transform: translate(-50%, -50%);
+}
+
+/* faísca do robô soldando (andar alto à direita) */
+.spark {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fbbf24;
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.95);
+  animation: sparkFlicker 0.5s infinite alternate;
+}
+
+.spark--welder {
+  left: 66%;
+  top: 33%;
+}
+
+/* animações */
+@keyframes screenPulse {
+  0% {
+    opacity: 0.55;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 24px rgba(34, 211, 238, 1);
+  }
+  100% {
+    opacity: 0.55;
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+  }
+}
+
+@keyframes sparkFlicker {
+  0% {
+    transform: scale(0.7) translateY(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1) translateY(-3px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.6) translateY(1px);
+    opacity: 0.5;
+  }
+}
+
+/* ====== HUD DE TEXTO (painéis flutuando) ====== */
+
 .hud {
   position: relative;
   max-width: 980px;
-  margin: 7vh auto 6vh;
+  margin: 6vh auto 6vh;
   padding: 0 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  z-index: 0;
 }
 
 /* Painel base */
@@ -68,7 +182,6 @@ body::before {
   backdrop-filter: blur(2px);
 }
 
-/* efeito de “borda dupla” em pixel */
 .screen::before {
   content: "";
   position: absolute;
@@ -78,19 +191,19 @@ body::before {
   pointer-events: none;
 }
 
-/* variações de tamanho */
+/* variações */
+
+.screen-title {
+  width: min(620px, 100%);
+  margin-inline: auto;
+  margin-bottom: 0.3rem;
+}
+
 .screen-wide {
   width: min(840px, 100%);
   margin-inline: auto;
 }
 
-.screen-title {
-  width: min(620px, 100%);
-  margin-inline: auto;
-  margin-bottom: 0.4rem;
-}
-
-/* grid de duas colunas (como dois monitores lado a lado) */
 .screen-grid {
   width: min(900px, 100%);
   margin-inline: auto;
@@ -99,7 +212,6 @@ body::before {
   gap: 1rem;
 }
 
-/* conteúdo interno das colunas */
 .screen-column {
   position: relative;
 }
@@ -176,7 +288,8 @@ body::before {
   font-size: 0.78rem;
 }
 
-/* Painel de rodapé (legal + tags + botão) */
+/* Painel de rodapé */
+
 .screen-footer {
   display: grid;
   grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.5fr);
@@ -216,7 +329,7 @@ body::before {
   background: rgba(0, 0, 0, 0.7);
 }
 
-/* botão estilo arcade */
+/* botão arcade */
 .btn {
   display: inline-block;
   font-family: "Press Start 2P", system-ui;
@@ -240,7 +353,8 @@ body::before {
   filter: brightness(1.08);
 }
 
-/* Responsivo */
+/* ====== Responsivo ====== */
+
 @media (max-width: 900px) {
   .hud {
     margin-top: 5vh;
@@ -253,6 +367,10 @@ body::before {
 
   .screen-footer {
     grid-template-columns: 1fr;
+  }
+
+  .screen-glow--center {
+    width: 45vw;
   }
 }
 
