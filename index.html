@@ -2,28 +2,35 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>LoL Performance AI Research</title>
+    <title>LoL Performance AI - Research Lab</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Fonte Pixelada Oficial -->
+    <!-- LIBRARIES -->
+    <!-- PixiJS para renderização gráfica avançada (Estilo Game Engine) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <!-- GSAP para animações de UI e Timeline -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rajdhani:wght@600;700&display=swap"
       rel="stylesheet"
     />
 
     <style>
       /* =========================================
-         VARIÁVEIS E RESET
+         ESTILO "INDUSTRIAL RETRÔ"
          ========================================= */
       :root {
-        --bg-color: #0d1218;
-        --panel-bg: #14181e;
-        --text-color: #dcdacb;
+        --bg-dark: #05070a;
+        --panel-bg: #16181d;
+        --text-main: #dcdacb;
         --accent-green: #44d65c;
-        --accent-orange: #ffcd75;
+        --accent-gold: #ffcd75;
         --accent-red: #e53b44;
+        --ui-shadow: 0 8px 0 rgba(0,0,0,0.5);
       }
 
       * { box-sizing: border-box; }
@@ -31,631 +38,557 @@
       body {
         margin: 0;
         padding: 0;
-        background-color: var(--bg-color);
+        background-color: var(--bg-dark);
         font-family: "Press Start 2P", cursive;
-        color: var(--text-color);
-        overflow: hidden;
+        color: var(--text-main);
+        overflow-x: hidden;
         height: 100vh;
         width: 100vw;
       }
 
-      /* =========================================
-         CAMADAS DA CENA (PARALLAX)
-         ========================================= */
-      .parallax-wrapper {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-      }
-
-      /* Camada 1: O Fundo */
+      /* CAMADAS */
+      
+      /* 1. Fundo (CSS Handle) - Resolve o erro de URL do PixiJS */
       .layer-bg {
-        position: absolute;
-        top: -5%; left: -5%;
-        width: 110%; height: 110%;
-        background-color: #333;
-        /* CAMINHO DA IMAGEM */
-        background-image: url('assets/lab-base.png');
-        background-size: cover;
-        background-position: center bottom;
-        image-rendering: pixelated;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: #111 url('assets/lab-base.png') no-repeat center bottom;
+        background-size: cover; /* Garante cobertura total */
+        image-rendering: pixelated; /* Mantém a nitidez da arte */
+        z-index: 0;
+      }
+
+      /* 2. Jogo (Robôs e Partículas) */
+      #game-stage {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
         z-index: 1;
+        pointer-events: none; /* Deixa clicar através */
       }
 
-      /* Camada 2: Robôs */
-      #robot-canvas {
-        position: absolute;
-        top: -5%; left: -5%;
-        width: 110%; height: 110%; /* Sincronizado com o fundo */
-        pointer-events: none;
-        z-index: 2;
-        image-rendering: pixelated;
-      }
-
-      /* Camada 3: Atmosfera */
-      #fx-canvas {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        pointer-events: none;
-        z-index: 3;
-      }
-
-      /* Camada 4: Vinheta */
-      .vignette {
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(13,18,24,0.9) 100%);
-        pointer-events: none;
-        z-index: 4;
-      }
-
-      /* Camada 5: A Interface */
-      .layer-ui {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
+      /* 3. UI (Interface) */
+      #ui-layer {
+        position: relative;
         z-index: 10;
-        overflow-y: auto;
-        display: flex;
-        justify-content: center;
-        padding-top: 5vh;
-      }
-
-      /* =========================================
-         ESTRUTURA DA UI (GRID)
-         ========================================= */
-      .content-grid {
-        display: grid;
-        grid-template-columns: 1fr min(650px, 90%) 1fr; /* Reduzido para ficar compacto */
-        grid-template-rows: auto auto auto 1fr;
-        gap: 15px;
         width: 100%;
-        max-width: 1000px;
-        padding-bottom: 80px;
-      }
-
-      .main-column {
-        grid-column: 2;
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 20px;
+        padding: 40px 20px;
+        pointer-events: none; 
+      }
+
+      .interactive {
+        pointer-events: auto;
       }
 
       /* =========================================
-         COMPONENTES UI (TAMANHOS REDUZIDOS)
+         COMPONENTES UI
          ========================================= */
-
-      /* 1. PLACA */
-      .hanging-sign-container {
+      
+      /* 1. PLACA DO TÍTULO (OUTDOOR) */
+      .sign-container {
         position: relative;
-        display: flex;
-        justify-content: center;
-        margin-top: 10px;
+        margin-bottom: 30px;
+        animation: floatSign 6s ease-in-out infinite;
       }
-
-      .hanging-rope {
+      
+      .rope {
         position: absolute;
-        top: -100px;
-        width: 3px;
-        height: 100px;
-        background: #222;
+        top: -1000px; /* Vai até o teto */
+        width: 4px;
+        height: 1000px;
+        background: #1a1a1a;
+        border-left: 1px solid #333;
         z-index: -1;
       }
-      .rope-left { left: 20%; transform: rotate(3deg); }
-      .rope-right { right: 20%; transform: rotate(-3deg); }
+      .rope.left { left: 20px; transform: rotate(2deg); bottom: 90%; }
+      .rope.right { right: 20px; transform: rotate(-2deg); bottom: 90%; }
 
-      .pixel-sign {
-        background: var(--accent-red);
-        padding: 10px 15px;
-        text-align: center;
-        border: 3px solid #222;
-        box-shadow: 0 8px 15px rgba(0,0,0,0.6);
+      .sign-board {
+        background: #b83b3b;
+        border: 4px solid #3e1010;
+        padding: 15px 30px;
+        box-shadow: var(--ui-shadow);
         transform: rotate(-1deg);
-        animation: swing 5s ease-in-out infinite;
+        text-align: center;
       }
 
-      .title-main {
-        font-size: 0.7rem; /* Título mantido visível, mas equilibrado */
-        line-height: 1.4;
-        text-shadow: 2px 2px 0px #591418;
-        margin: 0;
+      .sign-title {
+        font-size: 1.4rem;
         color: #fff;
+        text-shadow: 3px 3px 0 #591418;
+        margin: 0;
         text-transform: uppercase;
+        line-height: 1.4;
       }
-      .title-sub {
+      .sign-sub {
         display: block;
-        font-size: 0.35rem;
-        color: var(--accent-orange);
-        margin-top: 2px;
+        font-size: 0.6rem;
+        color: var(--accent-gold);
+        margin-top: 5px;
         letter-spacing: 1px;
       }
 
-      /* 2. MONITOR */
-      .monitor-casing {
-        background: #222;
-        padding: 6px;
-        border-radius: 3px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+      /* 2. MONITOR CENTRAL (CRT) */
+      .monitor-wrapper {
+        background: #1a1a1a;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         width: 100%;
+        max-width: 800px;
+        margin-bottom: 30px;
         position: relative;
       }
-      .monitor-casing::before {
+      /* Detalhes físicos do monitor */
+      .monitor-wrapper::before {
+        content: "MODEL: CRT-9000";
+        position: absolute;
+        bottom: 4px; right: 15px;
+        font-size: 0.4rem;
+        color: #555;
+        font-family: sans-serif;
+      }
+
+      .crt-screen {
+        background: #08090b;
+        border: 2px solid #333;
+        height: 250px;
+        padding: 25px;
+        overflow: hidden;
+        position: relative;
+        color: var(--accent-green);
+        font-size: 0.75rem; /* Fonte ajustada */
+        line-height: 1.8;
+        text-shadow: 0 0 4px rgba(68, 214, 92, 0.4);
+      }
+
+      /* Scanlines */
+      .crt-screen::after {
         content: "";
         position: absolute;
-        top: 40%; right: -20px;
-        width: 20px; height: 5px;
-        background: #111;
-        z-index: -1;
-      }
-
-      .monitor-screen {
-        background: #050a0f;
-        border: 2px solid #444;
-        padding: 15px;
-        color: var(--accent-green);
-        font-size: 0.55rem; /* TEXTO REDUZIDO */
-        line-height: 1.6;
-        min-height: 160px;
-        position: relative;
-        overflow: hidden;
-        text-shadow: 0 0 2px rgba(68, 214, 92, 0.4);
-      }
-
-      .monitor-screen::after {
-        content: " ";
-        position: absolute;
         inset: 0;
-        background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.15) 50%);
-        background-size: 100% 4px;
+        background: repeating-linear-gradient(
+          0deg,
+          rgba(0,0,0,0.15),
+          rgba(0,0,0,0.15) 1px,
+          transparent 1px,
+          transparent 3px
+        );
         pointer-events: none;
       }
 
-      /* 3. PRANCHETAS */
-      .data-deck {
-        display: flex;
-        gap: 10px;
+      /* 3. PRANCHETAS (LATERAIS) */
+      .deck-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
         width: 100%;
-        justify-content: center;
-        flex-wrap: wrap;
+        max-width: 800px;
+        margin-bottom: 30px;
       }
 
-      .data-panel {
-        flex: 1;
-        min-width: 200px;
-        background: #dcdacb;
+      .clipboard {
+        background: #e6e2d3; /* Papel/Metal Claro */
         color: #222;
-        padding: 10px;
-        border: 3px solid #222;
-        box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+        padding: 15px;
         position: relative;
+        box-shadow: 5px 5px 0 rgba(0,0,0,0.4);
+        border: 1px solid #999;
       }
-
-      .data-panel::after {
+      
+      /* Grampo da prancheta */
+      .clipboard::before {
         content: "";
         position: absolute;
-        top: 5px; left: 50%; transform: translateX(-50%);
-        width: 6px; height: 6px;
-        background: #555;
-        border-radius: 50%;
-        box-shadow: 0 1px 0 #fff;
+        top: -8px; left: 50%; transform: translateX(-50%);
+        width: 60px; height: 16px;
+        background: #444;
+        border: 2px solid #111;
+        border-radius: 2px;
       }
 
-      .panel-header {
+      .clip-title {
         background: #222;
         color: #fff;
+        padding: 5px;
         text-align: center;
-        padding: 3px;
-        margin: -3px -3px 8px -3px;
-        font-size: 0.45rem;
+        font-size: 0.6rem;
+        margin-bottom: 15px;
         text-transform: uppercase;
       }
 
-      .check-list {
+      .clip-content ul {
         list-style: none;
         padding: 0; margin: 0;
-        font-size: 0.45rem; /* TEXTO REDUZIDO */
-        line-height: 1.5;
+        font-family: "Rajdhani", sans-serif; /* Fonte de leitura melhor */
+        font-weight: 700;
+        font-size: 1rem;
+        line-height: 1.4;
       }
-      .check-list li { margin-bottom: 5px; padding-left: 10px; position: relative; }
-      .check-list li::before { content: ">"; position: absolute; left: 0; font-weight: bold; }
+      .clip-content li {
+        margin-bottom: 6px;
+        padding-left: 15px;
+        position: relative;
+      }
+      .clip-content li::before {
+        content: "■";
+        color: var(--accent-red);
+        font-size: 0.6rem;
+        position: absolute;
+        left: 0; top: 2px;
+      }
 
-      /* 4. RODAPÉ */
-      .crate-footer {
-        width: 95%;
-        background: #5c4033;
-        border: 3px solid #3e2b22;
-        padding: 10px;
+      /* 4. CAIXA (RODAPÉ) - AJUSTADO */
+      .cargo-crate {
+        background: #4a3b32;
+        border: 4px solid #2b1e16;
+        padding: 20px;
+        width: 100%;
+        max-width: 700px;
         text-align: center;
         position: relative;
-        margin-top: 5px;
-        box-shadow: 0 -3px 10px rgba(0,0,0,0.3);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
       }
-      .crate-footer::before {
+      
+      /* Faixa de Perigo */
+      .cargo-crate::after {
         content: "";
         position: absolute;
-        top: 0; left: 0; right: 0; height: 3px;
-        background: repeating-linear-gradient(45deg, #e53b44, #e53b44 6px, #222 6px, #222 12px);
+        bottom: 0; left: 0; width: 100%; height: 8px;
+        background: repeating-linear-gradient(
+          -45deg,
+          #ffcd75,
+          #ffcd75 10px,
+          #111 10px,
+          #111 20px
+        );
       }
 
       .legal-text {
-        font-size: 0.35rem; /* TEXTO LEGAL REDUZIDO */
-        color: #e0cda8;
-        margin-bottom: 8px;
-        line-height: 1.3;
-        opacity: 0.8;
+        /* AUMENTADO conforme pedido */
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem; 
+        color: #dacbb6;
+        margin-bottom: 15px;
+        line-height: 1.4;
       }
 
-      .btn-repo {
+      .btn-pixel {
         display: inline-block;
-        background: var(--accent-orange);
+        background: var(--accent-gold);
         color: #000;
         text-decoration: none;
-        padding: 6px 12px;
-        border: 2px solid #000;
-        box-shadow: 2px 2px 0 #000;
-        font-size: 0.45rem;
+        padding: 12px 24px;
+        border: 3px solid #000;
+        box-shadow: 4px 4px 0 #000;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        font-weight: bold;
         transition: transform 0.1s;
       }
-      .btn-repo:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0 #000; }
-
-      /* ANIMAÇÕES */
-      @keyframes swing {
-        0%, 100% { transform: rotate(-1deg); }
-        50% { transform: rotate(1deg); }
+      .btn-pixel:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 #000;
       }
-      @keyframes blink { 50% { opacity: 0; } }
+
+      /* Cursor Piscante */
       .cursor {
-        display: inline-block; width: 5px; height: 8px; background: var(--accent-green);
+        display: inline-block;
+        width: 8px; height: 14px;
+        background: var(--accent-green);
         animation: blink 1s infinite;
+        vertical-align: middle;
       }
 
+      @keyframes blink { 50% { opacity: 0; } }
+      @keyframes floatSign {
+        0%, 100% { transform: rotate(-1deg) translateY(0); }
+        50% { transform: rotate(1deg) translateY(5px); }
+      }
+
+      /* RESPONSIVIDADE */
       @media (max-width: 768px) {
-        .content-grid { grid-template-columns: 1fr; padding: 10px; }
-        .main-column { grid-column: 1; width: 100%; }
-        .rope-left, .rope-right { display: none; }
+        .deck-grid { grid-template-columns: 1fr; }
+        .rope { display: none; }
+        .monitor-wrapper { width: 95%; }
+        .cargo-crate { width: 95%; }
       }
     </style>
   </head>
   <body>
 
-    <div class="parallax-wrapper" id="scene">
+    <!-- CAMADA 1: FUNDO (CSS) -->
+    <div class="layer-bg"></div>
+
+    <!-- CAMADA 2: JOGO (PIXIJS - Transparente) -->
+    <div id="game-stage"></div>
+
+    <!-- CAMADA 3: UI (HTML/CSS) -->
+    <div id="ui-layer">
       
-      <!-- CAMADA 1: O CENÁRIO (Fundo) -->
-      <div class="layer-bg"></div>
-
-      <!-- CAMADA 2: ROBÔS (Canvas de IA) -->
-      <canvas id="robot-canvas"></canvas>
-
-      <!-- CAMADA 3: ATMOSFERA (Nuvens/Fumaça) -->
-      <canvas id="fx-canvas"></canvas>
-
-      <!-- CAMADA 4: VINHETA (Luz e Sombra) -->
-      <div class="vignette"></div>
-
-      <!-- CAMADA 5: A INTERFACE (UI Diegética) -->
-      <div class="layer-ui">
-        
-        <div class="content-grid">
-          <div class="main-column">
-            
-            <!-- HEADER: PLACA PENDURADA -->
-            <div class="hanging-sign-container">
-              <div class="hanging-rope rope-left"></div>
-              <div class="hanging-rope rope-right"></div>
-              <div class="pixel-sign">
-                <h1 class="title-main">LOL PERFORMANCE</h1>
-                <span class="title-sub">AI MASTER'S DISSERTATION</span>
-              </div>
-            </div>
-
-            <!-- MAIN: MONITOR INDUSTRIAL -->
-            <div class="monitor-casing">
-              <div class="monitor-screen" id="console">
-                <!-- JS Digita aqui -->
-              </div>
-            </div>
-
-            <!-- INFO: PRANCHETAS (LADO A LADO) -->
-            <div class="data-deck">
-              
-              <!-- ESQUERDA -->
-              <div class="data-panel">
-                <div class="panel-header">PROJECT GOALS</div>
-                <ul class="check-list">
-                  <li>Collect historical ranked match data.</li>
-                  <li>Build structured datasets (gold, XP).</li>
-                  <li>Train predictive models (Win Probability).</li>
-                  <li>Produce aggregated statistics.</li>
-                </ul>
-              </div>
-
-              <!-- DIREITA -->
-              <div class="data-panel">
-                <div class="panel-header">TECH STACK</div>
-                <ul class="check-list">
-                  <li><strong>PYTHON:</strong> Data/ML/Stats</li>
-                  <li><strong>JUPYTER:</strong> Experiments</li>
-                  <li><strong>RIOT API:</strong> match-v5, summoner-v4</li>
-                  <li><strong>ETHICS:</strong> Aggregated analysis only.</li>
-                </ul>
-              </div>
-
-            </div>
-
-            <!-- FOOTER: CAIXA -->
-            <div class="crate-footer">
-              <p class="legal-text">
-                This project isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
-              </p>
-              <a href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance" target="_blank" class="btn-repo">
-                VIEW REPOSITORY
-              </a>
-            </div>
-
-          </div>
+      <!-- 1. TÍTULO -->
+      <header class="sign-container interactive">
+        <div class="rope left"></div>
+        <div class="rope right"></div>
+        <div class="sign-board">
+          <h1 class="sign-title">LOL PERFORMANCE</h1>
+          <span class="sign-sub">AI MASTER'S DISSERTATION</span>
         </div>
+      </header>
 
-      </div>
+      <!-- 2. MONITOR -->
+      <main class="monitor-wrapper interactive">
+        <div class="crt-screen" id="console-output">
+          <!-- JS type writer -->
+        </div>
+      </main>
+
+      <!-- 3. INFORMAÇÕES -->
+      <section class="deck-grid">
+        
+        <article class="clipboard interactive">
+          <div class="clip-title">PROJECT GOALS</div>
+          <div class="clip-content">
+            <ul>
+              <li>Collect match-v5 data via API.</li>
+              <li>Build structured datasets (Gold/XP).</li>
+              <li>Train Deep Learning models.</li>
+              <li>Predict Win Probability.</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="clipboard interactive" style="background: #d6dfe4;">
+          <div class="clip-title">TECH STACK</div>
+          <div class="clip-content">
+            <ul>
+              <li><strong>CORE:</strong> Python 3.9+</li>
+              <li><strong>ML:</strong> PyTorch & Scikit-Learn</li>
+              <li><strong>DATA:</strong> Pandas / NumPy</li>
+              <li><strong>ENV:</strong> Jupyter Lab</li>
+            </ul>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- 4. RODAPÉ -->
+      <footer class="cargo-crate interactive">
+        <p class="legal-text">
+          This project isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
+        </p>
+        <a href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance" target="_blank" class="btn-pixel">
+          ACCESS REPOSITORY
+        </a>
+      </footer>
+
     </div>
 
     <script>
       /**
-       * PARTE 1: ROBOTS.JS (INTEGRADO)
+       * =================================================
+       * LÓGICA VISUAL (PIXI.JS + GSAP)
+       * Simulação de Robôs "64-bit" e Ambiente Dinâmico
+       * =================================================
        */
-      (function () {
-        const canvas = document.getElementById("robot-canvas");
-        if (!canvas) return;
-
-        const ctx = canvas.getContext("2d");
-        const DPR = window.devicePixelRatio || 1;
-        ctx.imageSmoothingEnabled = false;
-
-        let width, height;
-        let robots = [];
-        let sparks = [];
-
-        // Definição dos Sprites (Matrizes 0/1)
-        const sprites = {
-          idle: [
-            [0,1,1,1,0],
-            [0,1,0,1,0],
-            [1,1,1,1,1],
-            [0,1,1,1,0],
-            [0,1,0,1,0]
-          ],
-          walk1: [
-            [0,1,1,1,0],
-            [0,1,0,1,0],
-            [1,1,1,1,1],
-            [0,1,1,1,0],
-            [1,0,0,0,1]
-          ],
-          walk2: [
-            [0,1,1,1,0],
-            [0,1,0,1,0],
-            [1,1,1,1,1],
-            [0,1,1,1,0],
-            [0,1,0,1,0]
-          ],
-          weld: [
-            [0,0,1,1,0],
-            [0,0,1,1,0],
-            [0,1,1,1,1],
-            [0,1,1,1,1],
-            [0,1,0,1,0]
-          ]
-        };
-
-        class Robot {
-          constructor(yRatio, speed, type) {
-            this.yRatio = yRatio;
-            this.x = Math.random() * width;
-            this.y = height * yRatio;
-            this.speed = (Math.random() * 0.5 + 0.2) * (Math.random() < 0.5 ? 1 : -1);
-            this.color = type === 'worker' ? '#dcdacb' : '#44d65c';
-            this.accent = type === 'worker' ? '#e53b44' : '#222';
-            this.scale = 3;
-            this.frame = 0;
-            this.state = 'walking';
-            this.timer = 0;
-            this.workDuration = 0;
-          }
-
-          update() {
-            if (this.state === 'walking') {
-              this.x += this.speed;
-              this.timer++;
-              if (this.timer % 10 === 0) this.frame = this.frame === 0 ? 1 : 0;
-              if (Math.random() < 0.005) {
-                this.state = 'working';
-                this.workDuration = 60 + Math.random() * 100;
-              }
-              if (this.x > width + 20) this.x = -20;
-              if (this.x < -20) this.x = width + 20;
-            } else if (this.state === 'working') {
-              this.workDuration--;
-              if (this.workDuration % 5 === 0) createSpark(this.x + (this.speed > 0 ? 15 : -5), this.y + 5);
-              if (this.workDuration <= 0) {
-                this.state = 'walking';
-                if (Math.random() < 0.5) this.speed *= -1;
-              }
-            }
-          }
-
-          draw() {
-            let currentSprite;
-            if (this.state === 'working') currentSprite = sprites.weld;
-            else currentSprite = this.frame === 0 ? sprites.walk1 : sprites.walk2;
-
-            ctx.save();
-            ctx.translate(Math.round(this.x), Math.round(this.y));
-            if (this.speed < 0) ctx.scale(-1, 1);
-
-            for (let r = 0; r < 5; r++) {
-              for (let c = 0; c < 5; c++) {
-                if (currentSprite[r][c] === 1) {
-                  if (r === 1 && c === 2) ctx.fillStyle = this.accent;
-                  else ctx.fillStyle = this.color;
-                  ctx.fillRect(c * this.scale, r * this.scale, this.scale, this.scale);
-                }
-              }
-            }
-            ctx.restore();
-          }
-        }
-
-        function createSpark(x, y) {
-          sparks.push({ x, y, vy: -1 - Math.random(), vx: (Math.random() - 0.5) * 2, life: 10 });
-        }
-
-        function resize() {
-          width = window.innerWidth;
-          height = window.innerHeight;
-          canvas.width = width * DPR;
-          canvas.height = height * DPR;
-          canvas.style.width = `${width}px`;
-          canvas.style.height = `${height}px`;
-          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-          initRobots();
-        }
-
-        function initRobots() {
-          robots = [];
-          const floors = [0.28, 0.45, 0.55, 0.72]; 
-          floors.forEach(y => {
-            let count = Math.floor(Math.random() * 2) + 1;
-            for(let k=0; k<count; k++) {
-              robots.push(new Robot(y, 0, Math.random() > 0.5 ? 'worker' : 'drone'));
-            }
-          });
-        }
-
-        function animate() {
-          ctx.clearRect(0, 0, width, height);
-          robots.forEach(r => { r.update(); r.draw(); });
-          for (let i = sparks.length - 1; i >= 0; i--) {
-            let s = sparks[i];
-            s.x += s.vx; s.y += s.vy; s.life--;
-            ctx.fillStyle = `rgba(255, 200, 50, ${s.life / 10})`;
-            ctx.fillRect(s.x, s.y, 2, 2);
-            if (s.life <= 0) sparks.splice(i, 1);
-          }
-          requestAnimationFrame(animate);
-        }
-
-        window.addEventListener("resize", resize);
-        resize();
-        animate();
-      })();
-
-      /**
-       * PARTE 2: PIXEL-BG.JS (NUVENS - INTEGRADO)
-       */
-      (function () {
-        const canvas = document.getElementById("fx-canvas");
-        if (!canvas) return;
-
-        const ctx = canvas.getContext("2d");
-        const DPR = window.devicePixelRatio || 1;
-        ctx.imageSmoothingEnabled = false;
-
-        let width, height;
-        let clouds = [];
-
-        function resize() {
-          width = window.innerWidth;
-          height = window.innerHeight;
-          canvas.width = width * DPR;
-          canvas.height = height * DPR;
-          canvas.style.width = `${width}px`;
-          canvas.style.height = `${height}px`;
-          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-          initClouds();
-        }
-
-        function initClouds() {
-          clouds = [];
-          for (let i = 0; i < 6; i++) {
-            clouds.push({
-              x: Math.random() * width,
-              y: Math.random() * (height * 0.5),
-              speed: 0.1 + Math.random() * 0.3,
-              size: 10 + Math.random() * 20,
-              opacity: 0.05 + Math.random() * 0.05
-            });
-          }
-        }
-
-        function update() {
-          ctx.clearRect(0, 0, width, height);
-          clouds.forEach(c => {
-            c.x += c.speed;
-            if (c.x > width) c.x = -50;
-            ctx.fillStyle = `rgba(255, 255, 255, ${c.opacity})`;
-            let s = c.size;
-            ctx.fillRect(c.x, c.y, s*3, s);
-            ctx.fillRect(c.x + s, c.y - s, s*1.5, s);
-            ctx.fillRect(c.x + s*0.5, c.y + s, s*2, s*0.5);
-          });
-          requestAnimationFrame(update);
-        }
-
-        window.addEventListener("resize", resize);
-        resize();
-        update();
-      })();
-
-      /**
-       * PARTE 3: LÓGICA PRINCIPAL (UI & PARALLAX)
-       */
-      const bgLayer = document.querySelector('.layer-bg');
-      const robotCanvas = document.getElementById('robot-canvas');
       
-      document.addEventListener('mousemove', (e) => {
-        const x = (window.innerWidth - e.pageX * 2) / 120;
-        const y = (window.innerHeight - e.pageY * 2) / 120;
-        
-        bgLayer.style.transform = `translate(${x}px, ${y}px)`;
-        robotCanvas.style.transform = `translate(${x}px, ${y}px)`;
+      // Configuração Inicial do PixiJS
+      const app = new PIXI.Application({
+        backgroundAlpha: 0, // IMPORTANTE: Fundo transparente para ver o CSS atrás
+        resizeTo: window,
+        antialias: false, // Pixel Art Crispy
+        resolution: window.devicePixelRatio || 1,
       });
+      document.getElementById('game-stage').appendChild(app.view);
 
-      const text = `
-> INITIALIZING SYSTEM...
-> LOADING PROJECT: Master-Degree-PPGCAP-LoLPerformance
-> CONTEXT: Applied Computing Master’s Dissertation
+      // Container Principal
+      const world = new PIXI.Container();
+      app.stage.addChild(world);
 
-ANALYSIS TARGET:
-League of Legends matches using Machine Learning and Deep Learning to model team and player performance over time.
+      // NOTA: O Fundo agora é carregado via CSS na classe .layer-bg
+      // Isso evita erros de URL do PixiJS em ambientes blob/iframe.
 
-DATA SOURCE:
-Using Riot Games API (match-v5, account-v1, summoner-v4) to build datasets for non-commercial research.
+      // --- 1. GERADOR DE SPRITES PROCEDURAIS (64-BIT STYLE) ---
+      function createRobotTexture(colorMain, colorAccent) {
+        const g = new PIXI.Graphics();
+        
+        // Desenho "High-Res" do Robô (24x24 grid)
+        // Corpo
+        g.beginFill(0x222222); // Contorno
+        g.drawRect(0, 0, 24, 24);
+        g.beginFill(colorMain); // Metal Base
+        g.drawRect(2, 2, 20, 20);
+        
+        // Sombreamento
+        g.beginFill(0x000000, 0.2);
+        g.drawRect(2, 18, 20, 4); // Sombra inferior
+        g.drawRect(18, 2, 4, 20); // Sombra lateral
 
-STATUS: ACADEMIC RESEARCH IN PROGRESS...
-      `;
+        // Visor
+        g.beginFill(colorAccent);
+        g.drawRect(4, 5, 16, 6);
+        g.beginFill(0xFFFFFF, 0.8); // Reflexo
+        g.drawRect(5, 6, 4, 2);
 
-      const consoleDiv = document.getElementById('console');
-      let charIndex = 0;
+        // Detalhes
+        g.beginFill(0x444444);
+        g.drawRect(6, 14, 12, 6); // Peito
+        g.beginFill(0xFF0000);
+        g.drawRect(8, 16, 2, 2); // Led
 
-      function typeText() {
-        if (charIndex < text.length) {
-          if(text.charAt(charIndex) === '\n') {
-            consoleDiv.innerHTML += '<br>';
-          } else {
-            consoleDiv.innerHTML += text.charAt(charIndex);
+        return app.renderer.generateTexture(g);
+      }
+
+      const textureWorker = createRobotTexture(0xCCCCCC, 0x44ff66); // Cinza/Verde
+      const textureDrone = createRobotTexture(0x556677, 0xff3333);  // Azul/Vermelho
+
+      // --- 2. ENTIDADES ---
+      const robots = [];
+
+      class Robot {
+        constructor(type, x, y) {
+          this.container = new PIXI.Container();
+          this.container.x = x;
+          this.container.y = y;
+          
+          this.sprite = new PIXI.Sprite(type === 'worker' ? textureWorker : textureDrone);
+          this.sprite.anchor.set(0.5, 1);
+          this.sprite.scale.set(2); // Scale up
+          
+          this.container.addChild(this.sprite);
+          world.addChild(this.container);
+          
+          // Estado
+          this.type = type;
+          this.homeX = x;
+          this.state = 'idle'; 
+        }
+
+        playAnimation(anim) {
+          if(anim === 'panic') {
+            gsap.to(this.sprite, { y: -5, yoyo: true, repeat: -1, duration: 0.1 });
+            gsap.to(this.sprite, { rotation: 0.1, yoyo: true, repeat: -1, duration: 0.05 });
           }
-          charIndex++;
-          setTimeout(typeText, 10);
+          if(anim === 'idle') {
+            gsap.killTweensOf(this.sprite);
+            this.sprite.y = 0;
+            this.sprite.rotation = 0;
+            gsap.to(this.sprite.scale, { y: 1.9, yoyo: true, repeat: -1, duration: 1 });
+          }
+        }
+      }
+
+      // Coordenadas (Ajustadas para a imagem)
+      const platformY = app.screen.height * 0.55;
+      
+      // Robô Vítima (Esq)
+      const bot1 = new Robot('worker', app.screen.width * 0.35, platformY);
+      bot1.playAnimation('idle');
+
+      // Robô Resgate (Dir)
+      const bot2 = new Robot('worker', app.screen.width * 0.65, platformY);
+      bot2.playAnimation('idle');
+
+      // Drone
+      const drone = new Robot('drone', app.screen.width * 0.5, app.screen.height * 0.2);
+      gsap.to(drone.container, { y: drone.container.y + 20, yoyo: true, repeat: -1, duration: 2, ease: 'sine.inOut' });
+
+      // --- 3. SISTEMA DE EVENTOS ---
+      function triggerEmergency() {
+        // 1. Fogo
+        bot1.state = 'panic';
+        bot1.playAnimation('panic');
+        
+        const smokeTicker = setInterval(() => createParticle(bot1.container.x, bot1.container.y - 40, 'smoke'), 100);
+        const fireTicker = setInterval(() => createParticle(bot1.container.x, bot1.container.y - 20, 'fire'), 200);
+
+        // 2. Resgate
+        setTimeout(() => {
+          bot2.state = 'rescue';
+          bot2.sprite.scale.x = -2; // Vira
+          
+          gsap.to(bot2.container, { 
+            x: bot1.container.x + 60, 
+            duration: 2, 
+            ease: 'power1.inOut',
+            onComplete: () => {
+              const foamTicker = setInterval(() => {
+                createParticle(bot2.container.x - 30, bot2.container.y - 30, 'foam');
+              }, 50);
+
+              setTimeout(() => {
+                clearInterval(smokeTicker);
+                clearInterval(fireTicker);
+                clearInterval(foamTicker);
+                
+                bot1.playAnimation('idle');
+                bot2.sprite.scale.x = 2; 
+                
+                gsap.to(bot2.container, { x: bot2.homeX, duration: 3, ease: 'power1.inOut' });
+                
+                setTimeout(triggerEmergency, 10000);
+              }, 3000);
+            }
+          });
+        }, 1500);
+      }
+
+      setTimeout(triggerEmergency, 3000);
+
+      // --- 4. PARTÍCULAS ---
+      function createParticle(x, y, type) {
+        const p = new PIXI.Graphics();
+        if(type === 'smoke') {
+          p.beginFill(0x333333, 0.6);
+          p.drawCircle(0,0, 5 + Math.random() * 5);
+        } else if(type === 'fire') {
+          p.beginFill(0xFFaa00, 0.8);
+          p.drawRect(0,0, 4, 4);
+        } else {
+          p.beginFill(0xFFFFFF, 0.9);
+          p.drawCircle(0,0, 3);
+        }
+        
+        p.x = x; p.y = y;
+        world.addChild(p);
+
+        let life = 1.0;
+        const tick = (delta) => {
+          life -= 0.02;
+          p.alpha = life;
+          p.y -= (type === 'foam' ? -1 : 1) * 2;
+          p.x += (Math.random() - 0.5);
+          
+          if(life <= 0) {
+            app.ticker.remove(tick);
+            p.destroy();
+          }
+        };
+        app.ticker.add(tick);
+      }
+
+      // --- 5. TYPEWRITER ---
+      const text = `> SYSTEM INITIALIZED...\n> LOADING: Master-Degree-PPGCAP\n> TARGET: LoL Performance Analysis\n\nSTATUS: ACADEMIC RESEARCH.\nDATA: MATCH-V5 (RIOT API).`;
+      const consoleDiv = document.getElementById('console-output');
+      let i = 0;
+      
+      function type() {
+        if (i < text.length) {
+          consoleDiv.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
+          i++;
+          setTimeout(type, 30);
         } else {
           consoleDiv.innerHTML += '<span class="cursor"></span>';
         }
       }
-      
-      window.onload = () => {
-        setTimeout(typeText, 500);
-      };
+      setTimeout(type, 1000);
+
     </script>
   </body>
 </html>
