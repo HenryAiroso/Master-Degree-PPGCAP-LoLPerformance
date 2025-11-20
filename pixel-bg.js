@@ -1,453 +1,536 @@
-// ===============================================
-//  Pixel City + Robots Background (Canvas 2D)
-//  Estilo: cidade 2D indie, pós-apocalipse verde
-// ===============================================
+// =====================================================
+//  Pixel Lab: prédio de robôs em camadas (Canvas 2D)
+//  - Plano de fundo: céu + nuvens + árvores
+//  - Plano intermediário: prédio multi-andar
+//  - Plano frontal: robôs e detalhes animados
+// =====================================================
+
 const canvas = document.getElementById("pixel-bg");
-const ctx = canvas.getContext("2d");
+if (!canvas) {
+  // se o elemento não existir, não faz nada
+  // (protege caso o HTML mude)
+} else {
+  const ctx = canvas.getContext("2d");
+  const DPR = window.devicePixelRatio || 1;
 
-const DPR = window.devicePixelRatio || 1;
-let robots = [];
-let lastTime = performance.now();
-
-// -------------------- Resize --------------------
-function resizeCanvas() {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-
-  canvas.style.width = w + "px";
-  canvas.style.height = h + "px";
-
-  canvas.width = w * DPR;
-  canvas.height = h * DPR;
-
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-}
-resizeCanvas();
-window.addEventListener("resize", () => {
-  resizeCanvas();
-  initRobots();
-});
-
-// ----------------- Robot sprites ----------------
-const robotSprite = [
-  "....1111....",
-  "...122221...",
-  "..12222221..",
-  "..12233221..",
-  ".1122222211.",
-  ".1222222221.",
-  ".1222552221.",
-  ".1222222221.",
-  "..11....11..",
-  ".11......11.",
-  "1..........1",
-  "1..11..11..1"
-];
-
-const ROLES = ["cleaner", "plumber", "coder"];
-
-function randomPalette(role) {
-  // paletas levemente diferentes por função
-  let body, accent;
-  switch (role) {
-    case "cleaner":
-      body = "#4ade80";      // verde
-      accent = "#a3e635";
-      break;
-    case "plumber":
-      body = "#38bdf8";      // azul
-      accent = "#0ea5e9";
-      break;
-    case "coder":
-    default:
-      body = "#a855f7";      // roxo
-      accent = "#f97316";
-      break;
-  }
-  return {
-    "1": "#111827", // contorno
-    "2": body,      // corpo
-    "3": "#facc15", // olhos
-    "5": accent     // detalhe
+  // "mundo" lógico da cena
+  const scene = {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    buildingX: 0,
+    buildingWidth: 0,
+    buildingTop: 0,
+    buildingHeight: 0,
+    floorYs: [],
+    floorCount: 6
   };
-}
 
-function createRobot(w, h) {
-  const scale = 3 + Math.random() * 1.5;
-  const spriteW = robotSprite[0].length * scale;
-  const spriteH = robotSprite.length * scale;
+  const clouds = [];
+  let robots = [];
+  let lastTime = performance.now();
 
-  // faixa de "calçada" nas laterais do canal
-  const groundY = h * 0.78;
-  const side = Math.random() < 0.5 ? "left" : "right";
-  const sideOffset = w * 0.22;
+  // ----------------- Geometria da cena -----------------
+  function updateSceneGeometry() {
+    scene.width = window.innerWidth;
+    scene.height = window.innerHeight;
 
-  let x;
-  if (side === "left") {
-    x = w * 0.1 + Math.random() * (sideOffset - spriteW - 20);
-  } else {
-    x = w - (w * 0.1 + Math.random() * (sideOffset - spriteW - 20) + spriteW);
-  }
+    const w = scene.width;
+    const h = scene.height;
 
-  const role = ROLES[Math.floor(Math.random() * ROLES.length)];
+    // prédio ocupa ~70% da largura, centralizado
+    scene.buildingWidth = Math.min(w * 0.68, 960);
+    scene.buildingX = (w - scene.buildingWidth) / 2;
 
-  return {
-    x,
-    y: groundY - spriteH,
-    scale,
-    spriteW,
-    spriteH,
-    role,
-    palette: randomPalette(role),
-    phase: Math.random() * Math.PI * 2,
-    idleOffset: Math.random() * 20
-  };
-}
+    // topo do prédio e base (deixa um pouco de céu em cima e grama embaixo)
+    scene.buildingTop = h * 0.16;
+    const bottom = h * 0.9;
+    scene.buildingHeight = bottom - scene.buildingTop;
 
-function initRobots() {
-  robots = [];
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  const baseCount = Math.min(12, Math.max(5, Math.floor(w / 160)));
-
-  for (let i = 0; i < baseCount; i++) {
-    robots.push(createRobot(w, h));
-  }
-}
-initRobots();
-
-// --------------- Desenho de ambiente ------------
-function drawSkyGradient(w, h) {
-  const g = ctx.createLinearGradient(0, 0, 0, h);
-  g.addColorStop(0, "#60a5fa");  // azul claro
-  g.addColorStop(0.4, "#38bdf8");
-  g.addColorStop(1, "#0f172a");  // azul escuro
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, w, h);
-}
-
-function drawClouds(t, w, h) {
-  ctx.fillStyle = "rgba(248, 250, 252, 0.9)";
-  const baseY = h * 0.16;
-  for (let i = 0; i < 6; i++) {
-    const speed = 0.003 + i * 0.0004;
-    const x = ((t * speed * w) + i * (w / 6)) % (w + 80) - 40;
-    const y = baseY + Math.sin(t * 0.0004 + i) * 8;
-
-    ctx.fillRect(Math.round(x), Math.round(y), 52, 8);
-    ctx.fillRect(Math.round(x + 10), Math.round(y - 6), 26, 10);
-    ctx.fillRect(Math.round(x + 18), Math.round(y + 6), 30, 6);
-  }
-}
-
-function drawDistantCity(w, h) {
-  const horizon = h * 0.55;
-  ctx.save();
-  ctx.translate(0, horizon);
-  for (let i = 0; i < 14; i++) {
-    const bw = 26 + Math.random() * 26;
-    const bh = 40 + Math.random() * 80;
-    const x = (i / 14) * w + Math.random() * 12 - 20;
-    ctx.fillStyle = "#1e293b";
-    ctx.fillRect(Math.round(x), -bh, bw, bh);
-
-    // pequenas janelas
-    ctx.fillStyle = "rgba(148, 163, 184, 0.8)";
-    for (let r = 0; r < 6; r++) {
-      for (let c = 0; c < 3; c++) {
-        if (Math.random() < 0.6) {
-          const wx = x + 4 + c * 7;
-          const wy = -bh + 6 + r * 8;
-          ctx.fillRect(Math.round(wx), Math.round(wy), 3, 4);
-        }
-      }
+    // linhas de piso (andares internos)
+    scene.floorYs = [];
+    const levels = scene.floorCount;
+    for (let i = 0; i < levels; i++) {
+      const t = (i + 1) / (levels + 1); // distribui entre topo e base
+      scene.floorYs.push(scene.buildingTop + scene.buildingHeight * t);
     }
   }
-  ctx.restore();
-}
 
-function drawCanalAndGround(w, h) {
-  const horizon = h * 0.55;
-  const canalWidth = w * 0.26;
-  const canalX = w / 2 - canalWidth / 2;
-  const bottom = h * 0.95;
+  // ----------------- Resize do canvas ------------------
+  function resizeCanvas() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
 
-  // água do canal
-  const g = ctx.createLinearGradient(0, horizon, 0, bottom);
-  g.addColorStop(0, "#22d3ee");
-  g.addColorStop(1, "#0f766e");
-  ctx.fillStyle = g;
-  ctx.fillRect(canalX, horizon, canalWidth, bottom - horizon);
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    canvas.width = w * DPR;
+    canvas.height = h * DPR;
 
-  // reflexos/pedrinhas
-  ctx.fillStyle = "rgba(34, 211, 238, 0.3)";
-  for (let i = 0; i < 30; i++) {
-    const rx = canalX + 8 + Math.random() * (canalWidth - 16);
-    const ry = horizon + 6 + Math.random() * (bottom - horizon - 20);
-    ctx.fillRect(Math.round(rx), Math.round(ry), 8, 2);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    updateSceneGeometry();
   }
 
-  // calçadas laterais
-  ctx.fillStyle = "#111827";
-  ctx.fillRect(0, horizon, canalX, bottom - horizon + 6);
-  ctx.fillRect(canalX + canalWidth, horizon, w - (canalX + canalWidth), bottom - horizon + 6);
-
-  // vegetação baixa
-  ctx.fillStyle = "#16a34a";
-  for (let i = 0; i < 80; i++) {
-    const x = Math.random() * w;
-    const y = horizon + (bottom - horizon) * Math.random();
-    if (x > canalX && x < canalX + canalWidth) continue; // não dentro da água
-    ctx.fillRect(Math.round(x), Math.round(y), 2, 4);
+  // -------------------- Nuvens -------------------------
+  function initClouds() {
+    clouds.length = 0;
+    const count = 7;
+    for (let i = 0; i < count; i++) {
+      clouds.push({
+        x: Math.random() * scene.width,
+        y: scene.height * (0.06 + Math.random() * 0.22),
+        width: 80 + Math.random() * 120,
+        height: 18 + Math.random() * 8,
+        speed: 0.02 + Math.random() * 0.04
+      });
+    }
   }
-}
 
-function drawBridge(w, h, t) {
-  const horizon = h * 0.55;
-  const y = horizon - 32;
+  function updateAndDrawClouds(dt) {
+    ctx.fillStyle = "rgba(248, 250, 252, 0.9)";
+    const w = scene.width;
 
-  ctx.strokeStyle = "#92400e";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.1, y);
-  ctx.lineTo(w * 0.9, y);
-  ctx.stroke();
+    clouds.forEach((c) => {
+      c.x += c.speed * dt;
+      if (c.x > w + c.width) c.x = -c.width - 20;
 
-  // cabos
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.1, y);
-  ctx.quadraticCurveTo(w * 0.5, y - 30, w * 0.9, y);
-  ctx.stroke();
+      const x = c.x;
+      const y = c.y;
+      const cw = c.width;
+      const ch = c.height;
 
-  // torres
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.28, y + 32);
-  ctx.lineTo(w * 0.28, y - 26);
-  ctx.moveTo(w * 0.72, y + 32);
-  ctx.lineTo(w * 0.72, y - 26);
-  ctx.stroke();
-
-  // pisos
-  ctx.fillStyle = "#78350f";
-  ctx.fillRect(w * 0.1, y + 6, w * 0.8, 6);
-
-  // pequenas luzes piscando na ponte
-  const blink = (Math.sin(t * 0.003) + 1) / 2;
-  ctx.fillStyle = `rgba(252, 211, 77, ${0.4 + 0.4 * blink})`;
-  for (let i = 0; i < 12; i++) {
-    const lx = w * 0.1 + (w * 0.8 / 11) * i;
-    ctx.fillRect(Math.round(lx), y + 4, 2, 2);
+      // bloco principal
+      ctx.fillRect(Math.round(x), Math.round(y), cw, ch);
+      // "bolhas" extras para forma irregular
+      ctx.fillRect(Math.round(x + cw * 0.15), Math.round(y - ch * 0.4), cw * 0.4, ch * 0.7);
+      ctx.fillRect(Math.round(x + cw * 0.45), Math.round(y + ch * 0.3), cw * 0.35, ch * 0.6);
+    });
   }
-}
 
-function drawForegroundBuildings(w, h, t) {
-  const horizon = h * 0.55;
-  const bottom = h * 0.95;
+  // ----------------- Robôs (sprites) -------------------
 
-  function drawBuilding(x, width, height, flipVines) {
-    const top = bottom - height;
+  // 12x12 sprites em "pixels" lógicos.
+  // 1 = contorno, 2 = metal escuro, 3 = metal claro,
+  // 4 = visor/olhos, 5 = acento de cor, 6 = rodas/jato.
+  const ROBOT_TYPES = [
+    {
+      name: "walker",
+      movement: "ground",
+      sprite: [
+        ".....11.....",
+        "...111111...",
+        "..13333331..",
+        "..13344331..",
+        "..12222221..",
+        ".1222222221.",
+        ".1222222221.",
+        ".1522222251.",
+        "..12222221..",
+        "..12....21..",
+        "..12....21..",
+        "..11....11.."
+      ]
+    },
+    {
+      name: "wheeler",
+      movement: "ground",
+      sprite: [
+        ".....11.....",
+        "...111111...",
+        "..13333331..",
+        "..13344331..",
+        "..12222221..",
+        ".1222222221.",
+        ".1222222221.",
+        ".1522222251.",
+        "...166661...",
+        "...166661...",
+        "...166661...",
+        "....1111...."
+      ]
+    },
+    {
+      name: "hover",
+      movement: "hover",
+      sprite: [
+        ".....11.....",
+        "...111111...",
+        "..13333331..",
+        "..13344331..",
+        "..12222221..",
+        ".1222222221.",
+        ".1222222221.",
+        ".1522222251.",
+        "..12222221..",
+        "...16661....",
+        "...16661....",
+        "....111....."
+      ]
+    }
+  ];
 
-    // bloco principal
-    ctx.fillStyle = "#e5e7eb";
-    ctx.fillRect(Math.round(x), Math.round(top), width, height);
+  const ROLES = ["cleaner", "plumber", "coder"];
 
-    // janelas
-    for (let r = 0; r < Math.floor(height / 14); r++) {
-      for (let c = 0; c < Math.floor(width / 14); c++) {
-        if (Math.random() < 0.7) {
-          ctx.fillStyle = "#111827";
-        } else {
-          ctx.fillStyle = "#facc15";
-        }
-        const wx = x + 3 + c * 10;
-        const wy = top + 4 + r * 10;
-        ctx.fillRect(Math.round(wx), Math.round(wy), 6, 6);
+  function randomPalette(role) {
+    let accent;
+    switch (role) {
+      case "cleaner":
+        accent = "#22c55e"; // verde
+        break;
+      case "plumber":
+        accent = "#38bdf8"; // azul
+        break;
+      case "coder":
+      default:
+        accent = "#a855f7"; // roxo
+        break;
+    }
+    return {
+      "1": "#020617",  // contorno
+      "2": "#4b5563",  // metal escuro
+      "3": "#e5e7eb",  // metal claro
+      "4": "#22d3ee",  // visor/olhos
+      "5": accent,     // detalhes
+      "6": "#f97316"   // rodas / jato
+    };
+  }
+
+  // Layout fixo dos robôs: cada um em um andar/posição
+  const ROBOT_LAYOUT = [
+    { type: "walker", role: "coder",   floorIndex: 2, offset: 0.48 },
+    { type: "walker", role: "cleaner", floorIndex: 4, offset: 0.25 },
+    { type: "walker", role: "plumber", floorIndex: 3, offset: 0.78 },
+    { type: "wheeler", role: "cleaner", floorIndex: 1, offset: 0.18 },
+    { type: "wheeler", role: "plumber", floorIndex: 0, offset: 0.72 },
+    { type: "hover",   role: "coder",   floorIndex: 0, offset: 0.35 },
+    { type: "hover",   role: "cleaner", floorIndex: 5, offset: 0.6 }
+  ];
+
+  function initRobots() {
+    robots = [];
+    const w = scene.width;
+    const buildingX = scene.buildingX;
+    const bWidth = scene.buildingWidth;
+
+    ROBOT_LAYOUT.forEach((spec) => {
+      const type = ROBOT_TYPES.find((t) => t.name === spec.type) || ROBOT_TYPES[0];
+      const scale = 3 + Math.random() * 1.2;
+      const spriteW = type.sprite[0].length * scale;
+      const spriteH = type.sprite.length * scale;
+
+      const floorY = scene.floorYs[Math.min(spec.floorIndex, scene.floorYs.length - 1)];
+      const x = buildingX + spec.offset * (bWidth - spriteW);
+      const baseY = floorY - spriteH + 4; // leve ajuste vertical
+
+      const role = spec.role;
+      const palette = randomPalette(role);
+
+      robots.push({
+        type,
+        sprite: type.sprite,
+        role,
+        palette,
+        scale,
+        spriteW,
+        spriteH,
+        x,
+        baseY,
+        idleOffset: Math.random() * 20
+      });
+    });
+  }
+
+  // Desenho de um robô + overlay da "tarefa"
+  function drawRobot(robot, time) {
+    const { x, baseY, scale, sprite, palette, role, type, idleOffset } = robot;
+    const isHover = type.movement === "hover";
+    const bob = Math.sin(time * 0.004 + idleOffset) * (isHover ? 4 : 1);
+    const y = baseY + bob;
+
+    for (let row = 0; row < sprite.length; row++) {
+      const line = sprite[row];
+      for (let col = 0; col < line.length; col++) {
+        const key = line[col];
+        if (key === ".") continue;
+        const color = palette[key];
+        if (!color) continue;
+
+        ctx.fillStyle = color;
+        ctx.fillRect(
+          Math.round(x + col * scale),
+          Math.round(y + row * scale),
+          Math.ceil(scale),
+          Math.ceil(scale)
+        );
       }
     }
 
-    // vinhas descendo
-    ctx.fillStyle = "#16a34a";
-    const vines = 4;
-    for (let i = 0; i < vines; i++) {
-      const vx = x + 4 + (i / vines) * (width - 8);
-      const length = height * (0.5 + Math.random() * 0.5);
-      ctx.fillRect(Math.round(vx), Math.round(top + (flipVines ? 6 : 0)), 2, length);
-    }
-
-    // pequena turbina / antena em cima
-    ctx.fillStyle = "#94a3b8";
-    ctx.fillRect(Math.round(x + width / 2 - 4), Math.round(top - 8), 8, 8);
-    ctx.fillRect(Math.round(x + width / 2 - 1), Math.round(top - 18), 2, 10);
-  }
-
-  // esquerda
-  drawBuilding(w * 0.02, w * 0.16, bottom - horizon + 10, false);
-  drawBuilding(w * 0.18, w * 0.14, bottom - (horizon + 20), true);
-
-  // direita
-  drawBuilding(w * 0.84, w * 0.14, bottom - (horizon + 18), false);
-  drawBuilding(w * 0.68, w * 0.16, bottom - (horizon + 6), true);
-
-  // pequenas barracas / boxes na parte de baixo
-  ctx.fillStyle = "#b45309";
-  const stallY = bottom - 24;
-  for (let i = 0; i < 4; i++) {
-    const sx = w * 0.06 + i * 40;
-    ctx.fillRect(Math.round(sx), stallY, 30, 18);
-  }
-  for (let i = 0; i < 4; i++) {
-    const sx = w * 0.64 + i * 40;
-    ctx.fillRect(Math.round(sx), stallY, 30, 18);
-  }
-
-  // toldos coloridos
-  const awningColors = ["#f97316", "#22c55e", "#3b82f6", "#eab308"];
-  for (let i = 0; i < 4; i++) {
-    const sx = w * 0.06 + i * 40;
-    ctx.fillStyle = awningColors[i % awningColors.length];
-    ctx.fillRect(Math.round(sx), stallY - 8, 30, 8);
-  }
-  for (let i = 0; i < 4; i++) {
-    const sx = w * 0.64 + i * 40;
-    ctx.fillStyle = awningColors[(i + 1) % awningColors.length];
-    ctx.fillRect(Math.round(sx), stallY - 8, 30, 8);
-  }
-}
-
-// --------------- Robôs e animações --------------
-function drawRobotSprite(r, time) {
-  const { x, y, scale, palette, role, idleOffset } = r;
-  const bob = Math.sin(time * 0.003 + idleOffset) * 1; // leve "pulo"
-
-  for (let row = 0; row < robotSprite.length; row++) {
-    const line = robotSprite[row];
-    for (let col = 0; col < line.length; col++) {
-      const key = line[col];
-      if (key === ".") continue;
-      const color = palette[key];
-      if (!color) continue;
-
-      ctx.fillStyle = color;
+    // overlays: ferramentas simples por papel
+    ctx.save();
+    if (role === "cleaner") {
+      // vassoura no chão
+      ctx.fillStyle = "#f97316";
       ctx.fillRect(
-        Math.round(x + col * scale),
-        Math.round(y + row * scale + bob),
-        Math.ceil(scale),
-        Math.ceil(scale)
+        Math.round(x - 4),
+        Math.round(y + sprite.length * scale - 2),
+        3,
+        10
       );
+      ctx.fillStyle = "#eab308";
+      ctx.fillRect(
+        Math.round(x - 6),
+        Math.round(y + sprite.length * scale + 6),
+        7,
+        3
+      );
+    } else if (role === "plumber") {
+      // cano + gota animada
+      ctx.fillStyle = "#64748b";
+      ctx.fillRect(
+        Math.round(x + sprite[0].length * scale + 2),
+        Math.round(y + sprite.length * scale - 10),
+        10,
+        4
+      );
+      ctx.fillRect(
+        Math.round(x + sprite[0].length * scale + 8),
+        Math.round(y + sprite.length * scale - 6),
+        4,
+        10
+      );
+      ctx.fillStyle = "#38bdf8";
+      const dripY =
+        y +
+        sprite.length * scale -
+        6 +
+        Math.abs(Math.sin(time * 0.005 + idleOffset)) * 6;
+      ctx.fillRect(
+        Math.round(x + sprite[0].length * scale + 10),
+        Math.round(dripY),
+        2,
+        3
+      );
+    } else if (role === "coder") {
+      // terminal/monitor ao lado
+      const screenX = x + sprite[0].length * scale + 4;
+      const screenY = y + 4;
+      ctx.fillStyle = "#020617";
+      ctx.fillRect(Math.round(screenX), Math.round(screenY), 20, 14);
+      const glow = (Math.sin(time * 0.006 + idleOffset) + 1) / 2;
+      ctx.fillStyle = `rgba(96, 165, 250, ${0.4 + glow * 0.4})`;
+      ctx.fillRect(Math.round(screenX + 2), Math.round(screenY + 3), 16, 7);
+      ctx.fillStyle = "#22c55e";
+      if (Math.floor(time / 400) % 2 === 0) {
+        ctx.fillRect(Math.round(screenX + 3), Math.round(screenY + 11), 11, 2);
+      }
     }
+    ctx.restore();
   }
 
-  // overlays: "trabalhos" diferentes
-  ctx.save();
-  if (role === "cleaner") {
-    // vassoura
-    ctx.fillStyle = "#f97316";
-    ctx.fillRect(
-      Math.round(x - 4),
-      Math.round(y + robotSprite.length * scale - 2 + bob),
-      3,
-      8
-    );
-    ctx.fillStyle = "#facc15";
-    ctx.fillRect(
-      Math.round(x - 6),
-      Math.round(y + robotSprite.length * scale + 6 + bob),
-      7,
-      3
-    );
-  } else if (role === "plumber") {
-    // cano + gotinha
-    ctx.fillStyle = "#64748b";
-    ctx.fillRect(
-      Math.round(x + robotSprite[0].length * scale + 2),
-      Math.round(y + robotSprite.length * scale - 10 + bob),
-      10,
-      4
-    );
-    ctx.fillRect(
-      Math.round(x + robotSprite[0].length * scale + 8),
-      Math.round(y + robotSprite.length * scale - 6 + bob),
-      4,
-      10
-    );
-    ctx.fillStyle = "#38bdf8";
-    const dripY =
-      y +
-      robotSprite.length * scale -
-      6 +
-      bob +
-      Math.abs(Math.sin(time * 0.005 + idleOffset)) * 6;
-    ctx.fillRect(
-      Math.round(x + robotSprite[0].length * scale + 10),
-      Math.round(dripY),
-      2,
-      3
-    );
-  } else if (role === "coder") {
-    // terminal/computador
-    const screenX = x + robotSprite[0].length * scale + 4;
-    const screenY = y + 4 + bob;
-    ctx.fillStyle = "#020617";
-    ctx.fillRect(Math.round(screenX), Math.round(screenY), 18, 14);
-    const glow =
-      (Math.sin(time * 0.006 + idleOffset) + 1) / 2; // 0..1
-    ctx.fillStyle = `rgba(96, 165, 250, ${0.4 + glow * 0.4})`;
-    ctx.fillRect(Math.round(screenX + 2), Math.round(screenY + 3), 14, 6);
+  // --------------- Desenho do cenário -----------------
 
-    // linha de código piscando
+  function drawBackgroundSky() {
+    const w = scene.width;
+    const h = scene.height;
+
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "#0f172a");
+    g.addColorStop(0.35, "#38bdf8");
+    g.addColorStop(1, "#22c55e");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    // faixa de árvores atrás do prédio
+    const treeLineY = h * 0.82;
+    ctx.fillStyle = "#166534";
+    ctx.fillRect(0, treeLineY, w, h - treeLineY);
     ctx.fillStyle = "#22c55e";
-    if (Math.floor(time / 400) % 2 === 0) {
-      ctx.fillRect(Math.round(screenX + 3), Math.round(screenY + 11), 10, 2);
+    for (let i = 0; i < 40; i++) {
+      const x = (i / 40) * w + (Math.random() - 0.5) * 24;
+      const r = 14 + Math.random() * 16;
+      ctx.beginPath();
+      ctx.arc(x, treeLineY, r, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
-  ctx.restore();
-}
 
-function updateRobots(time, dt) {
-  const w = window.innerWidth;
-  const horizon = window.innerHeight * 0.55;
+  function drawBackPipes() {
+    const w = scene.width;
+    const h = scene.height;
+    const pipeWidth = Math.max(40, w * 0.06);
 
-  robots.forEach((r, idx) => {
-    // movimento horizontal bem discreto de "ida e volta"
-    const dir = idx % 2 === 0 ? 1 : -1;
-    r.x += dir * 0.01 * dt;
+    ctx.fillStyle = "#020617";
+    // colunas laterais "de fundo"
+    ctx.fillRect(0, 0, pipeWidth, h);
+    ctx.fillRect(w - pipeWidth, 0, pipeWidth, h);
 
-    // limite para não cair no canal
-    const canalWidth = w * 0.26;
-    const canalX = w / 2 - canalWidth / 2;
-    const margin = 12;
+    ctx.fillStyle = "#111827";
+    ctx.fillRect(6, 0, pipeWidth - 12, h);
+    ctx.fillRect(w - pipeWidth + 6, 0, pipeWidth - 12, h);
+  }
 
-    if (r.x < margin) r.x = margin;
-    if (r.x + r.spriteW > canalX - margin && r.x < canalX) {
-      r.x = canalX - r.spriteW - margin;
+  function drawBuildingStructure(time) {
+    const x = scene.buildingX;
+    const w = scene.buildingWidth;
+    const top = scene.buildingTop;
+    const h = scene.buildingHeight;
+    const bottom = top + h;
+
+    // bloco externo
+    ctx.fillStyle = "#020617";
+    ctx.fillRect(Math.round(x - 8), Math.round(top - 10), w + 16, h + 20);
+
+    // corpo principal
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(Math.round(x), Math.round(top), w, h);
+
+    // interior (um pouco mais claro)
+    ctx.fillStyle = "#111827";
+    ctx.fillRect(Math.round(x + 6), Math.round(top + 6), w - 12, h - 12);
+
+    // pisos
+    ctx.strokeStyle = "#020617";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    scene.floorYs.forEach((fy) => {
+      ctx.moveTo(x + 10, fy);
+      ctx.lineTo(x + w - 10, fy);
+    });
+    ctx.stroke();
+
+    // colunas verticais (salas)
+    const cols = 4;
+    ctx.beginPath();
+    for (let i = 1; i < cols; i++) {
+      const cx = x + (w / cols) * i;
+      ctx.moveTo(cx, top + 10);
+      ctx.lineTo(cx, bottom - 10);
     }
-    if (r.x > canalX + canalWidth - margin && r.x < w - r.spriteW - margin) {
-      r.x = canalX + canalWidth + margin;
+    ctx.stroke();
+
+    // algumas portas e janelas internas
+    ctx.fillStyle = "#020617";
+    for (let i = 0; i < scene.floorYs.length; i++) {
+      const fy = scene.floorYs[i];
+      const roomHeight =
+        (i === 0 ? fy - top : fy - scene.floorYs[i - 1]) - 8;
+      const roomTop = fy - roomHeight;
+
+      // porta
+      if (i % 2 === 0) {
+        const px = x + w * 0.1;
+        const pw = 26;
+        const ph = 30;
+        ctx.fillRect(Math.round(px), Math.round(fy - ph - 4), pw, ph);
+      }
+
+      // pequena janela iluminada
+      ctx.fillStyle = i % 2 === 0 ? "#0f172a" : "#020617";
+      const jx = x + w * 0.68;
+      ctx.fillRect(Math.round(jx), Math.round(roomTop + 12), 60, 26);
+
+      const flicker = (Math.sin(time * 0.004 + i) + 1) / 2;
+      ctx.fillStyle = `rgba(56, 189, 248, ${0.25 + 0.4 * flicker})`;
+      ctx.fillRect(Math.round(jx + 4), Math.round(roomTop + 15), 52, 20);
+      ctx.fillStyle = "#111827";
     }
-    if (r.x + r.spriteW > w - margin) r.x = w - r.spriteW - margin;
+
+    // console central grande (andar do meio)
+    const midIndex = Math.floor(scene.floorYs.length / 2);
+    const midY = scene.floorYs[midIndex];
+    const consoleY = midY - 42;
+    const consoleX = x + w * 0.32;
+    ctx.fillStyle = "#020617";
+    ctx.fillRect(Math.round(consoleX), consoleY, 110, 36);
+
+    const glow = (Math.sin(time * 0.006) + 1) / 2;
+    ctx.fillStyle = `rgba(59, 130, 246, ${0.35 + 0.35 * glow})`;
+    ctx.fillRect(Math.round(consoleX + 6), consoleY + 6, 44, 10);
+    ctx.fillRect(Math.round(consoleX + 56), consoleY + 6, 44, 10);
+    ctx.fillStyle = "#22c55e";
+    if (Math.floor(time / 450) % 2 === 0) {
+      ctx.fillRect(Math.round(consoleX + 8), consoleY + 20, 60, 3);
+    }
+
+    // luminárias penduradas
+    ctx.fillStyle = "#0f172a";
+    for (let i = 0; i < 5; i++) {
+      const lx = x + w * (0.15 + 0.15 * i);
+      const ly = top + 4;
+      ctx.fillRect(Math.round(lx), ly, 2, 26);
+      const pulse = (Math.sin(time * 0.005 + i) + 1) / 2;
+      ctx.fillStyle = `rgba(251, 191, 36, ${0.4 + 0.4 * pulse})`;
+      ctx.fillRect(Math.round(lx - 4), ly + 26, 10, 6);
+      ctx.fillStyle = "#0f172a";
+    }
+  }
+
+  function drawFrontPipesAndCables(time) {
+    const w = scene.width;
+    const h = scene.height;
+    const pipeWidth = Math.max(40, w * 0.06);
+
+    // bordas "frontais" dos tubos
+    ctx.fillStyle = "#020617";
+    ctx.fillRect(0, h * 0.05, pipeWidth * 0.5, h * 0.9);
+    ctx.fillRect(w - pipeWidth * 0.5, h * 0.05, pipeWidth * 0.5, h * 0.9);
+
+    // cintas horizontais com luzinhas
+    ctx.fillStyle = "#111827";
+    const bands = [0.24, 0.52, 0.8];
+    bands.forEach((t, idx) => {
+      const y = h * t;
+      ctx.fillRect(0, y, pipeWidth * 0.5, 6);
+      ctx.fillRect(w - pipeWidth * 0.5, y, pipeWidth * 0.5, 6);
+
+      const glow = (Math.sin(time * 0.004 + idx) + 1) / 2;
+      ctx.fillStyle = `rgba(56, 189, 248, ${0.3 + glow * 0.4})`;
+      ctx.fillRect(pipeWidth * 0.25 - 4, y + 1, 8, 4);
+      ctx.fillRect(
+        w - pipeWidth * 0.25 - 4,
+        y + 1,
+        8,
+        4
+      );
+      ctx.fillStyle = "#111827";
+    });
+
+    // cabos laterais simples
+    ctx.strokeStyle = "#020617";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(pipeWidth * 0.5, h * 0.2);
+    ctx.bezierCurveTo(w * 0.25, h * 0.3, w * 0.25, h * 0.45, scene.buildingX, scene.buildingTop + 40);
+    ctx.moveTo(w - pipeWidth * 0.5, h * 0.3);
+    ctx.bezierCurveTo(w * 0.75, h * 0.4, w * 0.75, h * 0.6, scene.buildingX + scene.buildingWidth, scene.buildingTop + 60);
+    ctx.stroke();
+  }
+
+  // ---------------------- Loop ------------------------
+  function loop(now) {
+    const dt = now - lastTime;
+    lastTime = now;
+
+    drawBackgroundSky();
+    updateAndDrawClouds(dt);
+    drawBackPipes();
+    drawBuildingStructure(now);
+    // robôs são plano frontal intermediário
+    robots.forEach((r) => drawRobot(r, now));
+    // tubos/cabos em primeiro plano
+    drawFrontPipesAndCables(now);
+
+    requestAnimationFrame(loop);
+  }
+
+  // -------------------- Boot da cena ------------------
+  resizeCanvas();
+  initClouds();
+  initRobots();
+  window.addEventListener("resize", () => {
+    resizeCanvas();
+    initClouds();
+    initRobots();
   });
-}
-
-// ---------------------- Loop --------------------
-function loop(now) {
-  const dt = now - lastTime;
-  lastTime = now;
-
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-
-  drawSkyGradient(w, h);
-  drawClouds(now, w, h);
-  drawDistantCity(w, h);
-  drawCanalAndGround(w, h);
-  drawBridge(w, h, now);
-  drawForegroundBuildings(w, h, now);
-
-  updateRobots(now, dt);
-  robots.forEach((r) => drawRobotSprite(r, now));
 
   requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
