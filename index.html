@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- LIBRARIES -->
-    <!-- PixiJS para renderização gráfica avançada (Estilo Game Engine) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
-    <!-- GSAP para animações de UI e Timeline -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <!-- FONTS -->
@@ -21,16 +19,15 @@
 
     <style>
       /* =========================================
-         ESTILO "INDUSTRIAL RETRÔ"
+         CORE STYLE (Industrial Retro)
          ========================================= */
       :root {
         --bg-dark: #05070a;
-        --panel-bg: #16181d;
         --text-main: #dcdacb;
         --accent-green: #44d65c;
         --accent-gold: #ffcd75;
         --accent-red: #e53b44;
-        --ui-shadow: 0 8px 0 rgba(0,0,0,0.5);
+        --ui-shadow: 6px 6px 0 rgba(0,0,0,0.6);
       }
 
       * { box-sizing: border-box; }
@@ -41,317 +38,232 @@
         background-color: var(--bg-dark);
         font-family: "Press Start 2P", cursive;
         color: var(--text-main);
-        overflow-x: hidden;
+        overflow: hidden; /* Tenta evitar scroll */
         height: 100vh;
         width: 100vw;
       }
 
       /* CAMADAS */
-      
-      /* 1. Fundo (CSS Handle) - Resolve o erro de URL do PixiJS */
       .layer-bg {
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
         background: #111 url('assets/lab-base.png') no-repeat center bottom;
-        background-size: cover; /* Garante cobertura total */
-        image-rendering: pixelated; /* Mantém a nitidez da arte */
+        background-size: cover;
+        image-rendering: pixelated;
         z-index: 0;
       }
 
-      /* 2. Jogo (Robôs e Partículas) */
+      /* PixiJS Canvas (Robôs) - Fica ACIMA do fundo, ABAIXO da UI */
       #game-stage {
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
         z-index: 1;
-        pointer-events: none; /* Deixa clicar através */
+        pointer-events: none;
       }
 
-      /* 3. UI (Interface) */
+      /* UI Container */
       #ui-layer {
         position: relative;
         z-index: 10;
         width: 100%;
-        min-height: 100vh;
+        height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 40px 20px;
-        pointer-events: none; 
+        justify-content: space-between; /* Espalha elementos */
+        padding: 20px;
+        pointer-events: none;
       }
 
-      .interactive {
-        pointer-events: auto;
-      }
+      .interactive { pointer-events: auto; }
 
       /* =========================================
-         COMPONENTES UI
+         UI COMPONENTS (Compactos)
          ========================================= */
       
-      /* 1. PLACA DO TÍTULO (OUTDOOR) */
+      /* 1. Header Compacto */
       .sign-container {
-        position: relative;
-        margin-bottom: 30px;
+        margin-top: 10px;
         animation: floatSign 6s ease-in-out infinite;
+        position: relative;
       }
       
-      .rope {
-        position: absolute;
-        top: -1000px; /* Vai até o teto */
-        width: 4px;
-        height: 1000px;
-        background: #1a1a1a;
-        border-left: 1px solid #333;
-        z-index: -1;
-      }
-      .rope.left { left: 20px; transform: rotate(2deg); bottom: 90%; }
-      .rope.right { right: 20px; transform: rotate(-2deg); bottom: 90%; }
-
       .sign-board {
         background: #b83b3b;
-        border: 4px solid #3e1010;
-        padding: 15px 30px;
+        border: 3px solid #3e1010;
+        padding: 10px 20px;
         box-shadow: var(--ui-shadow);
         transform: rotate(-1deg);
         text-align: center;
       }
 
       .sign-title {
-        font-size: 1.4rem;
+        font-size: 1rem;
         color: #fff;
-        text-shadow: 3px 3px 0 #591418;
+        text-shadow: 2px 2px 0 #591418;
         margin: 0;
         text-transform: uppercase;
-        line-height: 1.4;
       }
       .sign-sub {
-        display: block;
-        font-size: 0.6rem;
+        font-size: 0.5rem;
         color: var(--accent-gold);
-        margin-top: 5px;
+        display: block;
+        margin-top: 4px;
         letter-spacing: 1px;
       }
 
-      /* 2. MONITOR CENTRAL (CRT) */
+      /* 2. Monitor Central (Menor altura) */
       .monitor-wrapper {
         background: #1a1a1a;
-        padding: 10px;
+        padding: 6px;
         border-radius: 4px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.9);
         width: 100%;
-        max-width: 800px;
-        margin-bottom: 30px;
+        max-width: 600px; /* Mais estreito */
         position: relative;
+        margin: 10px 0; /* Reduzi margem */
       }
-      /* Detalhes físicos do monitor */
+      
+      /* Cabos decorativos */
       .monitor-wrapper::before {
-        content: "MODEL: CRT-9000";
+        content: "";
         position: absolute;
-        bottom: 4px; right: 15px;
-        font-size: 0.4rem;
-        color: #555;
-        font-family: sans-serif;
+        top: 50%; left: -20px; width: 20px; height: 4px;
+        background: #111;
       }
 
       .crt-screen {
         background: #08090b;
         border: 2px solid #333;
-        height: 250px;
-        padding: 25px;
+        height: 180px; /* Altura reduzida para ver os robôs */
+        padding: 15px;
         overflow: hidden;
         position: relative;
         color: var(--accent-green);
-        font-size: 0.75rem; /* Fonte ajustada */
-        line-height: 1.8;
-        text-shadow: 0 0 4px rgba(68, 214, 92, 0.4);
+        font-size: 0.6rem; /* Fonte menor */
+        line-height: 1.6;
+        text-shadow: 0 0 3px rgba(68, 214, 92, 0.4);
       }
 
       /* Scanlines */
       .crt-screen::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient(
-          0deg,
-          rgba(0,0,0,0.15),
-          rgba(0,0,0,0.15) 1px,
-          transparent 1px,
-          transparent 3px
-        );
+        content: ""; position: absolute; inset: 0;
+        background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
         pointer-events: none;
       }
 
-      /* 3. PRANCHETAS (LATERAIS) */
+      /* 3. Grid de Informações (Lado a Lado) */
       .deck-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
         width: 100%;
-        max-width: 800px;
-        margin-bottom: 30px;
+        max-width: 700px;
       }
 
       .clipboard {
-        background: #e6e2d3; /* Papel/Metal Claro */
+        background: #e6e2d3;
         color: #222;
-        padding: 15px;
+        padding: 10px;
         position: relative;
-        box-shadow: 5px 5px 0 rgba(0,0,0,0.4);
+        box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
         border: 1px solid #999;
+        flex: 1;
       }
-      
-      /* Grampo da prancheta */
-      .clipboard::before {
-        content: "";
-        position: absolute;
-        top: -8px; left: 50%; transform: translateX(-50%);
-        width: 60px; height: 16px;
-        background: #444;
-        border: 2px solid #111;
-        border-radius: 2px;
+
+      .clipboard::before { /* Clip */
+        content: ""; position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+        width: 40px; height: 10px; background: #444; border: 2px solid #111;
       }
 
       .clip-title {
-        background: #222;
-        color: #fff;
-        padding: 5px;
-        text-align: center;
-        font-size: 0.6rem;
-        margin-bottom: 15px;
-        text-transform: uppercase;
+        background: #222; color: #fff; padding: 4px; text-align: center;
+        font-size: 0.5rem; margin-bottom: 8px; text-transform: uppercase;
       }
 
       .clip-content ul {
-        list-style: none;
-        padding: 0; margin: 0;
-        font-family: "Rajdhani", sans-serif; /* Fonte de leitura melhor */
+        list-style: none; padding: 0; margin: 0;
+        font-family: "Rajdhani", sans-serif; 
         font-weight: 700;
-        font-size: 1rem;
-        line-height: 1.4;
+        font-size: 0.85rem; /* Fonte reduzida conforme pedido */
+        line-height: 1.3;
       }
       .clip-content li {
-        margin-bottom: 6px;
-        padding-left: 15px;
-        position: relative;
+        margin-bottom: 4px; padding-left: 12px; position: relative;
       }
       .clip-content li::before {
-        content: "■";
-        color: var(--accent-red);
-        font-size: 0.6rem;
-        position: absolute;
-        left: 0; top: 2px;
+        content: "■"; color: var(--accent-red); font-size: 0.5rem;
+        position: absolute; left: 0; top: 3px;
       }
 
-      /* 4. CAIXA (RODAPÉ) - AJUSTADO */
+      /* 4. Rodapé Compacto */
       .cargo-crate {
         background: #4a3b32;
-        border: 4px solid #2b1e16;
-        padding: 20px;
-        width: 100%;
-        max-width: 700px;
+        border: 3px solid #2b1e16;
+        padding: 10px;
+        width: 100%; max-width: 600px;
         text-align: center;
         position: relative;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+        margin-bottom: 10px;
       }
-      
-      /* Faixa de Perigo */
-      .cargo-crate::after {
-        content: "";
-        position: absolute;
-        bottom: 0; left: 0; width: 100%; height: 8px;
-        background: repeating-linear-gradient(
-          -45deg,
-          #ffcd75,
-          #ffcd75 10px,
-          #111 10px,
-          #111 20px
-        );
+      .cargo-crate::after { /* Faixa */
+        content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
+        background: repeating-linear-gradient(-45deg, #ffcd75, #ffcd75 8px, #111 8px, #111 16px);
       }
 
       .legal-text {
-        /* AUMENTADO conforme pedido */
-        font-family: "Rajdhani", sans-serif;
-        font-weight: 600;
-        font-size: 0.9rem; 
-        color: #dacbb6;
-        margin-bottom: 15px;
-        line-height: 1.4;
+        font-family: "Rajdhani", sans-serif; font-weight: 600;
+        font-size: 0.7rem; color: #dacbb6; margin-bottom: 8px; line-height: 1.2;
       }
 
       .btn-pixel {
-        display: inline-block;
-        background: var(--accent-gold);
-        color: #000;
-        text-decoration: none;
-        padding: 12px 24px;
-        border: 3px solid #000;
-        box-shadow: 4px 4px 0 #000;
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        font-weight: bold;
+        display: inline-block; background: var(--accent-gold); color: #000;
+        text-decoration: none; padding: 6px 12px; border: 2px solid #000;
+        box-shadow: 2px 2px 0 #000; font-size: 0.5rem; text-transform: uppercase; font-weight: bold;
         transition: transform 0.1s;
       }
-      .btn-pixel:active {
-        transform: translate(2px, 2px);
-        box-shadow: 2px 2px 0 #000;
-      }
-
-      /* Cursor Piscante */
-      .cursor {
-        display: inline-block;
-        width: 8px; height: 14px;
-        background: var(--accent-green);
-        animation: blink 1s infinite;
-        vertical-align: middle;
-      }
+      .btn-pixel:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #000; }
+      .cursor { display: inline-block; width: 6px; height: 10px; background: var(--accent-green); animation: blink 1s infinite; vertical-align: middle; }
 
       @keyframes blink { 50% { opacity: 0; } }
-      @keyframes floatSign {
-        0%, 100% { transform: rotate(-1deg) translateY(0); }
-        50% { transform: rotate(1deg) translateY(5px); }
-      }
+      @keyframes floatSign { 0%, 100% { transform: rotate(-1deg) translateY(0); } 50% { transform: rotate(1deg) translateY(3px); } }
 
-      /* RESPONSIVIDADE */
       @media (max-width: 768px) {
-        .deck-grid { grid-template-columns: 1fr; }
-        .rope { display: none; }
-        .monitor-wrapper { width: 95%; }
-        .cargo-crate { width: 95%; }
+        #ui-layer { height: auto; overflow-y: auto; }
+        .deck-grid { flex-direction: column; }
+        .monitor-wrapper, .cargo-crate { width: 95%; }
       }
     </style>
   </head>
   <body>
 
-    <!-- CAMADA 1: FUNDO (CSS) -->
+    <!-- 1. FUNDO -->
     <div class="layer-bg"></div>
 
-    <!-- CAMADA 2: JOGO (PIXIJS - Transparente) -->
+    <!-- 2. JOGO/ROBÔS -->
     <div id="game-stage"></div>
 
-    <!-- CAMADA 3: UI (HTML/CSS) -->
+    <!-- 3. UI -->
     <div id="ui-layer">
       
-      <!-- 1. TÍTULO -->
+      <!-- TOPO -->
       <header class="sign-container interactive">
-        <div class="rope left"></div>
-        <div class="rope right"></div>
         <div class="sign-board">
           <h1 class="sign-title">LOL PERFORMANCE</h1>
           <span class="sign-sub">AI MASTER'S DISSERTATION</span>
         </div>
       </header>
 
-      <!-- 2. MONITOR -->
+      <!-- MEIO (MONITOR) -->
       <main class="monitor-wrapper interactive">
-        <div class="crt-screen" id="console-output">
-          <!-- JS type writer -->
-        </div>
+        <div class="crt-screen" id="console-output"></div>
       </main>
 
-      <!-- 3. INFORMAÇÕES -->
+      <!-- ABAIXO (INFORMAÇÕES) -->
       <section class="deck-grid">
-        
         <article class="clipboard interactive">
           <div class="clip-title">PROJECT GOALS</div>
           <div class="clip-content">
@@ -375,13 +287,12 @@
             </ul>
           </div>
         </article>
-
       </section>
 
-      <!-- 4. RODAPÉ -->
+      <!-- RODAPÉ -->
       <footer class="cargo-crate interactive">
         <p class="legal-text">
-          This project isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
+          This project isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games.
         </p>
         <a href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance" target="_blank" class="btn-pixel">
           ACCESS REPOSITORY
@@ -391,204 +302,138 @@
     </div>
 
     <script>
-      /**
-       * =================================================
-       * LÓGICA VISUAL (PIXI.JS + GSAP)
-       * Simulação de Robôs "64-bit" e Ambiente Dinâmico
-       * =================================================
-       */
+      // ============================================
+      // SIMULAÇÃO DE ROBÔS (PIXI.JS)
+      // ============================================
       
-      // Configuração Inicial do PixiJS
       const app = new PIXI.Application({
-        backgroundAlpha: 0, // IMPORTANTE: Fundo transparente para ver o CSS atrás
+        backgroundAlpha: 0,
         resizeTo: window,
-        antialias: false, // Pixel Art Crispy
+        antialias: false,
         resolution: window.devicePixelRatio || 1,
       });
       document.getElementById('game-stage').appendChild(app.view);
 
-      // Container Principal
       const world = new PIXI.Container();
       app.stage.addChild(world);
 
-      // NOTA: O Fundo agora é carregado via CSS na classe .layer-bg
-      // Isso evita erros de URL do PixiJS em ambientes blob/iframe.
-
-      // --- 1. GERADOR DE SPRITES PROCEDURAIS (64-BIT STYLE) ---
-      function createRobotTexture(colorMain, colorAccent) {
+      // --- SPRITE GENERATION (Estilo da Arte) ---
+      // Cores: Rusty Orange (#b56c45), Dark Teal (#3a5263), Metal (#88939e)
+      function createBotTexture(mainColor, accentColor) {
         const g = new PIXI.Graphics();
-        
-        // Desenho "High-Res" do Robô (24x24 grid)
-        // Corpo
-        g.beginFill(0x222222); // Contorno
-        g.drawRect(0, 0, 24, 24);
-        g.beginFill(colorMain); // Metal Base
+        const s = 24; // Tamanho base
+
+        // Contorno
+        g.beginFill(0x111111);
+        g.drawRect(0, 0, s, s);
+
+        // Corpo (Base)
+        g.beginFill(mainColor); 
         g.drawRect(2, 2, 20, 20);
-        
-        // Sombreamento
-        g.beginFill(0x000000, 0.2);
-        g.drawRect(2, 18, 20, 4); // Sombra inferior
-        g.drawRect(18, 2, 4, 20); // Sombra lateral
+
+        // Detalhes "Enferrujados" / Sombreamento
+        g.beginFill(0x000000, 0.25);
+        g.drawRect(2, 18, 20, 4); // Fundo
+        g.drawRect(18, 2, 4, 20); // Lateral
 
         // Visor
-        g.beginFill(colorAccent);
-        g.drawRect(4, 5, 16, 6);
-        g.beginFill(0xFFFFFF, 0.8); // Reflexo
-        g.drawRect(5, 6, 4, 2);
+        g.beginFill(0x111111);
+        g.drawRect(4, 6, 16, 6);
+        g.beginFill(accentColor); // Luz do visor
+        g.drawRect(6, 7, 4, 4);
+        g.beginFill(0xffffff, 0.6); // Brilho
+        g.drawRect(7, 7, 1, 1);
 
-        // Detalhes
-        g.beginFill(0x444444);
-        g.drawRect(6, 14, 12, 6); // Peito
-        g.beginFill(0xFF0000);
-        g.drawRect(8, 16, 2, 2); // Led
+        // Perninhas
+        g.beginFill(0x333333);
+        g.drawRect(4, 22, 4, 2);
+        g.drawRect(16, 22, 4, 2);
 
         return app.renderer.generateTexture(g);
       }
 
-      const textureWorker = createRobotTexture(0xCCCCCC, 0x44ff66); // Cinza/Verde
-      const textureDrone = createRobotTexture(0x556677, 0xff3333);  // Azul/Vermelho
+      // Texturas
+      const texWorker = createBotTexture(0x88939e, 0x44d65c); // Cinza/Verde
+      const texDrone = createBotTexture(0x3a5263, 0xffcd75);  // Azulado/Amarelo
+      const texRusty = createBotTexture(0xb56c45, 0xe53b44);  // Ferrugem/Vermelho
 
-      // --- 2. ENTIDADES ---
-      const robots = [];
-
-      class Robot {
-        constructor(type, x, y) {
-          this.container = new PIXI.Container();
-          this.container.x = x;
-          this.container.y = y;
-          
-          this.sprite = new PIXI.Sprite(type === 'worker' ? textureWorker : textureDrone);
+      // --- ENTITY CLASS ---
+      class Entity {
+        constructor(texture, x, y, scale=2) {
+          this.sprite = new PIXI.Sprite(texture);
           this.sprite.anchor.set(0.5, 1);
-          this.sprite.scale.set(2); // Scale up
+          this.sprite.scale.set(scale);
+          this.sprite.x = x;
+          this.sprite.y = y;
+          world.addChild(this.sprite);
           
-          this.container.addChild(this.sprite);
-          world.addChild(this.container);
-          
-          // Estado
-          this.type = type;
           this.homeX = x;
-          this.state = 'idle'; 
+          this.state = 'idle';
+          this.timer = 0;
         }
 
-        playAnimation(anim) {
-          if(anim === 'panic') {
-            gsap.to(this.sprite, { y: -5, yoyo: true, repeat: -1, duration: 0.1 });
-            gsap.to(this.sprite, { rotation: 0.1, yoyo: true, repeat: -1, duration: 0.05 });
-          }
-          if(anim === 'idle') {
-            gsap.killTweensOf(this.sprite);
-            this.sprite.y = 0;
-            this.sprite.rotation = 0;
-            gsap.to(this.sprite.scale, { y: 1.9, yoyo: true, repeat: -1, duration: 1 });
+        walkTo(targetX) {
+          const dist = targetX - this.sprite.x;
+          if (Math.abs(dist) > 2) {
+            const dir = Math.sign(dist);
+            this.sprite.x += dir * 0.8; // Velocidade
+            this.sprite.scale.x = Math.abs(this.sprite.scale.x) * dir; // Virar
+            
+            // Animação "Bobbing" (Andar)
+            this.sprite.y = this.homeX + Math.sin(Date.now() / 100) * 2; 
           }
         }
       }
 
-      // Coordenadas (Ajustadas para a imagem)
-      const platformY = app.screen.height * 0.55;
+      // --- POSICIONAMENTO ESTRATÉGICO ---
+      // Colocar robôs onde NÃO tem UI
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // 1. Ponte Superior (Entre Header e Monitor)
+      const botTop = new Entity(texDrone, w * 0.2, h * 0.18, 2);
       
-      // Robô Vítima (Esq)
-      const bot1 = new Robot('worker', app.screen.width * 0.35, platformY);
-      bot1.playAnimation('idle');
+      // 2. Plataforma Média (Lados do Monitor)
+      const botLeft = new Entity(texRusty, w * 0.15, h * 0.5, 2.5);
+      const botRight = new Entity(texWorker, w * 0.85, h * 0.5, 2.5);
 
-      // Robô Resgate (Dir)
-      const bot2 = new Robot('worker', app.screen.width * 0.65, platformY);
-      bot2.playAnimation('idle');
+      // --- LOOP DE ANIMAÇÃO ---
+      let time = 0;
+      app.ticker.add((delta) => {
+        time += delta;
 
-      // Drone
-      const drone = new Robot('drone', app.screen.width * 0.5, app.screen.height * 0.2);
-      gsap.to(drone.container, { y: drone.container.y + 20, yoyo: true, repeat: -1, duration: 2, ease: 'sine.inOut' });
+        // Bot Top: Patrulha
+        const patrolX = w * 0.2 + Math.sin(time / 200) * 100;
+        botTop.walkTo(patrolX);
+        botTop.sprite.y = h * 0.18 + Math.cos(time/50) * 5; // Flutuar
 
-      // --- 3. SISTEMA DE EVENTOS ---
-      function triggerEmergency() {
-        // 1. Fogo
-        bot1.state = 'panic';
-        bot1.playAnimation('panic');
-        
-        const smokeTicker = setInterval(() => createParticle(bot1.container.x, bot1.container.y - 40, 'smoke'), 100);
-        const fireTicker = setInterval(() => createParticle(bot1.container.x, bot1.container.y - 20, 'fire'), 200);
-
-        // 2. Resgate
-        setTimeout(() => {
-          bot2.state = 'rescue';
-          bot2.sprite.scale.x = -2; // Vira
-          
-          gsap.to(bot2.container, { 
-            x: bot1.container.x + 60, 
-            duration: 2, 
-            ease: 'power1.inOut',
-            onComplete: () => {
-              const foamTicker = setInterval(() => {
-                createParticle(bot2.container.x - 30, bot2.container.y - 30, 'foam');
-              }, 50);
-
-              setTimeout(() => {
-                clearInterval(smokeTicker);
-                clearInterval(fireTicker);
-                clearInterval(foamTicker);
-                
-                bot1.playAnimation('idle');
-                bot2.sprite.scale.x = 2; 
-                
-                gsap.to(bot2.container, { x: bot2.homeX, duration: 3, ease: 'power1.inOut' });
-                
-                setTimeout(triggerEmergency, 10000);
-              }, 3000);
-            }
-          });
-        }, 1500);
-      }
-
-      setTimeout(triggerEmergency, 3000);
-
-      // --- 4. PARTÍCULAS ---
-      function createParticle(x, y, type) {
-        const p = new PIXI.Graphics();
-        if(type === 'smoke') {
-          p.beginFill(0x333333, 0.6);
-          p.drawCircle(0,0, 5 + Math.random() * 5);
-        } else if(type === 'fire') {
-          p.beginFill(0xFFaa00, 0.8);
-          p.drawRect(0,0, 4, 4);
-        } else {
-          p.beginFill(0xFFFFFF, 0.9);
-          p.drawCircle(0,0, 3);
+        // Bot Left: Trabalhando (Pula de vez em quando)
+        if (Math.random() < 0.01) {
+            botLeft.sprite.scale.y = 2.2; // Stretch
+            setTimeout(() => botLeft.sprite.scale.y = 2.5, 100);
         }
-        
-        p.x = x; p.y = y;
-        world.addChild(p);
 
-        let life = 1.0;
-        const tick = (delta) => {
-          life -= 0.02;
-          p.alpha = life;
-          p.y -= (type === 'foam' ? -1 : 1) * 2;
-          p.x += (Math.random() - 0.5);
-          
-          if(life <= 0) {
-            app.ticker.remove(tick);
-            p.destroy();
-          }
-        };
-        app.ticker.add(tick);
-      }
+        // Bot Right: Observando (Vira a cabeça)
+        if (Math.floor(time) % 300 === 0) {
+            botRight.sprite.scale.x *= -1;
+        }
+      });
 
-      // --- 5. TYPEWRITER ---
-      const text = `> SYSTEM INITIALIZED...\n> LOADING: Master-Degree-PPGCAP\n> TARGET: LoL Performance Analysis\n\nSTATUS: ACADEMIC RESEARCH.\nDATA SOURCE:
-Using Riot Games API to build datasets for research.`;
+      // --- TYPEWRITER (Monitor) ---
+      const text = `> SYSTEM READY.\n> LOADING PROJECT: LoL_Performance_AI\n> DATA SOURCE: Riot API (Match-V5)\n\nSTATUS: ACADEMIC RESEARCH ACTIVE.`;
       const consoleDiv = document.getElementById('console-output');
-      let i = 0;
-      
+      let charI = 0;
       function type() {
-        if (i < text.length) {
-          consoleDiv.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
-          i++;
-          setTimeout(type, 30);
+        if(charI < text.length) {
+          const char = text.charAt(charI);
+          consoleDiv.innerHTML += char === '\n' ? '<br>' : char;
+          charI++;
+          setTimeout(type, 20);
         } else {
           consoleDiv.innerHTML += '<span class="cursor"></span>';
         }
       }
-      setTimeout(type, 1000);
+      setTimeout(type, 500);
 
     </script>
   </body>
