@@ -5,10 +5,9 @@
     <title>LoL Performance – AI Research</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- CSS principal -->
     <link rel="stylesheet" href="styles.css" />
 
-    <!-- Fontes usadas no layout -->
+    <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,148 +16,169 @@
     />
   </head>
   <body>
-    <!-- Canvas do fundo em pixel art (prédio + robôs) -->
-    <canvas id="pixel-bg"></canvas>
+    <div class="scene">
+      <!-- Base pixel art do prédio de robôs -->
+      <div class="scene__base"></div>
 
-    <!-- Camada de HUD com painéis/telas -->
-    <main class="hud">
-      <!-- Painel de título -->
-      <header class="screen screen-title">
-        <span class="badge">Master's Thesis · Academic Research</span>
-        <h1>
-          LoL Performance<br />
-          <span>AI Research</span>
-        </h1>
-        <p class="subtitle">
-          Master’s dissertation in Applied Computing using League of Legends
-          match data for machine learning research.
-        </p>
-      </header>
+      <!-- Efeitos animados (telas, faísca, etc) -->
+      <div class="scene__fx">
+        <!-- tela central do laboratório -->
+        <div class="screen-glow screen-glow--center"></div>
 
-      <!-- Painel de overview -->
-      <section class="screen screen-wide">
-        <h2>Project Overview</h2>
-        <p>
-          <strong>Master-Degree-PPGCAP-LoLPerformance</strong> is a
-          non-commercial master’s dissertation project focused on
-          <strong>League of Legends Performance AI</strong>. The research
-          analyzes historical League of Legends matches using machine learning
-          and deep learning to model team and player performance over time.
-        </p>
-      </section>
+        <!-- telas menores nos andares superiores -->
+        <div class="screen-glow screen-glow--upper-left"></div>
+        <div class="screen-glow screen-glow--upper-right"></div>
 
-      <!-- Painel dividido: Goals / Riot API Usage -->
-      <section class="screen screen-grid">
-        <div class="screen-column">
-          <h3>Goals</h3>
-          <ul>
-            <li>
-              Collect historical ranked (and, when allowed, competitive) match
-              data.
-            </li>
-            <li>
-              Build structured timelines (gold, XP, objectives, kills, etc.).
-            </li>
-            <li>
-              Train and evaluate predictive models (e.g., win probability, game
-              state classification).
-            </li>
-            <li>
-              Produce aggregated, anonymized statistics for academic analysis
-              and publications.
-            </li>
-          </ul>
-        </div>
+        <!-- consoles da parte inferior -->
+        <div class="screen-glow screen-glow--bottom-left"></div>
+        <div class="screen-glow screen-glow--bottom-right"></div>
 
-        <div class="screen-column">
-          <h3>Riot Games API Usage</h3>
-          <p>
-            The project uses the official Riot Games API only for offline,
-            research-oriented data collection:
+        <!-- faísca do robô soldando (andar alto à direita) -->
+        <div class="spark spark--welder"></div>
+      </div>
+
+      <!-- HUD de texto: painéis flutuando na frente do prédio -->
+      <main class="hud">
+        <!-- Painel de título -->
+        <header class="screen screen-title">
+          <span class="badge">Master's Thesis · Academic Research</span>
+          <h1>
+            LoL Performance<br />
+            <span>AI Research</span>
+          </h1>
+          <p class="subtitle">
+            Master’s dissertation in Applied Computing using League of Legends
+            match data for machine learning research.
           </p>
-          <ul>
-            <li>
-              <code>account-v1</code> / <code>summoner-v4</code> – resolve Riot
-              IDs and PUUIDs to seed match collection.
-            </li>
-            <li>
-              <code>match-v5</code> – retrieve match details and timelines for
-              feature engineering and model training.
-            </li>
-            <li>
-              Data Dragon / static LoL data – champion, item and rune metadata.
-            </li>
-          </ul>
-        </div>
-      </section>
+        </header>
 
-      <!-- Painel dividido: Tech Stack / Ethics -->
-      <section class="screen screen-grid">
-        <div class="screen-column">
-          <h3>Tech Stack</h3>
-          <ul>
-            <li>Python – data collection, preprocessing, feature engineering.</li>
-            <li>Jupyter Notebooks – experiments, models, visualizations.</li>
-            <li>
-              Riot Games API – <code>account-v1</code>, <code>summoner-v4</code>,
-              <code>match-v5</code>.
-            </li>
-            <li>Data Dragon / static LoL data – champions, items, runes.</li>
-          </ul>
-        </div>
-
-        <div class="screen-column">
-          <h3>Ethics and Data Use</h3>
-          <ul>
-            <li>
-              Non-commercial, academic-only use in a controlled research
-              environment.
-            </li>
-            <li>
-              Data is analyzed in aggregate; individual players are not
-              identified or profiled.
-            </li>
-            <li>
-              No overlays, scripts, bots, boosting, betting or tools that
-              provide unfair competitive advantage.
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- Painel inferior: Legal + tags + link do repo -->
-      <section class="screen screen-wide screen-footer">
-        <div class="screen-footer-main">
-          <h3>Legal</h3>
+        <!-- Overview -->
+        <section class="screen screen-wide">
+          <h2>Project Overview</h2>
           <p>
-            This project isn’t endorsed by Riot Games and doesn’t reflect the
-            views or opinions of Riot Games or anyone officially involved in
-            producing or managing Riot Games properties. Riot Games and all
-            associated properties are trademarks or registered trademarks of
-            Riot Games, Inc.
+            <strong>Master-Degree-PPGCAP-LoLPerformance</strong> is a
+            non-commercial master’s dissertation project focused on
+            <strong>League of Legends Performance AI</strong>. The research
+            analyzes historical League of Legends matches using machine learning
+            and deep learning to model team and player performance over time.
           </p>
-        </div>
+        </section>
 
-        <div class="screen-footer-side">
-          <ul class="tags">
-            <li>Machine Learning</li>
-            <li>Game Analytics</li>
-            <li>Riot Games API</li>
-          </ul>
+        <!-- Goals + Riot API -->
+        <section class="screen screen-grid">
+          <div class="screen-column">
+            <h3>Goals</h3>
+            <ul>
+              <li>
+                Collect historical ranked (and, when allowed, competitive) match
+                data.
+              </li>
+              <li>
+                Build structured timelines (gold, XP, objectives, kills, etc.).
+              </li>
+              <li>
+                Train and evaluate predictive models (e.g., win probability,
+                game state classification).
+              </li>
+              <li>
+                Produce aggregated, anonymized statistics for academic analysis
+                and publications.
+              </li>
+            </ul>
+          </div>
 
-          <a
-            class="btn"
-            href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View research repo
-          </a>
-        </div>
-      </section>
-    </main>
+          <div class="screen-column">
+            <h3>Riot Games API Usage</h3>
+            <p>
+              The project uses the official Riot Games API only for offline,
+              research-oriented data collection:
+            </p>
+            <ul>
+              <li>
+                <code>account-v1</code> / <code>summoner-v4</code> – resolve
+                Riot IDs and PUUIDs to seed match collection.
+              </li>
+              <li>
+                <code>match-v5</code> – retrieve match details and timelines for
+                feature engineering and model training.
+              </li>
+              <li>
+                Data Dragon / static LoL data – champion, item and rune
+                metadata.
+              </li>
+            </ul>
+          </div>
+        </section>
 
-    <!-- JS do cenário em pixel art -->
-    <script src="pixel-bg.js"></script>
+        <!-- Tech Stack + Ethics -->
+        <section class="screen screen-grid">
+          <div class="screen-column">
+            <h3>Tech Stack</h3>
+            <ul>
+              <li>
+                Python – data collection, preprocessing, feature engineering.
+              </li>
+              <li>
+                Jupyter Notebooks – experiments, models, visualizations.
+              </li>
+              <li>
+                Riot Games API – <code>account-v1</code>,
+                <code>summoner-v4</code>, <code>match-v5</code>.
+              </li>
+              <li>Data Dragon – champions, items, runes.</li>
+            </ul>
+          </div>
+
+          <div class="screen-column">
+            <h3>Ethics and Data Use</h3>
+            <ul>
+              <li>
+                Non-commercial, academic-only use in a controlled research
+                environment.
+              </li>
+              <li>
+                Data is analyzed in aggregate; individual players are not
+                identified or profiled.
+              </li>
+              <li>
+                No overlays, scripts, bots, boosting, betting or tools that
+                provide unfair competitive advantage.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Legal + tags + link -->
+        <section class="screen screen-wide screen-footer">
+          <div class="screen-footer-main">
+            <h3>Legal</h3>
+            <p>
+              This project isn’t endorsed by Riot Games and doesn’t reflect the
+              views or opinions of Riot Games or anyone officially involved in
+              producing or managing Riot Games properties. Riot Games and all
+              associated properties are trademarks or registered trademarks of
+              Riot Games, Inc.
+            </p>
+          </div>
+
+          <div class="screen-footer-side">
+            <ul class="tags">
+              <li>Machine Learning</li>
+              <li>Game Analytics</li>
+              <li>Riot Games API</li>
+            </ul>
+
+            <a
+              class="btn"
+              href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View research repo
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
   </body>
 </html>
