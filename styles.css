@@ -1,11 +1,12 @@
+/* Estilos de Cores e Fontes para o tema Pixel Art / Sci-Fi */
 :root {
-  --accent: #4af7ff;
-  --accent2: #ffb347;
-  --panel-border: #22d3ee;
-  --panel-glow: rgba(34, 211, 238, 0.9);
-  --panel-bg: rgba(5, 10, 25, 0.9);
-  --text-main: #f9fafb;
-  --text-muted: #9ca3af;
+  --accent: #4af7ff; /* Ciano Neon */
+  --accent2: #ffb347; /* Laranja Pixel */
+  --panel-border: #22d3ee; /* Borda dos Painéis */
+  --panel-glow: rgba(34, 211, 238, 0.9); /* Brilho do Painel */
+  --panel-bg: rgba(5, 10, 25, 0.9); /* Fundo Escuro Semi-transparente */
+  --text-main: #f9fafb; /* Texto Principal */
+  --text-muted: #9ca3af; /* Texto Secundário */
 }
 
 * {
@@ -16,24 +17,28 @@
 
 body {
   min-height: 100vh;
+  /* Fonte para o corpo do texto */
   font-family: "JetBrains Mono", monospace;
   color: var(--text-main);
   background: #000;
   overflow-x: hidden;
 }
 
-/* ===== CENA BASE ===== */
+/* ===== CENA BASE (A ARTE DE PIXEL) ===== */
 .scene {
   position: relative;
+  /* Garante espaço para que os painéis (overlay) possam ser espalhados */
   min-height: 120vh;
 }
 
 .scene__base {
   position: fixed;
   inset: 0;
-  background-image: url("lab-base.png"); /* ajusta o nome se for outro */
+  /* 🚨 SUBSTITUA 'lab-base.png' PELA SUA IMAGEM DE PIXEL ART COM OS ROBÔS 🚨 */
+  background-image: url("lab-base.png");
   background-size: cover;
   background-position: center;
+  /* Fundamental para manter o aspecto pixelado mesmo ao redimensionar */
   image-rendering: pixelated;
   z-index: -3;
 }
@@ -45,17 +50,18 @@ body {
   z-index: -2;
 }
 
-/* Vinheta para focar no prédio */
+/* Vinheta suave para focar no conteúdo central */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
+  /* Sombra interna para escurecer levemente as bordas */
   box-shadow: inset 0 0 170px rgba(0, 0, 0, 0.85);
   z-index: -1;
 }
 
-/* Canvas transparente das animações JS */
+/* Canvas transparente das animações JS (Nuvens, Partículas) */
 #fx-canvas {
   position: absolute;
   inset: 0;
@@ -65,8 +71,9 @@ body::before {
   image-rendering: pixelated;
 }
 
-/* ===== GLOWS EM TELAS DA ARTE ===== */
+/* ===== ANIMAÇÕES CSS INTEGRANDO A ARTE (Glows e Faíscas) ===== */
 
+/* Brilho e pulsação das telas/monitores na arte */
 .screen-glow {
   position: absolute;
   background: rgba(34, 211, 238, 0.12);
@@ -76,7 +83,8 @@ body::before {
   animation: screenPulse 2.6s ease-in-out infinite;
 }
 
-/* coordenadas aproximadas em cima da arte */
+/* Coordenadas aproximadas ajustadas para sobrepor as telas na arte */
+/* Estas coordenadas podem precisar de ajuste fino dependendo do corte da imagem */
 .screen-glow--center {
   left: 50%;
   top: 56%;
@@ -117,7 +125,7 @@ body::before {
   transform: translate(-50%, -50%);
 }
 
-/* faísca do robô soldando */
+/* Faísca do robô soldando/reparando algo */
 .spark {
   position: absolute;
   width: 12px;
@@ -130,7 +138,7 @@ body::before {
 
 .spark--welder {
   left: 66%;
-  top: 33%;
+  top: 33%; /* Ajustado para um robô em um nível mais alto */
 }
 
 @keyframes screenPulse {
@@ -163,16 +171,16 @@ body::before {
   }
 }
 
-/* ===== PAINÉIS HUD INTEGRADOS NA CENA ===== */
+/* ===== PAINÉIS HUD HOLOGRÁFICOS (Layout e UI) ===== */
 
 .overlay {
   position: relative;
   max-width: 1200px;
   margin: 0 auto;
-  height: 120vh; /* espaço pra espalhar os painéis */
+  height: 120vh; /* Para espalhar os painéis verticalmente */
 }
 
-/* painel base holográfico */
+/* Estilo base dos painéis de texto (fundo escuro, borda neon, blur) */
 .panel {
   position: absolute;
   padding: 0.9rem 1.1rem;
@@ -190,7 +198,7 @@ body::before {
   overflow-y: auto;
 }
 
-/* “moldura interna” estilo painel */
+/* "Moldura interna" para dar um toque mais complexo ao painel */
 .panel::before {
   content: "";
   position: absolute;
@@ -199,6 +207,8 @@ body::before {
   border: 1px solid rgba(148, 163, 184, 0.35);
   pointer-events: none;
 }
+
+/* Posições dos painéis (Desktop) - UX de organização */
 
 /* outdoor de título (topo da construção) */
 .panel-title {
@@ -264,11 +274,12 @@ body::before {
   text-transform: uppercase;
   padding: 0.18rem 0.6rem;
   border-radius: 999px;
-  border: 1px solid var(--accent2);
+  border: 1px solid var(--accent2); /* Laranja */
   background: rgba(0, 0, 0, 0.75);
 }
 
 .panel-title h1 {
+  /* Fonte pixelada para títulos */
   font-family: "Press Start 2P", system-ui;
   font-size: clamp(1.1rem, 2vw, 1.5rem);
   line-height: 1.5;
@@ -278,7 +289,7 @@ body::before {
 }
 
 .panel-title h1 span {
-  color: var(--accent2);
+  color: var(--accent2); /* Destaque em Laranja */
 }
 
 .subtitle {
@@ -298,7 +309,7 @@ body::before {
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
-  color: var(--accent);
+  color: var(--accent); /* Destaque em Ciano */
 }
 
 .panel p {
@@ -364,13 +375,14 @@ body::before {
   filter: brightness(1.08);
 }
 
-/* ===== RESPONSIVO: mobile volta a ser em coluna ===== */
+/* ===== RESPONSIVO: Mobile (Layout em Coluna) ===== */
 
 @media (max-width: 900px) {
   .scene {
     min-height: auto;
   }
 
+  /* Desativa a posição absoluta, transforma em coluna, adiciona padding */
   .overlay {
     height: auto;
     max-width: 640px;
