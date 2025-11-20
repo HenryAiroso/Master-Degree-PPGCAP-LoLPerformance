@@ -28,7 +28,6 @@
         --accent-gold: #ffcd75;
         --accent-red: #e53b44;
         --metal-dark: #1a1c2c;
-        --metal-plate: #3e2b22;
         --paper-bg: #dcdacb;
         --monitor-bg: #05080a;
         --ui-shadow: 6px 6px 0 rgba(0,0,0,0.8);
@@ -48,8 +47,6 @@
       }
 
       /* CAMADAS VISUAIS */
-
-      /* 1. A TORRE (Fundo Fixo) - Prioridade PNG */
       .layer-structure {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -61,7 +58,6 @@
         z-index: 0;
       }
 
-      /* 2. SIMULAÇÃO (PixiJS - Robôs e Fumaça) */
       #game-stage {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -69,7 +65,6 @@
         pointer-events: none;
       }
 
-      /* 3. UI INTERFACE */
       #ui-layer {
         position: relative;
         z-index: 10;
@@ -86,16 +81,15 @@
       .interactive { pointer-events: auto; }
 
       /* =========================================
-         UI COMPONENTS (Refined Industrial)
+         UI COMPONENTS (A Placa que você gostou)
          ========================================= */
 
-      /* PLACA (Signboard) - Laranja Avermelhado com "Repintura" Azul */
+      /* PLACA SUPERIOR */
       .sign-container {
         margin-top: 15px;
         animation: floatSign 5s ease-in-out infinite;
         position: relative;
       }
-      /* Cordas */
       .sign-container::before, .sign-container::after {
         content: ""; position: absolute; top: -100vh; width: 4px; height: 100vh;
         background: #222; border-left: 2px solid #000; z-index: -1;
@@ -104,13 +98,7 @@
       .sign-container::after { right: 15px; transform: rotate(-1deg); }
 
       .sign-board {
-        /* Gradiente vibrante Laranja/Vermelho com desgaste */
-        background: linear-gradient(160deg,
-          #e65c40 0%,
-          #bf3626 60%,
-          #3a4a5e 85%, /* Mancha de metal azulado */
-          #242e38 100%
-        );
+        background: linear-gradient(160deg, #e65c40 0%, #bf3626 60%, #3a4a5e 85%, #242e38 100%);
         border: 4px solid #1a1c2c;
         padding: 12px 24px;
         box-shadow: var(--ui-shadow);
@@ -118,113 +106,69 @@
         position: relative;
         border-radius: 2px;
       }
-
-      /* Parafusos nos cantos */
       .sign-board::before, .sign-board::after {
         content: "+"; position: absolute; top: 4px; color: #111; font-size: 10px;
       }
       .sign-board::before { left: 6px; } .sign-board::after { right: 6px; }
 
       .sign-title {
-        font-size: 1rem; color: #fff;
-        text-shadow: 2px 2px 0 #3e1010;
-        margin: 0; text-transform: uppercase; letter-spacing: 2px;
+        font-size: 1rem; color: #fff; text-shadow: 2px 2px 0 #3e1010; margin: 0; text-transform: uppercase; letter-spacing: 2px;
       }
       .sign-sub {
         font-size: 0.55rem; color: var(--accent-gold); display: block; margin-top: 6px; letter-spacing: 1px; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px;
       }
 
-      /* MONITOR (CRT Screen) */
+      /* MONITOR */
       .monitor-wrapper {
-        background: #222;
-        padding: 8px;
-        border-radius: 4px;
+        background: #222; padding: 8px; border-radius: 4px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.9);
-        width: 100%; max-width: 680px;
-        position: relative;
-        border: 3px solid #111;
-        margin-top: 10px;
+        width: 100%; max-width: 680px; position: relative;
+        border: 3px solid #111; margin-top: 10px;
       }
       .monitor-wrapper::before {
         content:""; position:absolute; top:100%; left:50%; width:90%; height:10px;
         background: #000; opacity:0.6; filter:blur(8px); transform:translateX(-50%);
       }
-
       .crt-screen {
-        background: var(--monitor-bg);
-        border: 2px solid #444;
-        height: 150px;
-        padding: 15px;
-        overflow: hidden;
-        position: relative;
-        color: var(--accent-green);
-        font-size: 0.55rem;
-        line-height: 1.5;
-        text-shadow: 0 0 2px rgba(68, 214, 92, 0.5);
-        white-space: pre-wrap;
+        background: var(--monitor-bg); border: 2px solid #444; height: 150px; padding: 15px;
+        overflow: hidden; position: relative; color: var(--accent-green);
+        font-size: 0.55rem; line-height: 1.5; text-shadow: 0 0 2px rgba(68, 214, 92, 0.5); white-space: pre-wrap;
       }
-
-      /* Scanlines */
       .crt-screen::after {
         content: ""; position: absolute; inset: 0;
         background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
         pointer-events: none;
       }
 
-      /* GRIDS DE INFORMAÇÃO */
-      .deck-grid {
-        display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 750px;
-      }
-
+      /* GRIDS */
+      .deck-grid { display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 750px; }
+      
       .clipboard {
-        background: var(--paper-bg);
-        color: #1a1c2c;
-        padding: 12px;
-        position: relative;
-        box-shadow: var(--ui-shadow);
-        border: 2px solid #555;
-        flex: 1;
-        display: flex; flex-direction: column;
+        background: var(--paper-bg); color: #1a1c2c; padding: 12px; position: relative;
+        box-shadow: var(--ui-shadow); border: 2px solid #555; flex: 1; display: flex; flex-direction: column;
       }
-
       .clipboard::before {
         content: ""; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
         width: 40px; height: 12px; background: #555; border: 2px solid #222; border-radius: 2px;
       }
-
       .clip-title {
         background: #222; color: #fff; padding: 5px; text-align: center; font-size: 0.55rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;
       }
-
-      .clip-content { flex-grow: 1; }
-
-      .clip-content ul {
-        list-style: none; padding: 0; margin: 0; font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 0.75rem;
-        line-height: 1.3;
-      }
+      .clip-content ul { list-style: none; padding: 0; margin: 0; font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 0.75rem; line-height: 1.3; }
       .clip-content li { margin-bottom: 4px; padding-left: 12px; position: relative; }
       .clip-content li::before { content: "►"; color: var(--accent-red); font-size: 0.5rem; position: absolute; left: 0; top: 3px; }
 
-      /* RODAPÉ */
+      /* FOOTER */
       .cargo-crate {
-        background: #4a3c31;
-        border: 3px solid #2e221b;
-        padding: 12px;
-        width: 100%; max-width: 650px;
-        text-align: center;
-        position: relative;
-        box-shadow: var(--ui-shadow);
-        margin-bottom: 15px;
+        background: #4a3c31; border: 3px solid #2e221b; padding: 12px;
+        width: 100%; max-width: 650px; text-align: center; position: relative;
+        box-shadow: var(--ui-shadow); margin-bottom: 15px;
       }
       .cargo-crate::after {
         content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
         background: repeating-linear-gradient(-45deg, #ffcd75, #ffcd75 10px, #222 10px, #222 20px);
       }
-
-      .legal-text {
-        font-family: "Rajdhani", sans-serif; font-weight: 600; font-size: 0.7rem; color: #cbbfae; margin-bottom: 8px; line-height: 1.2;
-      }
-
+      .legal-text { font-family: "Rajdhani", sans-serif; font-weight: 600; font-size: 0.7rem; color: #cbbfae; margin-bottom: 8px; line-height: 1.2; }
       .btn-pixel {
         display: inline-block; background: var(--accent-gold); color: #000; text-decoration: none;
         padding: 6px 14px; border: 2px solid #000; box-shadow: 2px 2px 0 #000; font-size: 0.55rem; font-weight: bold;
@@ -249,7 +193,6 @@
     <div id="game-stage"></div>
 
     <div id="ui-layer">
-
       <header class="sign-container interactive">
         <div class="sign-board">
           <h1 class="sign-title">LOL PERFORMANCE</h1>
@@ -262,7 +205,6 @@
       </main>
 
       <section class="deck-grid">
-
         <article class="clipboard interactive">
           <div class="clip-title">PROJECT GOALS</div>
           <div class="clip-content">
@@ -290,7 +232,6 @@
             </div>
           </div>
         </article>
-
       </section>
 
       <footer class="cargo-crate interactive">
@@ -301,15 +242,12 @@
           ACCESS REPOSITORY
         </a>
       </footer>
-
     </div>
 
     <script>
       (function() {
-
-        // ============================================
-        // CONFIGURAÇÃO DO PIXI.JS (Simulação)
-        // ============================================
+        
+        // CONFIGURAÇÃO DO PIXI.JS
         const app = new PIXI.Application({
           backgroundAlpha: 0,
           resizeTo: window,
@@ -321,150 +259,87 @@
         const world = new PIXI.Container();
         app.stage.addChild(world);
 
-        // Cores Vibrantes (Inspiradas nas Refs)
+        // CORES
         const C = {
-          PURPLE: 0x6a4c93,
-          PURPLE_DARK: 0x402a5e,
-          ORANGE: 0xe07a5f,
-          ORANGE_DARK: 0xb04e35,
-          CYAN: 0x4ecdc4,
-          TEAL: 0x2b5c59,
-          YELLOW: 0xf7b731,
-          METAL: 0x95afc0,
-          METAL_DARK: 0x535c68,
-          BLACK: 0x1e272e,
-          WHITE: 0xffffff,
-          GREEN_PLANT: 0x6a9955,
-          GREEN_PLANT_DARK: 0x4a6e3c
+          PURPLE: 0x6a4c93, PURPLE_DARK: 0x402a5e, ORANGE: 0xe07a5f, CYAN: 0x4ecdc4,
+          TEAL: 0x2b5c59, YELLOW: 0xf7b731, METAL: 0x95afc0, METAL_DARK: 0x535c68,
+          BLACK: 0x1e272e, WHITE: 0xffffff, RED: 0xff4555, BLUE_SUIT: 0x4a6b8a
         };
 
         // ============================================
-        // 1. SPRITE FACTORY (Robôs Complexos & Únicos)
-        //    + Partes Móveis
+        // 1. GERADOR DE SPRITES (Robôs 64x64 Pixel Art)
         // ============================================
-        // Desenhando em um Canvas 64x64 virtual, mas com shapes detalhados
         function createRobotTexture(type) {
           const g = new PIXI.Graphics();
-          const scale = 1; // 1:1 desenho vetorial no canvas
+          const p = 1; // 1:1 Drawing on canvas
 
-          // Helper de Retângulo com Borda
-          const box = (x, y, w, h, fill, border=C.BLACK) => {
-            g.beginFill(border); // Borda grossa
-            g.drawRect(x, y, w, h);
-            g.beginFill(fill);
-            g.drawRect(x+2, y+2, w-4, h-4);
-            
-            // Highlight (Luz Topo)
-            g.beginFill(0xFFFFFF, 0.2);
-            g.drawRect(x+2, y+2, w-4, 2);
-            g.endFill();
+          const rect = (x, y, w, h, color) => {
+            g.beginFill(color); g.drawRect(x, y, w, h); g.endFill();
           };
 
-          if (type === 'tank') {
-            // ROBÔ "TANK" (Roxo, Pesado, Braço Garra) - Ref 1
+          if (type === 'janitor') {
+            // ROBÔ FAXINEIRO (Pequeno, Vassoura)
+            // Corpo
+            rect(20, 30, 24, 18, C.ORANGE);
+            rect(20, 48, 24, 4, C.METAL_DARK); // Sombra baixo
             
-            // Pernas (Grossas)
-            box(10, 40, 12, 16, C.METAL_DARK);
-            box(38, 40, 12, 16, C.METAL_DARK);
-            // Pés
-            box(8, 52, 16, 6, C.METAL);
-            box(36, 52, 16, 6, C.METAL);
+            // Olhos
+            rect(24, 34, 16, 6, C.BLACK);
+            rect(26, 35, 4, 4, C.YELLOW);
+            rect(34, 35, 4, 4, C.YELLOW);
 
-            // Tronco (Blindado)
-            box(12, 18, 36, 24, C.PURPLE);
-            // Detalhe Peito
-            box(20, 24, 20, 12, C.PURPLE_DARK);
-            g.beginFill(C.CYAN); // Núcleo de energia
-            g.drawCircle(30, 30, 3);
+            // Chapéu/Boné
+            rect(20, 28, 24, 2, C.BLUE_SUIT);
+            rect(24, 24, 16, 4, C.BLUE_SUIT);
 
-            // Cabeça (Capacete)
-            box(18, 8, 24, 14, C.PURPLE);
-            // Visor (Ciclope Vermelho)
-            g.beginFill(C.BLACK);
-            g.drawRect(22, 12, 16, 6);
-            g.beginFill(0xff3333);
-            g.drawRect(26, 13, 8, 4);
-
-            // Braço Esquerdo (Garra Gigante)
-            box(0, 20, 12, 20, C.PURPLE_DARK);
-            box(0, 36, 12, 12, C.METAL); // Garra base
-            g.beginFill(C.CYAN); // Luz da garra
-            g.drawRect(4, 40, 4, 4);
-
-            // Braço Direito
-            box(48, 20, 10, 24, C.PURPLE_DARK);
-
-          } else if (type === 'brain') {
-            // ROBÔ "CÉREBRO" (Laranja, Vidro, Tripé) - Ref 2
-
-            // Pernas (Tripé Fino)
-            g.lineStyle(4, C.METAL_DARK);
-            g.moveTo(20, 40); g.lineTo(15, 55);
-            g.moveTo(40, 40); g.lineTo(45, 55);
-            g.moveTo(30, 40); g.lineTo(30, 50);
-            g.lineStyle(0);
-
-            // Corpo (Esférico/Ovoide)
-            g.beginFill(C.BLACK); g.drawCircle(30, 30, 16); // Contorno
-            g.beginFill(C.ORANGE); g.drawCircle(30, 30, 14);
-
-            // Cúpula de Vidro
-            g.beginFill(C.CYAN, 0.4); // Vidro
-            g.drawEllipse(30, 14, 10, 8);
-            // Cérebro Rosa
-            g.beginFill(0xff88aa);
-            g.drawEllipse(30, 16, 6, 4);
-
-            // Olho Grande (Ciclope)
-            g.beginFill(C.WHITE);
-            g.drawCircle(30, 30, 6);
-            g.beginFill(C.BLACK);
-            g.drawCircle(30, 30, 2); // Pupila
-
-            // Antena
-            g.beginFill(C.METAL);
-            g.drawRect(40, 10, 2, 10);
-            g.beginFill(C.RED);
-            g.drawCircle(41, 10, 2);
-
-          } else if (type === 'monitor') {
-            // ROBÔ "MONITOR" (Cabeça TV, Esteira) - Ref 3
+            // Rodas
+            g.beginFill(C.BLACK); g.drawCircle(24, 52, 4); g.drawCircle(40, 52, 4); g.endFill();
             
-            // Esteira (Rodas)
-            box(15, 45, 30, 10, C.METAL_DARK);
-            g.beginFill(C.BLACK); // Rodas
-            g.drawCircle(20, 50, 3);
-            g.drawCircle(30, 50, 3);
-            g.drawCircle(40, 50, 3);
-
-            // Pescoço
-            box(26, 35, 8, 10, C.METAL);
-
-            // Cabeça (Monitor CRT)
-            box(15, 15, 30, 20, C.METAL_LIGHT); // Carcaça
-            box(18, 18, 24, 14, C.BLACK); // Tela
-            
-            // Rosto Digital
-            g.beginFill(C.CYAN);
-            g.drawRect(22, 22, 4, 4); // Olho E
-            g.drawRect(34, 22, 4, 4); // Olho D
-            g.drawRect(26, 28, 8, 2); // Boca
-
-            // Braços Finos
-            g.lineStyle(3, C.METAL_DARK);
-            g.moveTo(15, 40); g.lineTo(5, 35); // Braço Esq
-            g.moveTo(45, 40); g.lineTo(55, 35); // Braço Dir
+            // Vassoura (Separada depois, mas textura base aqui)
+            // (Desenharemos a vassoura como objeto filho para animar)
+          } 
+          else if (type === 'drone_wire') {
+            // DRONE CONECTOR (Voa, segura fio)
+            // Corpo
+            rect(22, 20, 20, 14, C.METAL);
+            rect(22, 34, 20, 2, C.METAL_DARK);
+            // Hélice
+            rect(10, 16, 44, 2, C.BLACK);
+            rect(10, 14, 4, 2, C.WHITE); rect(50, 14, 4, 2, C.WHITE);
+            // Olho
+            rect(28, 24, 8, 6, C.CYAN);
+            // Gancho inferior
+            rect(30, 34, 4, 6, C.METAL_DARK);
+          }
+          else if (type === 'tank') {
+            // TANK (Trabalho Pesado)
+            rect(16, 20, 32, 24, C.PURPLE);
+            rect(20, 24, 24, 12, C.PURPLE_DARK); // Peito
+            rect(24, 10, 16, 10, C.PURPLE); // Cabeça
+            rect(28, 14, 8, 4, C.RED); // Olho
+            // Braços
+            rect(8, 24, 8, 16, C.METAL_DARK);
+            rect(48, 24, 8, 16, C.METAL_DARK);
+            // Pernas
+            rect(18, 44, 8, 12, C.METAL);
+            rect(38, 44, 8, 12, C.METAL);
           }
 
           return app.renderer.generateTexture(g);
         }
 
+        const texJanitor = createRobotTexture('janitor');
+        const texDrone = createRobotTexture('drone_wire');
         const texTank = createRobotTexture('tank');
-        const texBrain = createRobotTexture('brain');
-        const texMonitor = createRobotTexture('monitor');
+
+        // Vassoura Sprite
+        const broomG = new PIXI.Graphics();
+        broomG.beginFill(0x8B4513); broomG.drawRect(0,0,4,30); // Cabo
+        broomG.beginFill(0xE0C068); broomG.drawRect(-6,25,16,10); // Cerdas
+        const texBroom = app.renderer.generateTexture(broomG);
 
         // ============================================
-        // 2. ENTIDADES (Comportamento & Animação)
+        // 2. ENTIDADES
         // ============================================
         class Robot {
           constructor(texture, x, y, scale=1) {
@@ -472,134 +347,154 @@
             this.container.x = x;
             this.container.y = y;
 
-            // Sombra
-            const shadow = new PIXI.Graphics();
-            shadow.beginFill(0x000000, 0.4);
-            shadow.drawEllipse(30, 58, 20, 6);
-            shadow.endFill();
-            this.container.addChild(shadow);
-
             this.sprite = new PIXI.Sprite(texture);
             this.sprite.anchor.set(0.5);
             this.sprite.scale.set(scale);
             this.container.addChild(this.sprite);
+
+            // Sombra
+            const sh = new PIXI.Graphics();
+            sh.beginFill(0x000000, 0.3);
+            sh.drawEllipse(0, 30*scale, 15*scale, 5*scale);
+            this.container.addChildAt(sh, 0);
             
             world.addChild(this.container);
-            
-            this.homeX = x;
-            this.stateTimer = Math.random() * 100;
-          }
-
-          update(delta) {
-            this.stateTimer += delta;
-            // Idle (Respiração)
-            this.sprite.y = Math.sin(this.stateTimer / 30) * 3;
-          }
-
-          walkTo(targetX) {
-             const dx = targetX - this.container.x;
-             if(Math.abs(dx) > 1) {
-               const dir = Math.sign(dx);
-               this.container.x += dir * 0.6;
-               
-               if(dir > 0) this.sprite.scale.x = Math.abs(this.sprite.scale.x);
-               else this.sprite.scale.x = -Math.abs(this.sprite.scale.x);
-             }
           }
         }
 
-        // ============================================
-        // 3. POSICIONAMENTO (Integrado à Arte)
-        // ============================================
         const W = window.innerWidth;
         const H = window.innerHeight;
 
-        // 1. Robô "Brain" (Topo Esquerda - Observando o Horizonte)
-        // Fica na varanda superior
-        const bot1 = new Robot(texBrain, W * 0.22, H * 0.28, 0.8);
+        // --- ATORES ---
+        // 1. Robô Tanque (Fixo soldando na parede)
+        const tank = new Robot(texTank, W * 0.85, H * 0.55, 1.2);
+        // Efeito de solda (Faíscas)
+        const sparkG = new PIXI.Graphics();
+        tank.container.addChild(sparkG);
+
+        // 2. Faxineiro (Janitor)
+        const janitor = new Robot(texJanitor, -100, H * 0.75, 1.0); // Começa fora
+        const broom = new PIXI.Sprite(texBroom);
+        broom.anchor.set(0.5, 0.2);
+        broom.x = 15; broom.y = 10;
+        broom.rotation = 0.5;
+        janitor.sprite.addChild(broom); // Anexa vassoura
+
+        // 3. Drone Conector
+        const drone = new Robot(texDrone, -100, H * 0.2, 1.0); // Começa fora
         
-        // 2. Robô "Tank" (Meio Direita - Trabalho Pesado)
-        // Fica na plataforma central, perto dos canos
-        const bot2 = new Robot(texTank, W * 0.78, H * 0.55, 0.9);
-
-        // 3. Robô "Monitor" (Baixo Esquerda - Patrulha)
-        // Fica na passarela inferior
-        const bot3 = new Robot(texMonitor, W * 0.15, H * 0.72, 0.8);
-
+        // Fio (Wire)
+        const wire = new PIXI.Graphics();
+        world.addChild(wire); // Desenha o fio no mundo
 
         // ============================================
-        // 4. BACKGROUND FX (Partículas Atmosféricas)
+        // 3. CENA / HISTÓRIA (Timeline)
         // ============================================
-        const particles = [];
-        for(let i=0; i<30; i++) {
-            const p = new PIXI.Graphics();
-            p.beginFill(0xFFFFFF, 0.1 + Math.random()*0.2);
-            p.drawCircle(0,0, 1 + Math.random()*2); // Poeira fina
-            p.endFill();
-            p.x = Math.random() * W;
-            p.y = Math.random() * H;
-            p.vx = (Math.random() - 0.5) * 0.5;
-            p.vy = (Math.random() - 0.5) * 0.5;
-            world.addChildAt(p, 0); // Atrás de tudo
-            particles.push(p);
-        }
+        
+        // Estado
+        let wireState = 'none'; // none, connecting, connected, broken
+        let wirePoints = { x1: 0, y1: 0, x2: 0, y2: 0 };
 
-        // Nuvens de Neblina (Frente)
-        const fogs = [];
-        for(let i=0; i<4; i++) {
-            const f = new PIXI.Graphics();
-            f.beginFill(0xFFFFFF, 0.03); // Muito sutil
-            f.drawRect(0,0, 200 + Math.random()*300, 50 + Math.random()*50);
-            f.endFill();
-            f.x = Math.random() * W;
-            f.y = Math.random() * H;
-            f.speed = 0.1 + Math.random() * 0.2;
-            world.addChild(f); // Na frente
-            fogs.push(f);
-        }
+        // CICLO DE ANIMAÇÃO
+        const storyTimeline = gsap.timeline({ repeat: -1, repeatDelay: 2 });
+
+        // CENA 1: Drone Entra e Conecta o Fio
+        storyTimeline.add(() => { wireState = 'connecting'; });
+        storyTimeline.fromTo(drone.container, 
+          { x: -50, y: H * 0.65 }, 
+          { x: W * 0.4, y: H * 0.65, duration: 3, ease: 'power1.out' }
+        );
+        // Drone voa até o poste
+        storyTimeline.to(drone.container, { x: W * 0.6, y: H * 0.65, duration: 2, onUpdate: () => {
+           // Atualiza posição do fio enquanto drone voa
+           wirePoints.x1 = -50; wirePoints.y1 = H * 0.76; // Ponto fixo na esq
+           wirePoints.x2 = drone.container.x; wirePoints.y2 = drone.container.y + 20;
+        }});
+        // Drone fixa o fio e sai
+        storyTimeline.add(() => { wireState = 'connected'; });
+        storyTimeline.to(drone.container, { x: W + 50, y: H * 0.2, duration: 2, ease: 'power1.in' });
+
+        // CENA 2: Janitor Entra Varrendo
+        storyTimeline.fromTo(janitor.container, 
+          { x: -50, rotation: 0 }, 
+          { x: W * 0.25, duration: 4, ease: 'linear', onStart: () => {
+             // Animação de varrer
+             gsap.to(broom, { rotation: -0.5, yoyo: true, repeat: 20, duration: 0.2 });
+          }}
+        );
+
+        // CENA 3: O Tropeço
+        storyTimeline.to(janitor.container, { x: W * 0.35, duration: 1.5, ease: 'linear' }); // Chega perto do fio
+        storyTimeline.add(() => {
+            // Ação: Tropeça
+            wireState = 'broken';
+            gsap.to(janitor.container, { rotation: 1.5, x: "+=50", y: "+=20", duration: 0.5, ease: 'bounce.out' }); // Cai
+            // Vassoura voa
+            gsap.to(broom, { y: -100, rotation: 5, duration: 0.5, yoyo: true, repeat: 1 });
+        });
+        
+        // Pausa dramática de vergonha
+        storyTimeline.to({}, { duration: 2 });
+
+        // CENA 4: Levanta e Sai
+        storyTimeline.to(janitor.container, { rotation: 0, y: H * 0.75, duration: 1 });
+        storyTimeline.to(janitor.container, { x: W + 100, duration: 3, ease: 'linear' });
+        
+        // Reset (Fio some, drone volta depois no loop)
+        storyTimeline.add(() => { wireState = 'none'; wire.clear(); });
 
         // ============================================
-        // 5. LOOP PRINCIPAL
+        // 4. LOOP DE RENDERIZAÇÃO
         // ============================================
-        app.ticker.add((delta) => {
-          
-          // Animar Poeira (Mouse Interaction)
-          particles.forEach(p => {
-             p.x += p.vx; p.y += p.vy;
-             if(p.x > W) p.x = 0; if(p.x < 0) p.x = W;
-             if(p.y > H) p.y = 0; if(p.y < 0) p.y = H;
-          });
+        let tick = 0;
+        app.ticker.add(() => {
+           tick++;
 
-          // Animar Neblina
-          fogs.forEach(f => {
-             f.x += f.speed * delta;
-             if(f.x > W) f.x = -500;
-          });
+           // Animar Solda do Tank
+           if (Math.random() < 0.1) {
+              sparkG.clear();
+              sparkG.beginFill(0xFFFF00);
+              sparkG.drawRect(40 + Math.random()*10, 10 + Math.random()*10, 2, 2);
+              sparkG.endFill();
+           } else {
+              sparkG.clear();
+           }
+           
+           // Desenhar Fio
+           wire.clear();
+           if (wireState === 'connecting' || wireState === 'connected') {
+              wire.lineStyle(2, 0x000000);
+              // Curva Catenária (Barriga)
+              wire.moveTo(wirePoints.x1, wirePoints.y1);
+              wire.bezierCurveTo(
+                (wirePoints.x1 + wirePoints.x2)/2, Math.max(wirePoints.y1, wirePoints.y2) + 50, // Control Point baixo
+                (wirePoints.x1 + wirePoints.x2)/2, Math.max(wirePoints.y1, wirePoints.y2) + 50,
+                wirePoints.x2, wirePoints.y2
+              );
+           } else if (wireState === 'broken') {
+              // Fio partido em dois
+              wire.lineStyle(2, 0x000000);
+              // Parte Esq
+              wire.moveTo(wirePoints.x1, wirePoints.y1);
+              wire.lineTo(wirePoints.x1 + 100, wirePoints.y1 + 40);
+              // Parte Dir (balançando)
+              const swing = Math.sin(tick/10) * 10;
+              wire.moveTo(W * 0.6, H * 0.65); // Onde o drone prendeu
+              wire.lineTo(W * 0.6 + swing, H * 0.65 + 100);
+           }
 
-          // Animar Robôs
-          bot1.update(delta);
-          // O Cérebro flutua mais alto
-          bot1.sprite.y = Math.sin(Date.now()/500) * 5;
-
-          bot2.update(delta);
-          // O Tank ocasionalmente "trabalha" (vibra)
-          if(Math.random() < 0.01) {
-              gsap.to(bot2.sprite, {x: 2, yoyo:true, repeat:5, duration:0.05});
-          }
-
-          bot3.update(delta);
-          // O Monitor patrulha
-          const target = W * 0.15 + Math.cos(Date.now()/4000) * 100;
-          bot3.walkTo(target);
-
+           // Bobbing dos Robôs
+           drone.container.y += Math.sin(tick/20) * 0.5;
+           
+           // Partículas de Poeira (Fundo)
+           // (Simplificado para performance)
         });
 
       })();
 
-      // --- UI TYPEWRITER ---
+      // TYPEWRITER
       (function() {
-        const text = `> SYSTEM READY.\n> LOADING: Master's Dissertation\n> SUBJECT: LoL Performance AI (Applied Computing)\n\nANALYSIS: Matches analyzed via Machine Learning to model player/team performance over time.`;
-        
+        const text = `> SYSTEM READY.\n> LOADING: Master's Dissertation\n> SUBJECT: LoL Performance AI\n\nANALYSIS: ML models for player performance over time.`;
         const el = document.getElementById('console-output');
         let i = 0;
         function type() {
