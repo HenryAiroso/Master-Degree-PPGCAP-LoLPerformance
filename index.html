@@ -12,9 +12,8 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Fundo animado em pixel art -->
-  <div class="bg"></div>
-  <div class="scanlines"></div>
+  <!-- Canvas de fundo em pixel art -->
+  <canvas id="pixel-bg"></canvas>
 
   <main class="page">
     <header class="logo">
@@ -33,7 +32,7 @@
       </p>
       <p>
         Data is used only in aggregate/anonymized form for the dissertation and
-        possible scientific publications. No overlays, boosting, betting or
+        possible scientific publications. No overlays, boosting, betting, or
         tools that give unfair competitive advantage.
       </p>
 
@@ -56,5 +55,7 @@
       </p>
     </footer>
   </main>
+
+  <script src="pixel-bg.js"></script>
 </body>
 </html>
