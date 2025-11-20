@@ -2,10 +2,11 @@
   --bg-color: #050816;
   --accent: #4af7ff;
   --accent2: #ffb347;
-  --card-bg: rgba(5, 8, 22, 0.97);
+  --screen-border: #22d3ee;
+  --screen-glow: rgba(34, 211, 238, 0.9);
+  --card-bg: rgba(6, 12, 31, 0.9);
   --text-main: #f9fafb;
   --text-muted: #9ca3af;
-  --border-soft: #171b3a;
 }
 
 * {
@@ -22,7 +23,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Canvas de fundo em toda a tela */
+/* Canvas de fundo */
 #pixel-bg {
   position: fixed;
   inset: 0;
@@ -33,52 +34,87 @@ body {
   image-rendering: pixelated;
 }
 
-/* vinheta pra destacar o HUD central */
+/* vinheta pra focar no centro */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  box-shadow: inset 0 0 160px rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 0 160px rgba(0, 0, 0, 0.85);
   z-index: -1;
 }
 
-/* HUD central */
-.page {
+/* HUD de painéis (como as telas da referência) */
+.hud {
   position: relative;
-  width: min(960px, 100% - 3rem);
-  margin: 3.5rem auto;
-  padding: 2.25rem 2rem 2.4rem;
-  background: linear-gradient(135deg, var(--card-bg), #020617);
-  border-radius: 22px;
-  border: 3px solid #020617;
-  box-shadow:
-    0 0 0 3px #000,
-    0 22px 40px rgba(0, 0, 0, 0.85);
+  max-width: 980px;
+  margin: 7vh auto 6vh;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-/* borda neon ao redor do HUD */
-.page::before {
+/* Painel base */
+.screen {
+  position: relative;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 2px solid var(--screen-border);
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.9),
+    0 0 18px var(--screen-glow);
+  padding: 1.1rem 1.35rem 1.2rem;
+  backdrop-filter: blur(2px);
+}
+
+/* efeito de “borda dupla” em pixel */
+.screen::before {
   content: "";
   position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: linear-gradient(120deg, var(--accent), var(--accent2), #a855f7);
-  z-index: -1;
-  opacity: 0.9;
+  inset: 4px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  pointer-events: none;
 }
 
-/* Título estilo jogo retro */
-.logo h1 {
+/* variações de tamanho */
+.screen-wide {
+  width: min(840px, 100%);
+  margin-inline: auto;
+}
+
+.screen-title {
+  width: min(620px, 100%);
+  margin-inline: auto;
+  margin-bottom: 0.4rem;
+}
+
+/* grid de duas colunas (como dois monitores lado a lado) */
+.screen-grid {
+  width: min(900px, 100%);
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* conteúdo interno das colunas */
+.screen-column {
+  position: relative;
+}
+
+/* Título principal retro */
+.screen-title h1 {
   font-family: "Press Start 2P", system-ui;
-  font-size: clamp(1.4rem, 2.1vw, 1.7rem);
-  line-height: 1.4;
-  letter-spacing: 0.04em;
+  font-size: clamp(1.3rem, 2vw, 1.6rem);
+  line-height: 1.5;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+  margin-top: 0.3rem;
 }
 
-.logo h1 span {
+.screen-title h1 span {
   color: var(--accent2);
 }
 
@@ -86,111 +122,112 @@ body::before {
   display: inline-block;
   font-size: 0.6rem;
   text-transform: uppercase;
-  padding: 0.22rem 0.7rem;
-  margin-bottom: 1.1rem;
-  border: 2px solid var(--accent2);
+  padding: 0.18rem 0.6rem;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--accent2);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .subtitle {
-  margin-top: 0.8rem;
+  margin-top: 0.7rem;
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
-/* Card de conteúdo */
-.card {
-  margin-top: 2rem;
-  padding: 1.5rem 1.7rem 1.6rem;
-  background: rgba(3, 6, 20, 0.97);
-  border-radius: 16px;
-  border: 2px solid var(--border-soft);
-  max-height: calc(100vh - 11rem); /* não cobre todo o cenário */
-  overflow-y: auto;
-}
-
-/* scrollbar fininha gamer */
-.card::-webkit-scrollbar {
-  width: 6px;
-}
-.card::-webkit-scrollbar-track {
-  background: transparent;
-}
-.card::-webkit-scrollbar-thumb {
-  background: linear-gradient(var(--accent), var(--accent2));
-  border-radius: 999px;
-}
-
-.card h2 {
+/* headings dos painéis */
+.screen h2 {
   font-family: "Press Start 2P", system-ui;
-  font-size: 0.9rem;
-  margin-bottom: 0.9rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.7rem;
 }
 
-.card h3 {
-  margin: 1.3rem 0 0.4rem;
-  font-size: 0.8rem;
+.screen h3 {
+  margin-bottom: 0.4rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   color: var(--accent);
 }
 
-.card p {
-  margin-bottom: 0.8rem;
-  font-size: 0.9rem;
+/* texto */
+.screen p {
+  font-size: 0.88rem;
   line-height: 1.7;
+  color: var(--text-main);
+  margin-bottom: 0.6rem;
 }
 
-.card ul {
+.screen ul {
   margin-left: 1.1rem;
-  margin-bottom: 0.4rem;
-  font-size: 0.88rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.86rem;
   line-height: 1.6;
 }
 
-.card li + li {
+.screen li + li {
   margin-top: 0.25rem;
 }
 
-.card code {
+.screen code {
   background: #020617;
   padding: 0.05rem 0.3rem;
   border-radius: 4px;
   border: 1px solid #1f2937;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
-/* Tags estilo chips */
+/* Painel de rodapé (legal + tags + botão) */
+.screen-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.5fr);
+  gap: 1rem;
+  align-items: flex-start;
+  width: min(900px, 100%);
+  margin-inline: auto;
+}
+
+.screen-footer-main p {
+  margin-bottom: 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.screen-footer-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  align-items: flex-start;
+}
+
+/* tags */
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.4rem;
   list-style: none;
-  margin: 1.1rem 0 1.25rem;
 }
 
 .tags li {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  padding: 0.3rem 0.7rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 999px;
-  border: 2px solid var(--accent);
+  border: 1px solid var(--accent);
   background: rgba(0, 0, 0, 0.7);
 }
 
-/* Botão estilo arcade */
+/* botão estilo arcade */
 .btn {
   display: inline-block;
   font-family: "Press Start 2P", system-ui;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-decoration: none;
   text-transform: uppercase;
-  padding: 0.7rem 1.05rem;
+  padding: 0.6rem 0.9rem;
   border-radius: 8px;
-  border: 3px solid var(--accent2);
+  border: 2px solid var(--accent2);
   background: linear-gradient(135deg, #1f2937, #020617);
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
   transition:
     transform 0.1s ease,
     box-shadow 0.1s ease,
@@ -199,32 +236,45 @@ body::before {
 
 .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.95);
   filter: brightness(1.08);
 }
 
-/* rodapé */
-.footer {
-  margin-top: 1.8rem;
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  opacity: 0.9;
+/* Responsivo */
+@media (max-width: 900px) {
+  .hud {
+    margin-top: 5vh;
+    gap: 0.9rem;
+  }
+
+  .screen-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .screen-footer {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* Responsivo */
 @media (max-width: 640px) {
-  .page {
-    margin: 1.5rem 0.9rem;
-    padding: 1.6rem 1.3rem 1.9rem;
+  .hud {
+    padding: 0 0.9rem;
+    margin: 5vh auto 4vh;
   }
 
-  .card {
-    max-height: none;
-    margin-top: 1.4rem;
-    padding: 1.2rem 1.3rem 1.4rem;
+  .screen {
+    padding: 0.9rem 1rem 1rem;
   }
 
-  .logo h1 {
+  .screen::before {
+    inset: 3px;
+  }
+
+  .screen-title h1 {
     font-size: 1.1rem;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
   }
 }
