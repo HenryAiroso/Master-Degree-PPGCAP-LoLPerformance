@@ -19,17 +19,16 @@
 
     <style>
       /* =========================================
-         CORE STYLE (Baseado no Dossiê)
+         CORE STYLE
          ========================================= */
       :root {
-        --bg-dark: #0a0a0a; /* Oclusão Ambiental */
+        --bg-dark: #0a0a0a;
         --text-main: #dcdacb;
         --accent-green: #44d65c;
         --accent-gold: #ffcd75;
         --accent-red: #e53b44;
         --metal-dark: #1a1c2c;
-        --metal-light: #5d6d7e;
-        --ui-shadow: 6px 6px 0 rgba(0,0,0,0.8);
+        --ui-shadow: 4px 4px 0 rgba(0,0,0,1);
       }
 
       * { box-sizing: border-box; }
@@ -45,38 +44,30 @@
         width: 100vw;
       }
 
-      /* CAMADAS VISUAIS (Z-Depth rigoroso) */
-      
-      /* 0. CÉU PROFUNDO (Gradiente Estático) */
-      .layer-sky {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(to bottom, #4da6ff 0%, #89c5e6 60%, #1a1c2c 100%);
-        z-index: 0;
-      }
+      /* CAMADAS VISUAIS (Ordem Importa) */
 
-      /* 1. A TORRE (Imagem de Fundo) */
+      /* 1. A TORRE (Fundo Fixo) */
       .layer-structure {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        /* Tenta carregar de assets/ ou da raiz */
+        /* Tenta carregar de diferentes locais comuns */
         background-image: url('assets/lab-base.jpg'), url('lab-base.jpg');
         background-position: center bottom;
         background-size: cover;
         background-repeat: no-repeat;
-        image-rendering: pixelated; /* CRUCIAL */
-        z-index: 1;
+        image-rendering: pixelated; /* Essencial para a arte não borrar */
+        z-index: 0;
       }
 
-      /* 2. SIMULAÇÃO (Robôs e Atmosfera) */
+      /* 2. SIMULAÇÃO (PixiJS - Robôs e Fumaça) */
       #game-stage {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        z-index: 2;
+        z-index: 1;
         pointer-events: none;
       }
 
-      /* 3. INTERFACE (UI Diegética) */
+      /* 3. UI INTERFACE */
       #ui-layer {
         position: relative;
         z-index: 10;
@@ -87,99 +78,98 @@
         justify-content: space-between;
         padding: 2vh 2vw;
         pointer-events: none;
+        /* Vinheta suave via CSS para focar no centro */
+        background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.6) 100%);
       }
 
       .interactive { pointer-events: auto; }
 
       /* =========================================
-         UI COMPONENTS (Estilo Industrial)
+         UI COMPONENTS (Industrial Pixel)
          ========================================= */
       
-      /* PLACA SUPERIOR */
+      /* PLACA */
       .sign-container {
-        margin-top: 10px;
-        animation: floatSign 6s ease-in-out infinite;
+        margin-top: 15px;
+        animation: floatSign 4s ease-in-out infinite;
         position: relative;
       }
-      /* Cordas */
       .sign-container::before, .sign-container::after {
         content: ""; position: absolute; top: -100vh; width: 4px; height: 100vh;
         background: #1a1c2c; border-left: 2px solid #000; z-index: -1;
       }
-      .sign-container::before { left: 15px; transform: rotate(1deg); }
-      .sign-container::after { right: 15px; transform: rotate(-1deg); }
+      .sign-container::before { left: 10px; transform: rotate(2deg); }
+      .sign-container::after { right: 10px; transform: rotate(-2deg); }
 
       .sign-board {
         background: #b56c45; /* Ferrugem */
         border: 4px solid #1a1c2c;
-        padding: 12px 20px;
+        padding: 15px 25px;
         box-shadow: var(--ui-shadow);
         text-align: center;
-        transform: rotate(-0.5deg);
       }
 
       .sign-title {
-        font-size: 0.9rem; color: #fff; text-shadow: 3px 3px 0 #1a1c2c; margin: 0; text-transform: uppercase;
+        font-size: 0.9rem; color: #fff; text-shadow: 3px 3px 0 #000; margin: 0; text-transform: uppercase;
       }
       .sign-sub {
-        font-size: 0.45rem; color: var(--accent-gold); display: block; margin-top: 4px; letter-spacing: 1px; background: rgba(0,0,0,0.4); padding: 2px;
+        font-size: 0.45rem; color: var(--accent-gold); display: block; margin-top: 5px; letter-spacing: 1px; background: rgba(0,0,0,0.4); padding: 2px;
       }
 
-      /* MONITOR CENTRAL */
+      /* MONITOR */
       .monitor-wrapper {
-        background: #1a1c2c; /* Metal Escuro */
+        background: #1a1c2c;
         padding: 8px;
-        border-radius: 4px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-        width: 100%; max-width: 650px;
+        border-radius: 2px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+        width: 100%; max-width: 600px;
         position: relative;
-        border: 2px solid #000;
+        border: 3px solid #000;
+      }
+      .monitor-wrapper::before {
+        content:""; position:absolute; top:100%; left:50%; width:80%; height:20px;
+        background: #000; opacity:0.5; filter:blur(10px); transform:translateX(-50%);
       }
       .crt-screen {
-        background: #050a0f;
+        background: #090b10;
         border: 2px solid #333;
-        height: 180px;
+        height: 160px;
         padding: 20px;
         overflow: hidden;
         position: relative;
         color: var(--accent-green);
         font-size: 0.6rem; line-height: 1.6;
-        text-shadow: 0 0 4px rgba(68, 214, 92, 0.6);
-      }
-      .crt-screen::after { /* Scanlines */
-        content: ""; position: absolute; inset: 0;
-        background: repeating-linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2) 1px, transparent 1px, transparent 3px);
-        pointer-events: none;
+        text-shadow: 0 0 3px rgba(68, 214, 92, 0.5);
       }
 
-      /* GRIDS DE DADOS */
+      /* GRIDS */
       .deck-grid {
-        display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 750px;
+        display: flex; justify-content: center; gap: 20px; width: 100%; max-width: 700px;
       }
       .clipboard {
         background: #dcdacb; color: #1a1c2c; padding: 10px; position: relative;
-        box-shadow: 5px 5px 0 rgba(0,0,0,0.6); border: 2px solid #1a1c2c; flex: 1;
+        box-shadow: var(--ui-shadow); border: 2px solid #1a1c2c; flex: 1;
       }
-      .clipboard::before { /* Clip */
-        content: ""; position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
-        width: 40px; height: 12px; background: #5d6d7e; border: 2px solid #1a1c2c;
+      .clipboard::before {
+        content: ""; position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+        width: 40px; height: 10px; background: #5d6d7e; border: 2px solid #1a1c2c;
       }
       .clip-title {
-        background: #1a1c2c; color: #fff; padding: 4px; text-align: center; font-size: 0.5rem; margin-bottom: 10px;
+        background: #1a1c2c; color: #fff; padding: 4px; text-align: center; font-size: 0.5rem; margin-bottom: 8px;
       }
       .clip-content ul {
-        list-style: none; padding: 0; margin: 0; font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 0.85rem;
+        list-style: none; padding: 0; margin: 0; font-family: "Rajdhani", sans-serif; font-weight: 700; font-size: 0.8rem;
       }
-      .clip-content li { margin-bottom: 4px; padding-left: 12px; position: relative; }
-      .clip-content li::before { content: "►"; color: var(--accent-red); font-size: 0.5rem; position: absolute; left: 0; top: 3px; }
+      .clip-content li { margin-bottom: 4px; padding-left: 10px; position: relative; }
+      .clip-content li::before { content: "•"; color: var(--accent-red); position: absolute; left: 0; }
 
-      /* RODAPÉ */
+      /* FOOTER */
       .cargo-crate {
         background: #3e2b22; border: 3px solid #1a1c2c; padding: 10px;
-        width: 100%; max-width: 650px; text-align: center; position: relative;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.8); margin-bottom: 10px;
+        width: 100%; max-width: 600px; text-align: center; position: relative;
+        box-shadow: var(--ui-shadow); margin-bottom: 10px;
       }
-      .cargo-crate::after { /* Faixa de perigo */
+      .cargo-crate::after {
         content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 6px;
         background: repeating-linear-gradient(-45deg, #ffcd75, #ffcd75 10px, #1a1c2c 10px, #1a1c2c 20px);
       }
@@ -188,14 +178,15 @@
       }
       .btn-pixel {
         display: inline-block; background: var(--accent-gold); color: #000; text-decoration: none;
-        padding: 6px 12px; border: 2px solid #000; box-shadow: 3px 3px 0 #000; font-size: 0.5rem; font-weight: bold;
+        padding: 6px 12px; border: 2px solid #000; box-shadow: 2px 2px 0 #000; font-size: 0.5rem; font-weight: bold;
         transition: transform 0.1s;
       }
-      .btn-pixel:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
-      .cursor { display: inline-block; width: 6px; height: 10px; background: var(--accent-green); animation: blink 1s infinite; vertical-align: middle; }
+      .btn-pixel:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0 #000; }
 
-      @keyframes blink { 50% { opacity: 0; } }
+      /* Animations */
       @keyframes floatSign { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+      .cursor { display: inline-block; width: 6px; height: 10px; background: var(--accent-green); animation: blink 1s infinite; }
+      @keyframes blink { 50% { opacity: 0; } }
 
       @media (max-width: 768px) {
         #ui-layer { height: auto; overflow-y: auto; }
@@ -206,14 +197,13 @@
   </head>
   <body>
 
-    <!-- 1. CÉU E FUNDO -->
-    <div class="layer-sky"></div>
+    <!-- 1. A TORRE (Fundo) -->
     <div class="layer-structure"></div>
 
-    <!-- 2. SIMULAÇÃO -->
+    <!-- 2. SIMULAÇÃO (Canvas Transparente) -->
     <div id="game-stage"></div>
 
-    <!-- 3. INTERFACE -->
+    <!-- 3. UI -->
     <div id="ui-layer">
       <header class="sign-container interactive">
         <div class="sign-board">
@@ -263,13 +253,13 @@
     </div>
 
     <script>
-      (function() { // IIFE para isolamento de escopo
+      (function() {
         
         // ============================================
-        // CONFIGURAÇÃO DO PIXI.JS
+        // CONFIGURAÇÃO DO PIXI.JS (Simulação)
         // ============================================
         const app = new PIXI.Application({
-          backgroundAlpha: 0, // Transparente para ver a imagem CSS
+          backgroundAlpha: 0, // TRANSPARENTE para ver o fundo CSS
           resizeTo: window,
           antialias: false,
           resolution: window.devicePixelRatio || 1,
@@ -279,223 +269,198 @@
         const world = new PIXI.Container();
         app.stage.addChild(world);
 
-        // CORES DO DOSSIÊ TÉCNICO
+        // Cores da Arte
         const C = {
-          SHADOW: 0x1a1c2c,
-          METAL: 0x5d6d7e,
-          RUST: 0xb56c45,
-          GREEN: 0x44d65c,
-          GOLD: 0xffcd75,
-          MONITOR: 0x00f3ff,
+          SHADOW: 0x111111,
+          DARK_BLUE: 0x2e3b4e, // Cor dos robôs da imagem
+          RUST: 0xb56c45,      // Cor enferrujada
+          TEAL_LIGHT: 0x00f3ff,
+          GREEN_LIGHT: 0x44d65c,
           WHITE: 0xffffff,
           BLACK: 0x000000
         };
 
         // ============================================
-        // 1. GERADOR DE SPRITES 64x64 (Brush Size 4px)
+        // 1. SPRITE FACTORY (Robôs 8x8 Blocky)
         // ============================================
-        function createChunkySprite(type) {
+        // Aqui desenhamos pixel a pixel num grid virtual 8x8
+        // Cada "pixel" do desenho tem 8px de tamanho real (total 64px)
+        
+        function createPixelBotTexture(type) {
           const g = new PIXI.Graphics();
-          const size = 64; // Tamanho total
-          const p = 4; // Tamanho do "pixel" (brush) para dar o look 8-bit chunky
+          const p = 8; // Tamanho do "pixel" grande
 
-          // Helper para desenhar "pixels" grandes
-          const pixel = (x, y, color, alpha = 1) => {
+          const drawPixel = (x, y, color, alpha=1) => {
             g.beginFill(color, alpha);
-            g.drawRect(x * p, y * p, p, p);
+            g.drawRect(x*p, y*p, p, p);
             g.endFill();
           };
 
-          const rect = (x, y, w, h, color, alpha = 1) => {
-            g.beginFill(color, alpha);
-            g.drawRect(x * p, y * p, w * p, h * p);
-            g.endFill();
-          };
+          // MAPA DE PIXELS (0=vazio, 1=corpo, 2=visor, 3=sombra, 4=perna)
+          // Grid 8x8
+          let map = [];
+          let bodyColor = C.DARK_BLUE;
+          let visorColor = C.TEAL_LIGHT;
 
-          // --- DESENHO DO ROBÔ BASEADO NO TIPO ---
-          // Corpo Base (10x10 "pixels" centralizados num grid 16x16)
-          
-          // 1. Sombra Projetada (No corpo) - Lado direito e baixo
-          rect(4, 4, 10, 10, C.SHADOW); // Contorno/Sombra total
+          if (type === 'tech') {
+            // Robô Azul (Estilo da imagem)
+            map = [
+              [0,0,1,1,1,1,0,0],
+              [0,1,1,1,1,1,1,0],
+              [1,1,2,2,2,2,1,1], // Visor largo
+              [1,1,1,1,1,1,1,1],
+              [1,1,1,3,3,1,1,1], // Detalhe peito
+              [0,1,1,1,1,1,1,0],
+              [0,0,4,0,0,4,0,0], // Pernas
+              [0,4,4,0,0,4,4,0]  // Pés
+            ];
+            bodyColor = C.DARK_BLUE;
+            visorColor = C.TEAL_LIGHT;
+          } 
+          else if (type === 'rusty') {
+            // Robô Ferrugem (Menor)
+            map = [
+              [0,0,0,1,1,0,0,0], // Antena
+              [0,1,1,1,1,1,1,0],
+              [0,1,2,2,1,1,1,0], // Olho pequeno
+              [0,1,1,1,1,1,1,0],
+              [0,1,3,3,3,3,1,0], // Grade
+              [0,1,1,1,1,1,1,0],
+              [0,4,0,0,0,0,4,0],
+              [0,4,0,0,0,0,4,0]
+            ];
+            bodyColor = C.RUST;
+            visorColor = C.GREEN_LIGHT;
+          }
 
-          // 2. Corpo Principal
-          const bodyColor = type === 'drone' ? 0x3a5263 : (type === 'rusty' ? C.RUST : C.METAL);
-          rect(4, 4, 9, 9, bodyColor);
-
-          // 3. Iluminação (Highlight Top-Left - Dossiê)
-          rect(4, 4, 8, 1, C.WHITE, 0.3); // Topo
-          rect(4, 4, 1, 8, C.WHITE, 0.3); // Esquerda
-
-          // 4. Oclusão (Shadow Bottom-Right - Dossiê)
-          rect(5, 12, 8, 1, C.BLACK, 0.3); // Baixo
-          rect(12, 5, 1, 8, C.BLACK, 0.3); // Direita
-
-          // 5. Visor (Monitor)
-          rect(5, 6, 6, 3, C.SHADOW); // Moldura
-          const visorColor = type === 'drone' ? C.GOLD : (type === 'rusty' ? C.GREEN : C.MONITOR);
-          rect(6, 7, 4, 1, visorColor); // Luz
-          pixel(6, 7, C.WHITE, 0.8); // Brilho especular
-
-          // 6. Detalhes (Pernas/Antenas)
-          if (type === 'drone') {
-             // Hélice
-             rect(6, 2, 5, 1, C.METAL);
-             pixel(8, 3, C.SHADOW);
-          } else {
-             // Pernas
-             rect(5, 13, 2, 3, C.SHADOW);
-             rect(10, 13, 2, 3, C.SHADOW);
+          // Renderizar o mapa
+          for(let y=0; y<8; y++) {
+            for(let x=0; x<8; x++) {
+              const val = map[y][x];
+              if(val === 0) continue;
+              
+              if(val === 1) { // Corpo
+                drawPixel(x, y, C.SHADOW); // Contorno implícito
+                // Draw inner rect slightly smaller for pixel art look? No, full block.
+                g.beginFill(bodyColor); g.drawRect(x*p, y*p, p, p);
+                
+                // Highlight Top/Left
+                if (x<4 && y<4) { g.beginFill(C.WHITE, 0.2); g.drawRect(x*p, y*p, p, p); }
+              }
+              if(val === 2) drawPixel(x, y, visorColor); // Visor
+              if(val === 3) drawPixel(x, y, C.BLACK, 0.5); // Detalhe Escuro
+              if(val === 4) drawPixel(x, y, 0x222222); // Perna
+            }
           }
 
           return app.renderer.generateTexture(g);
         }
 
-        // Texturas
-        const texWorker = createChunkySprite('worker');
-        const texRusty = createChunkySprite('rusty');
-        const texDrone = createChunkySprite('drone');
+        const texTech = createPixelBotTexture('tech');
+        const texRusty = createPixelBotTexture('rusty');
 
         // ============================================
-        // 2. ATMOSFERA (NUVENS COM PROFUNDIDADE)
+        // 2. ENTIDADES
         // ============================================
-        // Regra do Dossiê: 
-        // Topo (Y=0): Grande, Rápida. 
-        // Horizonte (Y=60%): Pequena, Lenta.
-        
-        const clouds = [];
-        const horizonY = window.innerHeight * 0.6;
-
-        function spawnCloud() {
-          const c = new PIXI.Graphics();
-          
-          // Posição aleatória Y (acima do horizonte)
-          const yPos = Math.random() * horizonY;
-          const progress = yPos / horizonY; // 0 (topo) a 1 (horizonte)
-
-          // Escala baseada na altura (Perspectiva)
-          // Topo = 1.0, Horizonte = 0.2
-          const scale = 1.0 - (progress * 0.8);
-          
-          // Dithering / Pontilhismo para textura "fofa"
-          const clusters = 5 + Math.floor(Math.random() * 5);
-          c.beginFill(0xFFFFFF, 0.1 + (1-progress) * 0.1); // Mais transparente no horizonte
-          for(let k=0; k<clusters; k++) {
-            const cx = Math.random() * 60;
-            const cy = Math.random() * 30;
-            const r = 10 + Math.random() * 20;
-            c.drawCircle(cx, cy, r * scale);
-          }
-          c.endFill();
-
-          c.x = Math.random() * window.innerWidth;
-          c.y = yPos;
-          
-          // Velocidade baseada na profundidade
-          // Topo = Rápido (perto), Horizonte = Lento (longe)
-          c.speed = (0.5 * scale) + 0.1;
-          
-          // Z-Index: Nuvens pequenas atrás, grandes na frente
-          // No Pixi, adicionamos primeiro as do fundo (menores/horizonte)
-          // Mas para simplificar, adicionamos todas ao container 'sky'
-          return c;
-        }
-
-        const skyContainer = new PIXI.Container();
-        world.addChild(skyContainer);
-
-        for(let i=0; i<12; i++) {
-          const cloud = spawnCloud();
-          skyContainer.addChild(cloud);
-          clouds.push(cloud);
-        }
-
-        // ============================================
-        // 3. ATORES (ROBÔS)
-        // ============================================
-        const actorContainer = new PIXI.Container();
-        world.addChild(actorContainer);
-
         class Robot {
           constructor(texture, x, y, scale=1) {
             this.container = new PIXI.Container();
             this.container.x = x;
             this.container.y = y;
 
-            // Sombra no chão (Elipse preta - Oclusão Ambiental)
+            // Sombra no chão (Integração)
             const shadow = new PIXI.Graphics();
             shadow.beginFill(0x000000, 0.5);
-            shadow.drawEllipse(32, 60, 16, 6); // Ajustado para o grid 64x64
+            shadow.drawEllipse(32, 60, 16, 4);
             shadow.endFill();
             this.container.addChild(shadow);
 
             this.sprite = new PIXI.Sprite(texture);
+            this.sprite.anchor.set(0.5);
             this.sprite.scale.set(scale);
             this.container.addChild(this.sprite);
             
-            actorContainer.addChild(this.container);
-
+            world.addChild(this.container);
+            
             this.homeX = x;
-            this.timer = Math.random() * 100;
+            this.state = 'idle';
+            this.walkTimer = Math.random() * 100;
           }
 
           update(delta) {
-            this.timer += delta;
-            // Bobbing (Respiração)
-            this.sprite.y = Math.sin(this.timer / 20) * 2;
+            this.walkTimer += delta;
+            // Idle Animation (Bobbing)
+            this.sprite.y = Math.sin(this.walkTimer / 20) * 2;
           }
 
           walkTo(targetX) {
              const dx = targetX - this.container.x;
              if(Math.abs(dx) > 2) {
                const dir = Math.sign(dx);
-               this.container.x += dir * 0.5;
-               // Flip simples
+               this.container.x += dir * 0.6;
+               // Flip suave
                if(dir > 0) this.sprite.scale.x = Math.abs(this.sprite.scale.x);
                else this.sprite.scale.x = -Math.abs(this.sprite.scale.x);
-               // Se invertido, ajustar posição x
-               if(dir < 0) this.sprite.x = 64; else this.sprite.x = 0;
              }
           }
         }
 
-        // NavMesh Y-Coords (Baseado no Dossiê)
-        const H = window.innerHeight;
+        // ============================================
+        // 3. POSICIONAMENTO (NavMesh)
+        // ============================================
+        // Ajustado para não sobrepor a UI
         const W = window.innerWidth;
-        const Y_TOP = H * 0.28;
-        const Y_MID = H * 0.55;
-        const Y_LOW = H * 0.72;
+        const H = window.innerHeight;
 
-        const bots = [
-          new Robot(texDrone, W * 0.2, Y_TOP - 50, 1), // Voando
-          new Robot(texRusty, W * 0.12, Y_MID - 30, 1.2),
-          new Robot(texWorker, W * 0.88, Y_LOW - 30, 1.2)
-        ];
+        // Nível Superior (Pequeno robô Rusty) - Acima do monitor
+        const botTop = new Robot(texRusty, W * 0.15, H * 0.22, 0.8);
+        
+        // Nível Médio (Tech Robot) - Ao lado do monitor
+        const botMid = new Robot(texTech, W * 0.85, H * 0.50, 1.0);
+
+        // Nível Inferior (Tech Robot) - Abaixo das pranchetas
+        const botLow = new Robot(texTech, W * 0.20, H * 0.78, 1.0);
 
         // ============================================
-        // 4. GAME LOOP
+        // 4. ATMOSFERA (Névoa Sutil)
         // ============================================
+        const clouds = [];
+        for(let i=0; i<8; i++) {
+          const c = new PIXI.Graphics();
+          // Nuvem branca muito transparente
+          c.beginFill(0xFFFFFF, 0.05); 
+          c.drawRect(0,0, 100 + Math.random()*100, 20 + Math.random()*20);
+          c.endFill();
+          c.x = Math.random() * W;
+          c.y = Math.random() * H;
+          c.speed = 0.1 + Math.random() * 0.2;
+          world.addChildAt(c, 0); // Atrás dos robôs
+          clouds.push(c);
+        }
+
+        // LOOP
         app.ticker.add((delta) => {
-          // Animar Nuvens
+          // Nuvens
           clouds.forEach(c => {
             c.x += c.speed * delta;
-            // Loop infinito
-            if(c.x > window.innerWidth) c.x = -150;
+            if(c.x > W) c.x = -200;
           });
 
-          // Animar Robôs
-          bots.forEach((b, i) => {
-            b.update(delta);
-            // Lógica simples de patrulha
-            if (i === 0) { // Drone
-               b.walkTo(W * 0.2 + Math.sin(Date.now()/1000)*100);
-               b.container.y = (Y_TOP - 50) + Math.cos(Date.now()/500)*10;
-            }
-          });
+          // Robôs (Comportamento simples)
+          botTop.update(delta);
+          botTop.walkTo(W * 0.15 + Math.sin(Date.now()/2000) * 50); // Patrulha curta
+
+          botMid.update(delta);
+          // Ocasionalmente olha para o monitor
+          if(Math.random() < 0.01) botMid.sprite.scale.x *= -1;
+
+          botLow.update(delta);
+          botLow.walkTo(W * 0.20 + Math.cos(Date.now()/3000) * 80);
         });
 
-      })(); // Fim IIFE
+      })();
 
-      // TYPEWRITER UI
+      // --- UI TYPEWRITER ---
       (function() {
         const text = `> SYSTEM ONLINE.\n> MODULE: LoL_Performance_AI\n> DATA: Riot Match-V5\n\nSTATUS: ACADEMIC RESEARCH.`;
         const el = document.getElementById('console-output');
@@ -509,7 +474,7 @@
             el.innerHTML += '<span class="cursor"></span>';
           }
         }
-        setTimeout(type, 500);
+        setTimeout(type, 800);
       })();
     </script>
   </body>
