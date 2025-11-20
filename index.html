@@ -2,191 +2,576 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <title>Pesquisa em IA e LoL Performance (Animada)</title>
+    <title>PROTOCOL: LoL Performance // SYSTEM_ROOT</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!--
-      IMPORTANTE:
-      Para esta demonstração funcionar, você deve ter a imagem de fundo
-      (a arte pixelada com os robôs e a cidade) salva como 'lab-base.png'
-      e os scripts 'styles.css' e 'lab-fx.js' incluídos.
-    -->
-    <style>
-      /* Carregamento do Tailwind CSS para utilitários modernos (ajuste o nome se for outro) */
-    </style>
-    <link rel="stylesheet" href="styles.css" />
-
-    <!-- Fontes (JetBrains Mono para corpo, Press Start 2P para títulos) -->
+    <!-- GSAP (Framework de Animação Profissional) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Fontes -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400;700;800&family=Rajdhani:wght@500;700&display=swap"
       rel="stylesheet"
     />
+
+    <style>
+      /* =========================================
+         CORE VARIABLES & RESET
+         ========================================= */
+      :root {
+        --neon-cyan: #00f3ff;
+        --neon-magenta: #ff0055;
+        --neon-yellow: #ffee00;
+        --ui-bg: rgba(6, 11, 15, 0.94);
+        --grid-line: rgba(0, 243, 255, 0.15);
+        --font-tech: "JetBrains Mono", monospace;
+        --font-display: "Rajdhani", sans-serif;
+      }
+
+      * { box-sizing: border-box; cursor: crosshair; }
+
+      body {
+        margin: 0;
+        background: #000;
+        color: var(--neon-cyan);
+        font-family: var(--font-tech);
+        overflow: hidden; /* Oculta scroll para imersão total */
+        height: 100vh;
+        perspective: 1000px; /* Necessário para o efeito 3D */
+      }
+
+      /* =========================================
+         LOADER SEQUENCE (BOOT SCREEN)
+         ========================================= */
+      #boot-screen {
+        position: fixed;
+        inset: 0;
+        background: #000;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: var(--font-tech);
+      }
+      
+      .boot-text {
+        font-size: 12px;
+        color: var(--neon-cyan);
+        margin-bottom: 10px;
+        text-shadow: 0 0 5px var(--neon-cyan);
+      }
+      
+      .loader-bar {
+        width: 300px;
+        height: 2px;
+        background: #111;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .loader-progress {
+        position: absolute;
+        top: 0; left: 0; bottom: 0;
+        width: 0%;
+        background: var(--neon-cyan);
+        box-shadow: 0 0 10px var(--neon-cyan);
+      }
+
+      /* =========================================
+         WORLD LAYERS
+         ========================================= */
+      .viewport {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d; /* Permite camadas 3D */
+        overflow: hidden;
+      }
+
+      .bg-layer {
+        position: absolute;
+        inset: -5%; /* Maior que a tela para permitir movimento parallax */
+        background: url('lab-base.jpg') no-repeat center bottom;
+        background-size: cover;
+        z-index: -10;
+        filter: brightness(0.6) contrast(1.2);
+        transform: translateZ(-50px) scale(1.1); /* Profundidade */
+      }
+
+      /* Scanlines CRT Overlay */
+      .scanlines {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+        background-size: 100% 2px, 3px 100%;
+        pointer-events: none;
+        z-index: 9000;
+        opacity: 0.6;
+      }
+
+      #particle-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: -5;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      /* =========================================
+         UI ARCHITECTURE (Diegetic Interface)
+         ========================================= */
+      .ui-container {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 90%;
+        max-width: 1200px;
+        height: 85vh;
+        display: grid;
+        grid-template-columns: 250px 1fr 250px;
+        grid-template-rows: auto 1fr auto;
+        gap: 20px;
+        transform-style: preserve-3d; /* 3D para os filhos */
+      }
+
+      /* Painéis Gerais */
+      .hud-panel {
+        background: var(--ui-bg);
+        border: 1px solid rgba(0, 243, 255, 0.3);
+        backdrop-filter: blur(8px);
+        padding: 20px;
+        position: relative;
+        /* Efeito de canto tecnológico */
+        clip-path: polygon(
+          0 10px, 10px 0, 
+          100% 0, 100% calc(100% - 10px), 
+          calc(100% - 10px) 100%, 
+          0 100%
+        );
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        transition: border-color 0.3s;
+      }
+
+      .hud-panel:hover {
+        border-color: var(--neon-cyan);
+        box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
+      }
+
+      /* Header (Outdoor) */
+      .header-module {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        border-bottom: 2px solid var(--neon-cyan);
+        padding-bottom: 15px;
+        background: none;
+        backdrop-filter: none;
+        clip-path: none;
+        border: none;
+      }
+
+      h1.title-glitch {
+        font-family: var(--font-display);
+        font-size: 4rem;
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 0.9;
+        color: #fff;
+        text-shadow: 0 0 10px var(--neon-cyan);
+      }
+      
+      .subtitle-tech {
+        font-size: 0.8rem;
+        color: var(--neon-yellow);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      /* Main Terminal (Center) */
+      .main-terminal {
+        grid-column: 2 / 3;
+        grid-row: 2 / 3;
+        display: flex;
+        flex-direction: column;
+        background: rgba(0, 0, 0, 0.8);
+        border: 1px solid #333;
+        box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9);
+      }
+
+      .terminal-top-bar {
+        background: #111;
+        padding: 5px 10px;
+        font-size: 10px;
+        color: #555;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #333;
+      }
+
+      .terminal-content {
+        padding: 30px;
+        flex-grow: 1;
+        overflow-y: auto;
+        color: #ddd;
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      .highlight-text { color: var(--neon-cyan); font-weight: bold; }
+      .warning-text { color: var(--neon-magenta); }
+
+      /* Side Modules */
+      .side-left { grid-column: 1 / 2; grid-row: 2 / 3; display: flex; flex-direction: column; gap: 20px; }
+      .side-right { grid-column: 3 / 4; grid-row: 2 / 3; display: flex; flex-direction: column; gap: 20px; }
+
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 0.75rem;
+        border-bottom: 1px dashed rgba(255,255,255,0.1);
+        padding-bottom: 2px;
+      }
+
+      /* Footer */
+      .footer-module {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+      }
+
+      /* Botão Complexo */
+      .cyber-btn {
+        background: transparent;
+        border: 1px solid var(--neon-cyan);
+        color: var(--neon-cyan);
+        padding: 10px 30px;
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: 0.3s;
+        text-decoration: none;
+      }
+
+      .cyber-btn::before {
+        content: '';
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: var(--neon-cyan);
+        z-index: -1;
+        transition: 0.4s;
+      }
+
+      .cyber-btn:hover::before { left: 0; }
+      .cyber-btn:hover { color: #000; box-shadow: 0 0 30px var(--neon-cyan); }
+
+      /* Decorações (Greebles) */
+      .greeble {
+        position: absolute;
+        background: var(--neon-cyan);
+        opacity: 0.5;
+      }
+
+      /* Scrollbar personalizada */
+      ::-webkit-scrollbar { width: 5px; }
+      ::-webkit-scrollbar-track { background: #000; }
+      ::-webkit-scrollbar-thumb { background: var(--neon-cyan); }
+
+      /* Mobile */
+      @media (max-width: 1024px) {
+        .ui-container {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto;
+          height: auto;
+          overflow-y: auto;
+          padding-bottom: 50px;
+        }
+        .side-left, .side-right, .main-terminal { grid-column: 1 / -1; grid-row: auto; }
+        h1.title-glitch { font-size: 2.5rem; }
+      }
+    </style>
   </head>
   <body>
-    <div class="scene">
-      <!-- Arte base do laboratório de robôs (Cena Principal) -->
-      <!-- O 'lab-base.png' é definido no CSS como fundo fixo -->
-      <div class="scene__base"></div>
 
-      <!-- Efeitos animados (Canvas + Elementos CSS de Glows/Faíscas) -->
-      <div class="scene__fx">
-        <!-- Canvas para nuvens e partículas animadas (JS) -->
-        <canvas id="fx-canvas"></canvas>
-
-        <!-- Elementos de Glows Simulando Telas Ligadas (CSS Animation) -->
-        <!-- Posições ajustadas sobre as telas na arte de fundo -->
-        <div class="screen-glow screen-glow--center"></div>
-        <div class="screen-glow screen-glow--upper-left"></div>
-        <div class="screen-glow screen-glow--upper-right"></div>
-        <div class="screen-glow screen-glow--bottom-left"></div>
-        <div class="screen-glow screen-glow--bottom-right"></div>
-
-        <!-- Faísca do robô soldando (CSS Animation) -->
-        <!-- Posição ajustada sobre o robô trabalhando -->
-        <div class="spark spark--welder"></div>
-      </div>
-
-      <!-- PAINÉIS DE CONTEÚDO (HUD/Holográficos) INTEGRADOS NA CENA -->
-      <main class="overlay">
-        <!-- Outdoor do título (topo da construção) -->
-        <section class="panel panel-title">
-          <span class="badge">Tese de Mestrado · Pesquisa Acadêmica</span>
-          <h1>
-            LoL Performance<br />
-            <span>AI Research</span>
-          </h1>
-          <p class="subtitle">
-            Dissertação de mestrado em Computação Aplicada usando dados de
-            partidas de League of Legends para pesquisa em machine learning.
-          </p>
-        </section>
-
-        <!-- Painel grande central (overview) -->
-        <section class="panel panel-overview">
-          <h2>Visão Geral do Projeto</h2>
-          <p>
-            <strong>Master-Degree-PPGCAP-LoLPerformance</strong> é um projeto de
-            dissertação de mestrado não comercial focado em
-            <strong>IA de Desempenho no League of Legends</strong>. A pesquisa
-            analisa partidas históricas usando machine learning e deep learning
-            para modelar o desempenho de equipes e jogadores ao longo do tempo.
-          </p>
-        </section>
-
-        <!-- Painéis lado a lado sobre os andares do meio -->
-        <section class="panel panel-goals">
-          <h3>Objetivos</h3>
-          <ul>
-            <li>
-              Coletar dados históricos de partidas ranqueadas (e, quando
-              permitido, competitivas).
-            </li>
-            <li>
-              Construir cronogramas estruturados (ouro, XP, objetivos, abates,
-              etc.).
-            </li>
-            <li>
-              Treinar e avaliar modelos preditivos (ex: probabilidade de
-              vitória, classificação de estado do jogo).
-            </li>
-            <li>
-              Produzir estatísticas agregadas e anonimizadas para análise e
-              publicações acadêmicas.
-            </li>
-          </ul>
-        </section>
-
-        <section class="panel panel-api">
-          <h3>Uso da API da Riot Games</h3>
-          <p>
-            O projeto usa a API oficial da Riot Games apenas para coleta de
-            dados off-line e orientada à pesquisa:
-          </p>
-          <ul>
-            <li>
-              <code>account-v1</code> / <code>summoner-v4</code> – resolve IDs e
-              PUUIDs para iniciar a coleta de partidas.
-            </li>
-            <li>
-              <code>match-v5</code> – recupera detalhes da partida e cronogramas
-              para engenharia de recursos e treinamento de modelos.
-            </li>
-            <li>
-              Data Dragon / dados estáticos do LoL – metadados de campeões,
-              itens e runas.
-            </li>
-          </ul>
-        </section>
-
-        <!-- Painéis na parte de baixo do prédio -->
-        <section class="panel panel-tech">
-          <h3>Tech Stack</h3>
-          <ul>
-            <li>
-              Python – coleta de dados, pré-processamento, engenharia de
-              recursos.
-            </li>
-            <li>
-              Jupyter Notebooks – experimentos, modelos, visualizações.
-            </li>
-            <li>
-              Riot Games API – <code>account-v1</code>,
-              <code>summoner-v4</code>, <code>match-v5</code>.
-            </li>
-            <li>Data Dragon – campeões, itens, runas.</li>
-          </ul>
-        </section>
-
-        <section class="panel panel-ethics">
-          <h3>Ética e Uso de Dados</h3>
-          <ul>
-            <li>
-              Uso não comercial, apenas acadêmico em um ambiente de pesquisa
-              controlado.
-            </li>
-            <li>
-              Os dados são analisados de forma agregada; jogadores individuais
-              não são identificados ou perfilados.
-            </li>
-            <li>
-              Sem overlays, scripts, bots, boosting, apostas ou ferramentas que
-              ofereçam vantagem competitiva injusta.
-            </li>
-          </ul>
-        </section>
-
-        <!-- Painel de rodapé, menor, central -->
-        <section class="panel panel-legal">
-          <h3>Legal</h3>
-          <p>
-            Este projeto não é endossado pela Riot Games e não reflete as
-            opiniões da Riot Games ou de qualquer pessoa oficialmente envolvida
-            na produção ou gerenciamento das propriedades da Riot Games. Riot
-            Games e todas as propriedades associadas são marcas comerciais ou
-            marcas registradas da Riot Games, Inc.
-          </p>
-
-          <ul class="tags">
-            <li>Machine Learning</li>
-            <li>Game Analytics</li>
-            <li>Riot Games API</li>
-          </ul>
-
-          <a
-            class="btn"
-            href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Ver repositório da pesquisa
-          </a>
-        </section>
-      </main>
+    <!-- BOOT SEQUENCE OVERLAY -->
+    <div id="boot-screen">
+      <div class="boot-text">INITIALIZING NEURAL LINK...</div>
+      <div class="loader-bar"><div class="loader-progress"></div></div>
+      <div class="boot-text" style="margin-top: 5px; font-size: 9px; opacity: 0.7;">v.4.0.22</div>
     </div>
 
-    <!-- Script de animações (Nuvens e Partículas) -->
-    <script src="lab-fx.js"></script>
+    <!-- SCANLINES & EFFECTS -->
+    <div class="scanlines"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- 3D VIEWPORT -->
+    <div class="viewport" id="scene-wrapper">
+      <div class="bg-layer"></div>
+
+      <!-- MAIN UI CONTAINER -->
+      <div class="ui-container" id="ui-layer">
+        
+        <!-- HEADER -->
+        <header class="header-module">
+          <div>
+            <div class="subtitle-tech">PPGCAP // MASTER_THESIS</div>
+            <h1 class="title-glitch" data-value="LOL_PERFORMANCE">LOL_PERFORMANCE</h1>
+          </div>
+          <div style="text-align: right;">
+            <div class="subtitle-tech">SYS_STATUS: <span style="color:var(--neon-cyan)">ONLINE</span></div>
+            <div style="font-size: 10px; opacity: 0.6;">ID: 8492-X</div>
+          </div>
+        </header>
+
+        <!-- LEFT COLUMN -->
+        <aside class="side-left">
+          <div class="hud-panel">
+            <div class="greeble" style="top:0; right:0; width: 20px; height: 20px; border-top: 2px solid var(--neon-cyan); border-right: 2px solid var(--neon-cyan); background:none;"></div>
+            <h3 style="margin-top:0; color:var(--neon-yellow)">/// OBJECTIVES</h3>
+            <ul style="list-style:none; padding:0; font-size: 0.8rem; line-height: 1.8;">
+              <li>[x] MATCH_V5 COLLECTION</li>
+              <li>[~] DEEP LEARNING MODEL</li>
+              <li>[ ] WIN_RATE PREDICTION</li>
+              <li>[ ] ACADEMIC PUBLISH</li>
+            </ul>
+          </div>
+
+          <div class="hud-panel">
+            <h3 style="margin-top:0; color:var(--neon-yellow)">/// TECH_STACK</h3>
+            <div class="stat-row"><span>LANG</span> <span>PYTHON 3.9</span></div>
+            <div class="stat-row"><span>LIB</span> <span>PYTORCH</span></div>
+            <div class="stat-row"><span>DATA</span> <span>PANDAS</span></div>
+            <div class="stat-row"><span>ENV</span> <span>JUPYTER</span></div>
+          </div>
+        </aside>
+
+        <!-- CENTER TERMINAL -->
+        <section class="main-terminal hud-panel">
+          <div class="terminal-top-bar">
+            <span>ROOT_ACCESS // GRANTED</span>
+            <span>ENC: AES-256</span>
+          </div>
+          <div class="terminal-content" id="typing-container">
+            <!-- O texto será digitado via JS aqui -->
+          </div>
+        </section>
+
+        <!-- RIGHT COLUMN -->
+        <aside class="side-right">
+          <div class="hud-panel">
+            <h3 style="margin-top:0; color:var(--neon-yellow)">/// RIOT_API_STREAM</h3>
+            <div style="height: 100px; overflow: hidden; position: relative;">
+              <canvas id="matrix-rain" style="width:100%; height:100%; opacity: 0.5;"></canvas>
+              <div style="position: absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:bold; text-shadow:0 0 5px black;">
+                LINK ESTABLISHED
+              </div>
+            </div>
+            <div class="stat-row" style="margin-top:10px;"><span>LATENCY</span> <span>24ms</span></div>
+            <div class="stat-row"><span>PACKETS</span> <span>4.2TB</span></div>
+          </div>
+
+          <div class="hud-panel warning-panel" style="border-color: var(--neon-magenta);">
+            <h3 style="margin-top:0; color:var(--neon-magenta)">/// DISCLAIMER</h3>
+            <p style="font-size: 0.7rem; margin:0;">
+              NON-COMMERCIAL USE ONLY.<br>
+              NOT ENDORSED BY RIOT GAMES.<br>
+              ACADEMIC RESEARCH PURPOSE.
+            </p>
+          </div>
+        </aside>
+
+        <!-- FOOTER -->
+        <footer class="footer-module">
+          <a href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance" target="_blank" class="cyber-btn">
+            ACCESS_REPOSITORY
+          </a>
+        </footer>
+
+      </div>
+    </div>
+
+    <!-- COMPUTE SHADERS & ANIMATION LOGIC -->
+    <script>
+      // ==============================================
+      // 1. GSAP BOOT SEQUENCE & INTRO
+      // ==============================================
+      const tl = gsap.timeline();
+
+      // Barra de carregamento
+      tl.to(".loader-progress", { width: "100%", duration: 1.5, ease: "power2.inOut" })
+        .to("#boot-screen", { y: "-100%", duration: 0.8, ease: "expo.inOut" })
+        .from(".bg-layer", { scale: 1.5, opacity: 0, duration: 2 }, "-=0.5")
+        .from(".ui-container", { opacity: 0, scale: 0.9, duration: 1 }, "-=1.5")
+        .from(".hud-panel", { 
+          y: 50, 
+          opacity: 0, 
+          stagger: 0.1, 
+          duration: 0.8, 
+          ease: "back.out(1.7)" 
+        }, "-=0.5");
+
+      // ==============================================
+      // 2. TEXT SCRAMBLE EFFECT (Hacker Style)
+      // ==============================================
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#$@%";
+
+      document.querySelector(".title-glitch").onmouseover = event => {  
+        let iteration = 0;
+        const interval = setInterval(() => {
+          event.target.innerText = event.target.innerText
+            .split("")
+            .map((letter, index) => {
+              if(index < iteration) {
+                return event.target.dataset.value[index];
+              }
+              return letters[Math.floor(Math.random() * 26)]
+            })
+            .join("");
+          
+          if(iteration >= event.target.dataset.value.length){ 
+            clearInterval(interval);
+          }
+          iteration += 1 / 3;
+        }, 30);
+      }
+
+      // ==============================================
+      // 3. TYPEWRITER EFFECT FOR TERMINAL
+      // ==============================================
+      const textToType = `
+> INITIATING DISSERTATION PROTOCOL...
+> LOADING MODULE: Master-Degree-PPGCAP-LoLPerformance
+> STATUS: ACADEMIC RESEARCH // UFSCAR
+
+Este projeto foca na <span class="highlight-text">Inteligência Artificial de Desempenho</span> no League of Legends. 
+Através da análise massiva de partidas históricas (Big Data), utilizamos algoritmos de 
+<span class="highlight-text">Deep Learning</span> para modelar padrões de vitória e performance de jogadores.
+
+O objetivo é criar modelos preditivos capazes de entender a complexidade do MOBA, 
+traduzindo ouro, experiência e objetivos em probabilidades matemáticas.
+
+> END OF TRANSMISSION... _
+      `;
+
+      let i = 0;
+      const speed = 20; // velocidade de digitação
+      const container = document.getElementById("typing-container");
+
+      // Função simples de typing que respeita HTML tags
+      function typeWriter() {
+        // Simulação simples inserindo HTML diretamente para manter classes
+        // Em um cenário real complexo, faríamos parsing de tokens
+        container.innerHTML = textToType; 
+        
+        // Animação de "Reveal" usando GSAP no texto já inserido
+        gsap.fromTo("#typing-container", 
+          { opacity: 0 }, 
+          { opacity: 1, duration: 2, ease: "power2.in" }
+        );
+      }
+      // Executa após o boot
+      setTimeout(typeWriter, 2500);
+
+
+      // ==============================================
+      // 4. INTERACTIVE 3D PARALLAX (Mouse Movement)
+      // ==============================================
+      document.addEventListener("mousemove", (e) => {
+        const x = (window.innerWidth / 2 - e.pageX) / 50;
+        const y = (window.innerHeight / 2 - e.pageY) / 50;
+
+        gsap.to("#ui-layer", {
+          rotationY: -x, // Inverte para efeito espelho
+          rotationX: y,
+          duration: 1,
+          ease: "power2.out"
+        });
+
+        gsap.to(".bg-layer", {
+          x: x * 2, // Fundo move mais devagar
+          y: y * 2,
+          duration: 1.5,
+          ease: "power2.out"
+        });
+      });
+
+
+      // ==============================================
+      // 5. CANVAS PARTICLES (Digital Dust & Matrix)
+      // ==============================================
+      const canvas = document.getElementById('particle-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      const particles = [];
+      for(let j=0; j<100; j++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          size: Math.random() * 2,
+          speedY: Math.random() * 0.5 + 0.1,
+          opacity: Math.random()
+        });
+      }
+
+      function animateParticles() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "rgba(0, 243, 255, 0.5)";
+        
+        particles.forEach(p => {
+          p.y -= p.speedY;
+          if (p.y < 0) p.y = height;
+          
+          ctx.globalAlpha = p.opacity;
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+        });
+        requestAnimationFrame(animateParticles);
+      }
+      animateParticles();
+
+      // Mini Matrix Rain para o painel lateral
+      const mCanvas = document.getElementById('matrix-rain');
+      const mCtx = mCanvas.getContext('2d');
+      // Ajustar tamanho interno do canvas pequeno
+      mCanvas.width = 200; mCanvas.height = 100;
+      
+      const mCols = Math.floor(mCanvas.width / 10);
+      const mYpos = Array(mCols).fill(0);
+
+      function matrix() {
+        mCtx.fillStyle = '#0001';
+        mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+        mCtx.fillStyle = '#0f0';
+        mCtx.font = '10px monospace';
+
+        mYpos.forEach((y, ind) => {
+          const text = String.fromCharCode(Math.random() * 128);
+          const x = ind * 10;
+          mCtx.fillText(text, x, y);
+          if (y > 100 + Math.random() * 10000) mYpos[ind] = 0;
+          else mYpos[ind] = y + 10;
+        });
+      }
+      setInterval(matrix, 50);
+
+    </script>
   </body>
 </html>
