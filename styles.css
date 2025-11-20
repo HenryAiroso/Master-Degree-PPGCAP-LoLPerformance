@@ -1,9 +1,9 @@
 :root {
   --accent: #4af7ff;
   --accent2: #ffb347;
-  --screen-border: #22d3ee;
-  --screen-glow: rgba(34, 211, 238, 0.9);
-  --card-bg: rgba(6, 12, 31, 0.9);
+  --panel-border: #22d3ee;
+  --panel-glow: rgba(34, 211, 238, 0.9);
+  --panel-bg: rgba(5, 10, 25, 0.9);
   --text-main: #f9fafb;
   --text-muted: #9ca3af;
 }
@@ -22,24 +22,22 @@ body {
   overflow-x: hidden;
 }
 
-/* ====== CENA BASE (arte estática) ====== */
-
+/* ===== CENA BASE ===== */
 .scene {
   position: relative;
-  min-height: 100vh;
+  min-height: 120vh;
 }
 
 .scene__base {
   position: fixed;
   inset: 0;
-  background-image: url("assets/lab-base.png"); /* <-- AJUSTE AQUI */
+  background-image: url("lab-base.png"); /* ajusta o nome se for outro */
   background-size: cover;
   background-position: center;
   image-rendering: pixelated;
   z-index: -3;
 }
 
-/* Efeitos animados por cima da arte */
 .scene__fx {
   position: fixed;
   inset: 0;
@@ -47,7 +45,7 @@ body {
   z-index: -2;
 }
 
-/* vinheta pra focar no centro */
+/* Vinheta para focar no prédio */
 body::before {
   content: "";
   position: fixed;
@@ -57,21 +55,31 @@ body::before {
   z-index: -1;
 }
 
-/* ====== GLOWS DE TELAS ====== */
+/* Canvas transparente das animações JS */
+#fx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+/* ===== GLOWS EM TELAS DA ARTE ===== */
 
 .screen-glow {
   position: absolute;
   background: rgba(34, 211, 238, 0.12);
   border: 1px solid rgba(34, 211, 238, 0.7);
-  box-shadow: 0 0 20px rgba(34, 211, 238, 0.85);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.9);
   border-radius: 4px;
   animation: screenPulse 2.6s ease-in-out infinite;
 }
 
-/* posições aproximadas (em porcentagem da tela) para casar com a arte */
+/* coordenadas aproximadas em cima da arte */
 .screen-glow--center {
   left: 50%;
-  top: 54%;
+  top: 56%;
   width: 26vw;
   height: 12vh;
   transform: translate(-50%, -50%);
@@ -81,7 +89,7 @@ body::before {
   left: 38%;
   top: 39%;
   width: 14vw;
-  height: 8vh;
+  height: 7vh;
   transform: translate(-50%, -50%);
 }
 
@@ -89,27 +97,27 @@ body::before {
   left: 63%;
   top: 37%;
   width: 15vw;
-  height: 8vh;
+  height: 7vh;
   transform: translate(-50%, -50%);
 }
 
 .screen-glow--bottom-left {
   left: 41%;
-  top: 68%;
+  top: 69%;
   width: 15vw;
-  height: 7vh;
+  height: 6.5vh;
   transform: translate(-50%, -50%);
 }
 
 .screen-glow--bottom-right {
   left: 61%;
-  top: 71%;
+  top: 72%;
   width: 14vw;
-  height: 7vh;
+  height: 6.5vh;
   transform: translate(-50%, -50%);
 }
 
-/* faísca do robô soldando (andar alto à direita) */
+/* faísca do robô soldando */
 .spark {
   position: absolute;
   width: 12px;
@@ -125,7 +133,6 @@ body::before {
   top: 33%;
 }
 
-/* animações */
 @keyframes screenPulse {
   0% {
     opacity: 0.55;
@@ -156,33 +163,35 @@ body::before {
   }
 }
 
-/* ====== HUD DE TEXTO (painéis flutuando) ====== */
+/* ===== PAINÉIS HUD INTEGRADOS NA CENA ===== */
 
-.hud {
+.overlay {
   position: relative;
-  max-width: 980px;
-  margin: 6vh auto 6vh;
-  padding: 0 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  z-index: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 120vh; /* espaço pra espalhar os painéis */
 }
 
-/* Painel base */
-.screen {
-  position: relative;
-  background: var(--card-bg);
+/* painel base holográfico */
+.panel {
+  position: absolute;
+  padding: 0.9rem 1.1rem;
+  background: var(--panel-bg);
   border-radius: 12px;
-  border: 2px solid var(--screen-border);
+  border: 2px solid var(--panel-border);
   box-shadow:
     0 0 0 1px rgba(15, 23, 42, 0.9),
-    0 0 18px var(--screen-glow);
-  padding: 1.1rem 1.35rem 1.2rem;
+    0 0 18px var(--panel-glow);
   backdrop-filter: blur(2px);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: var(--text-main);
+  max-height: 21vh;
+  overflow-y: auto;
 }
 
-.screen::before {
+/* “moldura interna” estilo painel */
+.panel::before {
   content: "";
   position: absolute;
   inset: 4px;
@@ -191,44 +200,63 @@ body::before {
   pointer-events: none;
 }
 
-/* variações */
-
-.screen-title {
-  width: min(620px, 100%);
-  margin-inline: auto;
-  margin-bottom: 0.3rem;
+/* outdoor de título (topo da construção) */
+.panel-title {
+  top: 7vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42vw;
+  max-height: 17vh;
 }
 
-.screen-wide {
-  width: min(840px, 100%);
-  margin-inline: auto;
+/* painel overview no centro */
+.panel-overview {
+  top: 26vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 55vw;
 }
 
-.screen-grid {
-  width: min(900px, 100%);
-  margin-inline: auto;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+/* goals à esquerda, API à direita, na faixa do meio */
+.panel-goals {
+  top: 46vh;
+  left: 27%;
+  transform: translateX(-50%);
+  width: 30vw;
 }
 
-.screen-column {
-  position: relative;
+.panel-api {
+  top: 46vh;
+  left: 73%;
+  transform: translateX(-50%);
+  width: 30vw;
 }
 
-/* Título principal retro */
-.screen-title h1 {
-  font-family: "Press Start 2P", system-ui;
-  font-size: clamp(1.3rem, 2vw, 1.6rem);
-  line-height: 1.5;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-top: 0.3rem;
+/* parte de baixo: tech stack e ethics */
+.panel-tech {
+  top: 66vh;
+  left: 27%;
+  transform: translateX(-50%);
+  width: 30vw;
 }
 
-.screen-title h1 span {
-  color: var(--accent2);
+.panel-ethics {
+  top: 66vh;
+  left: 73%;
+  transform: translateX(-50%);
+  width: 30vw;
 }
+
+/* painel final logo acima do rodapé do prédio */
+.panel-legal {
+  top: 86vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52vw;
+  max-height: 20vh;
+}
+
+/* Tipografia dos painéis */
 
 .badge {
   display: inline-block;
@@ -240,20 +268,32 @@ body::before {
   background: rgba(0, 0, 0, 0.75);
 }
 
+.panel-title h1 {
+  font-family: "Press Start 2P", system-ui;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  line-height: 1.5;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-top: 0.35rem;
+}
+
+.panel-title h1 span {
+  color: var(--accent2);
+}
+
 .subtitle {
   margin-top: 0.7rem;
   color: var(--text-muted);
   font-size: 0.78rem;
 }
 
-/* headings dos painéis */
-.screen h2 {
+.panel h2 {
   font-family: "Press Start 2P", system-ui;
   font-size: 0.85rem;
   margin-bottom: 0.7rem;
 }
 
-.screen h3 {
+.panel h3 {
   margin-bottom: 0.4rem;
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -261,26 +301,19 @@ body::before {
   color: var(--accent);
 }
 
-/* texto */
-.screen p {
-  font-size: 0.88rem;
-  line-height: 1.7;
-  color: var(--text-main);
-  margin-bottom: 0.6rem;
-}
-
-.screen ul {
-  margin-left: 1.1rem;
+.panel p {
   margin-bottom: 0.5rem;
-  font-size: 0.86rem;
-  line-height: 1.6;
 }
 
-.screen li + li {
+.panel ul {
+  margin-left: 1.1rem;
+}
+
+.panel li + li {
   margin-top: 0.25rem;
 }
 
-.screen code {
+.panel code {
   background: #020617;
   padding: 0.05rem 0.3rem;
   border-radius: 4px;
@@ -288,32 +321,10 @@ body::before {
   font-size: 0.78rem;
 }
 
-/* Painel de rodapé */
+/* tags + botão dentro do painel-legal */
 
-.screen-footer {
-  display: grid;
-  grid-template-columns: minmax(0, 2.5fr) minmax(0, 1.5fr);
-  gap: 1rem;
-  align-items: flex-start;
-  width: min(900px, 100%);
-  margin-inline: auto;
-}
-
-.screen-footer-main p {
-  margin-bottom: 0;
-  font-size: 0.84rem;
-  line-height: 1.6;
-}
-
-.screen-footer-side {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  align-items: flex-start;
-}
-
-/* tags */
 .tags {
+  margin-top: 0.6rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -329,9 +340,9 @@ body::before {
   background: rgba(0, 0, 0, 0.7);
 }
 
-/* botão arcade */
 .btn {
   display: inline-block;
+  margin-top: 0.6rem;
   font-family: "Press Start 2P", system-ui;
   font-size: 0.7rem;
   text-decoration: none;
@@ -353,43 +364,50 @@ body::before {
   filter: brightness(1.08);
 }
 
-/* ====== Responsivo ====== */
+/* ===== RESPONSIVO: mobile volta a ser em coluna ===== */
 
 @media (max-width: 900px) {
-  .hud {
-    margin-top: 5vh;
-    gap: 0.9rem;
+  .scene {
+    min-height: auto;
   }
 
-  .screen-grid {
-    grid-template-columns: 1fr;
+  .overlay {
+    height: auto;
+    max-width: 640px;
+    padding: 5vh 1rem 8vh;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  .screen-footer {
-    grid-template-columns: 1fr;
+  .panel {
+    position: static;
+    width: 100%;
+    transform: none;
+    max-height: none;
+    overflow: visible;
   }
 
-  .screen-glow--center {
-    width: 45vw;
+  .panel-title {
+    max-height: none;
+  }
+
+  .panel-legal {
+    max-height: none;
   }
 }
 
 @media (max-width: 640px) {
-  .hud {
-    padding: 0 0.9rem;
-    margin: 5vh auto 4vh;
+  .panel {
+    padding: 0.85rem 0.95rem 1rem;
   }
 
-  .screen {
-    padding: 0.9rem 1rem 1rem;
-  }
-
-  .screen::before {
+  .panel::before {
     inset: 3px;
   }
 
-  .screen-title h1 {
-    font-size: 1.1rem;
+  .panel-title h1 {
+    font-size: 1.05rem;
   }
 
   .subtitle {
