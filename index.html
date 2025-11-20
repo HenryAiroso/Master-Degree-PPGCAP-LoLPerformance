@@ -13,7 +13,311 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="styles.css" />
+    <style>
+      /* =========================================
+         VARIÁVEIS E RESET
+         ========================================= */
+      :root {
+        --bg-color: #0d1218;
+        --panel-bg: #14181e;
+        --text-color: #dcdacb;
+        --accent-green: #44d65c;
+        --accent-orange: #ffcd75;
+        --accent-red: #e53b44;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        font-family: "Press Start 2P", cursive;
+        color: var(--text-color);
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      /* =========================================
+         CAMADAS DA CENA (PARALLAX)
+         ========================================= */
+      .parallax-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      /* Camada 1: O Fundo */
+      .layer-bg {
+        position: absolute;
+        top: -5%; left: -5%;
+        width: 110%; height: 110%;
+        background-color: #333;
+        /* CAMINHO DA IMAGEM */
+        background-image: url('assets/lab-base.png');
+        background-size: cover;
+        background-position: center bottom;
+        image-rendering: pixelated;
+        z-index: 1;
+      }
+
+      /* Camada 2: Robôs */
+      #robot-canvas {
+        position: absolute;
+        top: -5%; left: -5%;
+        width: 110%; height: 110%; /* Sincronizado com o fundo */
+        pointer-events: none;
+        z-index: 2;
+        image-rendering: pixelated;
+      }
+
+      /* Camada 3: Atmosfera */
+      #fx-canvas {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 3;
+      }
+
+      /* Camada 4: Vinheta */
+      .vignette {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle, rgba(0,0,0,0) 60%, rgba(13,18,24,0.9) 100%);
+        pointer-events: none;
+        z-index: 4;
+      }
+
+      /* Camada 5: A Interface */
+      .layer-ui {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        z-index: 10;
+        overflow-y: auto;
+        display: flex;
+        justify-content: center;
+        padding-top: 5vh;
+      }
+
+      /* =========================================
+         ESTRUTURA DA UI (GRID)
+         ========================================= */
+      .content-grid {
+        display: grid;
+        grid-template-columns: 1fr min(650px, 90%) 1fr; /* Reduzido para ficar compacto */
+        grid-template-rows: auto auto auto 1fr;
+        gap: 15px;
+        width: 100%;
+        max-width: 1000px;
+        padding-bottom: 80px;
+      }
+
+      .main-column {
+        grid-column: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      /* =========================================
+         COMPONENTES UI (TAMANHOS REDUZIDOS)
+         ========================================= */
+
+      /* 1. PLACA */
+      .hanging-sign-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      .hanging-rope {
+        position: absolute;
+        top: -100px;
+        width: 3px;
+        height: 100px;
+        background: #222;
+        z-index: -1;
+      }
+      .rope-left { left: 20%; transform: rotate(3deg); }
+      .rope-right { right: 20%; transform: rotate(-3deg); }
+
+      .pixel-sign {
+        background: var(--accent-red);
+        padding: 10px 15px;
+        text-align: center;
+        border: 3px solid #222;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.6);
+        transform: rotate(-1deg);
+        animation: swing 5s ease-in-out infinite;
+      }
+
+      .title-main {
+        font-size: 0.7rem; /* Título mantido visível, mas equilibrado */
+        line-height: 1.4;
+        text-shadow: 2px 2px 0px #591418;
+        margin: 0;
+        color: #fff;
+        text-transform: uppercase;
+      }
+      .title-sub {
+        display: block;
+        font-size: 0.35rem;
+        color: var(--accent-orange);
+        margin-top: 2px;
+        letter-spacing: 1px;
+      }
+
+      /* 2. MONITOR */
+      .monitor-casing {
+        background: #222;
+        padding: 6px;
+        border-radius: 3px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+        width: 100%;
+        position: relative;
+      }
+      .monitor-casing::before {
+        content: "";
+        position: absolute;
+        top: 40%; right: -20px;
+        width: 20px; height: 5px;
+        background: #111;
+        z-index: -1;
+      }
+
+      .monitor-screen {
+        background: #050a0f;
+        border: 2px solid #444;
+        padding: 15px;
+        color: var(--accent-green);
+        font-size: 0.55rem; /* TEXTO REDUZIDO */
+        line-height: 1.6;
+        min-height: 160px;
+        position: relative;
+        overflow: hidden;
+        text-shadow: 0 0 2px rgba(68, 214, 92, 0.4);
+      }
+
+      .monitor-screen::after {
+        content: " ";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,0.15) 50%);
+        background-size: 100% 4px;
+        pointer-events: none;
+      }
+
+      /* 3. PRANCHETAS */
+      .data-deck {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .data-panel {
+        flex: 1;
+        min-width: 200px;
+        background: #dcdacb;
+        color: #222;
+        padding: 10px;
+        border: 3px solid #222;
+        box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+        position: relative;
+      }
+
+      .data-panel::after {
+        content: "";
+        position: absolute;
+        top: 5px; left: 50%; transform: translateX(-50%);
+        width: 6px; height: 6px;
+        background: #555;
+        border-radius: 50%;
+        box-shadow: 0 1px 0 #fff;
+      }
+
+      .panel-header {
+        background: #222;
+        color: #fff;
+        text-align: center;
+        padding: 3px;
+        margin: -3px -3px 8px -3px;
+        font-size: 0.45rem;
+        text-transform: uppercase;
+      }
+
+      .check-list {
+        list-style: none;
+        padding: 0; margin: 0;
+        font-size: 0.45rem; /* TEXTO REDUZIDO */
+        line-height: 1.5;
+      }
+      .check-list li { margin-bottom: 5px; padding-left: 10px; position: relative; }
+      .check-list li::before { content: ">"; position: absolute; left: 0; font-weight: bold; }
+
+      /* 4. RODAPÉ */
+      .crate-footer {
+        width: 95%;
+        background: #5c4033;
+        border: 3px solid #3e2b22;
+        padding: 10px;
+        text-align: center;
+        position: relative;
+        margin-top: 5px;
+        box-shadow: 0 -3px 10px rgba(0,0,0,0.3);
+      }
+      .crate-footer::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 3px;
+        background: repeating-linear-gradient(45deg, #e53b44, #e53b44 6px, #222 6px, #222 12px);
+      }
+
+      .legal-text {
+        font-size: 0.35rem; /* TEXTO LEGAL REDUZIDO */
+        color: #e0cda8;
+        margin-bottom: 8px;
+        line-height: 1.3;
+        opacity: 0.8;
+      }
+
+      .btn-repo {
+        display: inline-block;
+        background: var(--accent-orange);
+        color: #000;
+        text-decoration: none;
+        padding: 6px 12px;
+        border: 2px solid #000;
+        box-shadow: 2px 2px 0 #000;
+        font-size: 0.45rem;
+        transition: transform 0.1s;
+      }
+      .btn-repo:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0 #000; }
+
+      /* ANIMAÇÕES */
+      @keyframes swing {
+        0%, 100% { transform: rotate(-1deg); }
+        50% { transform: rotate(1deg); }
+      }
+      @keyframes blink { 50% { opacity: 0; } }
+      .cursor {
+        display: inline-block; width: 5px; height: 8px; background: var(--accent-green);
+        animation: blink 1s infinite;
+      }
+
+      @media (max-width: 768px) {
+        .content-grid { grid-template-columns: 1fr; padding: 10px; }
+        .main-column { grid-column: 1; width: 100%; }
+        .rope-left, .rope-right { display: none; }
+      }
+    </style>
   </head>
   <body>
 
@@ -23,7 +327,6 @@
       <div class="layer-bg"></div>
 
       <!-- CAMADA 2: ROBÔS (Canvas de IA) -->
-      <!-- Fica entre o fundo e a atmosfera para parecer que estão NA construção -->
       <canvas id="robot-canvas"></canvas>
 
       <!-- CAMADA 3: ATMOSFERA (Nuvens/Fumaça) -->
@@ -98,12 +401,216 @@
       </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="pixel-bg.js"></script> <!-- Nuvens -->
-    <script src="robots.js"></script>   <!-- Robôs Autônomos -->
-    
     <script>
-      // Lógica de Parallax e Digitação (UI Principal)
+      /**
+       * PARTE 1: ROBOTS.JS (INTEGRADO)
+       */
+      (function () {
+        const canvas = document.getElementById("robot-canvas");
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
+        const DPR = window.devicePixelRatio || 1;
+        ctx.imageSmoothingEnabled = false;
+
+        let width, height;
+        let robots = [];
+        let sparks = [];
+
+        // Definição dos Sprites (Matrizes 0/1)
+        const sprites = {
+          idle: [
+            [0,1,1,1,0],
+            [0,1,0,1,0],
+            [1,1,1,1,1],
+            [0,1,1,1,0],
+            [0,1,0,1,0]
+          ],
+          walk1: [
+            [0,1,1,1,0],
+            [0,1,0,1,0],
+            [1,1,1,1,1],
+            [0,1,1,1,0],
+            [1,0,0,0,1]
+          ],
+          walk2: [
+            [0,1,1,1,0],
+            [0,1,0,1,0],
+            [1,1,1,1,1],
+            [0,1,1,1,0],
+            [0,1,0,1,0]
+          ],
+          weld: [
+            [0,0,1,1,0],
+            [0,0,1,1,0],
+            [0,1,1,1,1],
+            [0,1,1,1,1],
+            [0,1,0,1,0]
+          ]
+        };
+
+        class Robot {
+          constructor(yRatio, speed, type) {
+            this.yRatio = yRatio;
+            this.x = Math.random() * width;
+            this.y = height * yRatio;
+            this.speed = (Math.random() * 0.5 + 0.2) * (Math.random() < 0.5 ? 1 : -1);
+            this.color = type === 'worker' ? '#dcdacb' : '#44d65c';
+            this.accent = type === 'worker' ? '#e53b44' : '#222';
+            this.scale = 3;
+            this.frame = 0;
+            this.state = 'walking';
+            this.timer = 0;
+            this.workDuration = 0;
+          }
+
+          update() {
+            if (this.state === 'walking') {
+              this.x += this.speed;
+              this.timer++;
+              if (this.timer % 10 === 0) this.frame = this.frame === 0 ? 1 : 0;
+              if (Math.random() < 0.005) {
+                this.state = 'working';
+                this.workDuration = 60 + Math.random() * 100;
+              }
+              if (this.x > width + 20) this.x = -20;
+              if (this.x < -20) this.x = width + 20;
+            } else if (this.state === 'working') {
+              this.workDuration--;
+              if (this.workDuration % 5 === 0) createSpark(this.x + (this.speed > 0 ? 15 : -5), this.y + 5);
+              if (this.workDuration <= 0) {
+                this.state = 'walking';
+                if (Math.random() < 0.5) this.speed *= -1;
+              }
+            }
+          }
+
+          draw() {
+            let currentSprite;
+            if (this.state === 'working') currentSprite = sprites.weld;
+            else currentSprite = this.frame === 0 ? sprites.walk1 : sprites.walk2;
+
+            ctx.save();
+            ctx.translate(Math.round(this.x), Math.round(this.y));
+            if (this.speed < 0) ctx.scale(-1, 1);
+
+            for (let r = 0; r < 5; r++) {
+              for (let c = 0; c < 5; c++) {
+                if (currentSprite[r][c] === 1) {
+                  if (r === 1 && c === 2) ctx.fillStyle = this.accent;
+                  else ctx.fillStyle = this.color;
+                  ctx.fillRect(c * this.scale, r * this.scale, this.scale, this.scale);
+                }
+              }
+            }
+            ctx.restore();
+          }
+        }
+
+        function createSpark(x, y) {
+          sparks.push({ x, y, vy: -1 - Math.random(), vx: (Math.random() - 0.5) * 2, life: 10 });
+        }
+
+        function resize() {
+          width = window.innerWidth;
+          height = window.innerHeight;
+          canvas.width = width * DPR;
+          canvas.height = height * DPR;
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          initRobots();
+        }
+
+        function initRobots() {
+          robots = [];
+          const floors = [0.28, 0.45, 0.55, 0.72]; 
+          floors.forEach(y => {
+            let count = Math.floor(Math.random() * 2) + 1;
+            for(let k=0; k<count; k++) {
+              robots.push(new Robot(y, 0, Math.random() > 0.5 ? 'worker' : 'drone'));
+            }
+          });
+        }
+
+        function animate() {
+          ctx.clearRect(0, 0, width, height);
+          robots.forEach(r => { r.update(); r.draw(); });
+          for (let i = sparks.length - 1; i >= 0; i--) {
+            let s = sparks[i];
+            s.x += s.vx; s.y += s.vy; s.life--;
+            ctx.fillStyle = `rgba(255, 200, 50, ${s.life / 10})`;
+            ctx.fillRect(s.x, s.y, 2, 2);
+            if (s.life <= 0) sparks.splice(i, 1);
+          }
+          requestAnimationFrame(animate);
+        }
+
+        window.addEventListener("resize", resize);
+        resize();
+        animate();
+      })();
+
+      /**
+       * PARTE 2: PIXEL-BG.JS (NUVENS - INTEGRADO)
+       */
+      (function () {
+        const canvas = document.getElementById("fx-canvas");
+        if (!canvas) return;
+
+        const ctx = canvas.getContext("2d");
+        const DPR = window.devicePixelRatio || 1;
+        ctx.imageSmoothingEnabled = false;
+
+        let width, height;
+        let clouds = [];
+
+        function resize() {
+          width = window.innerWidth;
+          height = window.innerHeight;
+          canvas.width = width * DPR;
+          canvas.height = height * DPR;
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+          initClouds();
+        }
+
+        function initClouds() {
+          clouds = [];
+          for (let i = 0; i < 6; i++) {
+            clouds.push({
+              x: Math.random() * width,
+              y: Math.random() * (height * 0.5),
+              speed: 0.1 + Math.random() * 0.3,
+              size: 10 + Math.random() * 20,
+              opacity: 0.05 + Math.random() * 0.05
+            });
+          }
+        }
+
+        function update() {
+          ctx.clearRect(0, 0, width, height);
+          clouds.forEach(c => {
+            c.x += c.speed;
+            if (c.x > width) c.x = -50;
+            ctx.fillStyle = `rgba(255, 255, 255, ${c.opacity})`;
+            let s = c.size;
+            ctx.fillRect(c.x, c.y, s*3, s);
+            ctx.fillRect(c.x + s, c.y - s, s*1.5, s);
+            ctx.fillRect(c.x + s*0.5, c.y + s, s*2, s*0.5);
+          });
+          requestAnimationFrame(update);
+        }
+
+        window.addEventListener("resize", resize);
+        resize();
+        update();
+      })();
+
+      /**
+       * PARTE 3: LÓGICA PRINCIPAL (UI & PARALLAX)
+       */
       const bgLayer = document.querySelector('.layer-bg');
       const robotCanvas = document.getElementById('robot-canvas');
       
@@ -111,14 +618,10 @@
         const x = (window.innerWidth - e.pageX * 2) / 120;
         const y = (window.innerHeight - e.pageY * 2) / 120;
         
-        // Fundo move devagar
         bgLayer.style.transform = `translate(${x}px, ${y}px)`;
-        
-        // Robôs movem junto com o fundo para não "deslizarem" do chão
         robotCanvas.style.transform = `translate(${x}px, ${y}px)`;
       });
 
-      // Digitação do Console
       const text = `
 > INITIALIZING SYSTEM...
 > LOADING PROJECT: Master-Degree-PPGCAP-LoLPerformance
@@ -144,7 +647,7 @@ STATUS: ACADEMIC RESEARCH IN PROGRESS...
             consoleDiv.innerHTML += text.charAt(charIndex);
           }
           charIndex++;
-          setTimeout(typeText, 10); // Digitação mais rápida
+          setTimeout(typeText, 10);
         } else {
           consoleDiv.innerHTML += '<span class="cursor"></span>';
         }
