@@ -94,7 +94,11 @@
       .bg-layer {
         position: absolute;
         inset: -5%; /* Maior que a tela para permitir movimento parallax */
-        background: url('lab-base.jpg') no-repeat center bottom;
+        
+        /* --- CORREÇÃO AQUI --- */
+        /* Apontando para a pasta assets e arquivo png */
+        background: url('assets/lab-base.png') no-repeat center bottom;
+        
         background-size: cover;
         z-index: -10;
         filter: brightness(0.6) contrast(1.2);
