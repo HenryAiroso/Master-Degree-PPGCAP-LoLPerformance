@@ -1,581 +1,408 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>PROTOCOL: LoL Performance // SYSTEM_ROOT</title>
+    <title>LoL Performance AI Research</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- GSAP (Framework de Animação Profissional) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
-    <!-- Fontes -->
+    <!-- Fonte Pixelada Oficial -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400;700;800&family=Rajdhani:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
       rel="stylesheet"
     />
 
     <style>
       /* =========================================
-         CORE VARIABLES & RESET
+         CONFIGURAÇÃO PIXEL PERFECT
          ========================================= */
       :root {
-        --neon-cyan: #00f3ff;
-        --neon-magenta: #ff0055;
-        --neon-yellow: #ffee00;
-        --ui-bg: rgba(6, 11, 15, 0.94);
-        --grid-line: rgba(0, 243, 255, 0.15);
-        --font-tech: "JetBrains Mono", monospace;
-        --font-display: "Rajdhani", sans-serif;
+        --color-bg: #1a1c2c;
+        --color-panel: #29366f;
+        --color-text: #dcdacb;
+        --color-accent: #4b692f;
+        --color-highlight: #ffcd75;
       }
 
-      * { box-sizing: border-box; cursor: crosshair; }
+      * {
+        box-sizing: border-box;
+      }
 
       body {
         margin: 0;
-        background: #000;
-        color: var(--neon-cyan);
-        font-family: var(--font-tech);
-        overflow: hidden; /* Oculta scroll para imersão total */
-        height: 100vh;
-        perspective: 1000px; /* Necessário para o efeito 3D */
+        padding: 0;
+        background-color: var(--color-bg);
+        font-family: "Press Start 2P", cursive;
+        color: var(--color-text);
+        overflow-x: hidden;
+        image-rendering: pixelated;
       }
 
       /* =========================================
-         LOADER SEQUENCE (BOOT SCREEN)
+         CAMADA DO CENÁRIO (BACKGROUND)
          ========================================= */
-      #boot-screen {
+      .scene-layer {
         position: fixed;
         inset: 0;
-        background: #000;
-        z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        font-family: var(--font-tech);
-      }
-      
-      .boot-text {
-        font-size: 12px;
-        color: var(--neon-cyan);
-        margin-bottom: 10px;
-        text-shadow: 0 0 5px var(--neon-cyan);
-      }
-      
-      .loader-bar {
-        width: 300px;
-        height: 2px;
-        background: #111;
-        position: relative;
-        overflow: hidden;
-      }
-      
-      .loader-progress {
-        position: absolute;
-        top: 0; left: 0; bottom: 0;
-        width: 0%;
-        background: var(--neon-cyan);
-        box-shadow: 0 0 10px var(--neon-cyan);
-      }
-
-      /* =========================================
-         WORLD LAYERS
-         ========================================= */
-      .viewport {
-        position: relative;
         width: 100%;
         height: 100%;
-        transform-style: preserve-3d; /* Permite camadas 3D */
-        overflow: hidden;
-      }
-
-      .bg-layer {
-        position: absolute;
-        inset: -5%; /* Maior que a tela para permitir movimento parallax */
+        z-index: -10;
+        background-color: #333;
         
-        /* --- CORREÇÃO AQUI --- */
-        /* Apontando para a pasta assets e arquivo png */
-        background: url('assets/lab-base.png') no-repeat center bottom;
+        /* CAMINHO DA IMAGEM */
+        background-image: url('assets/lab-base.png');
         
         background-size: cover;
-        z-index: -10;
-        filter: brightness(0.6) contrast(1.2);
-        transform: translateZ(-50px) scale(1.1); /* Profundidade */
+        background-position: center bottom;
       }
 
-      /* Scanlines CRT Overlay */
-      .scanlines {
+      .vignette {
         position: fixed;
         inset: 0;
-        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-        background-size: 100% 2px, 3px 100%;
+        background: radial-gradient(circle, rgba(0,0,0,0) 40%, rgba(0,0,0,0.7) 90%);
         pointer-events: none;
-        z-index: 9000;
-        opacity: 0.6;
-      }
-
-      #particle-canvas {
-        position: fixed;
-        inset: 0;
         z-index: -5;
-        pointer-events: none;
-        mix-blend-mode: screen;
       }
 
       /* =========================================
-         UI ARCHITECTURE (Diegetic Interface)
+         LAYOUT DE GRADES
          ========================================= */
-      .ui-container {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        width: 90%;
-        max-width: 1200px;
-        height: 85vh;
+      .grid-container {
         display: grid;
-        grid-template-columns: 250px 1fr 250px;
-        grid-template-rows: auto 1fr auto;
-        gap: 20px;
-        transform-style: preserve-3d; /* 3D para os filhos */
+        grid-template-columns: 1fr min(900px, 90%) 1fr;
+        grid-template-rows: 15vh auto auto 1fr;
+        min-height: 100vh;
+        pointer-events: none;
       }
 
-      /* Painéis Gerais */
-      .hud-panel {
-        background: var(--ui-bg);
-        border: 1px solid rgba(0, 243, 255, 0.3);
-        backdrop-filter: blur(8px);
-        padding: 20px;
-        position: relative;
-        /* Efeito de canto tecnológico */
-        clip-path: polygon(
-          0 10px, 10px 0, 
-          100% 0, 100% calc(100% - 10px), 
-          calc(100% - 10px) 100%, 
-          0 100%
-        );
-        box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        transition: border-color 0.3s;
-      }
-
-      .hud-panel:hover {
-        border-color: var(--neon-cyan);
-        box-shadow: 0 0 20px rgba(0, 243, 255, 0.15);
-      }
-
-      /* Header (Outdoor) */
-      .header-module {
-        grid-column: 1 / -1;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        border-bottom: 2px solid var(--neon-cyan);
-        padding-bottom: 15px;
-        background: none;
-        backdrop-filter: none;
-        clip-path: none;
-        border: none;
-      }
-
-      h1.title-glitch {
-        font-family: var(--font-display);
-        font-size: 4rem;
-        text-transform: uppercase;
-        margin: 0;
-        line-height: 0.9;
-        color: #fff;
-        text-shadow: 0 0 10px var(--neon-cyan);
-      }
-      
-      .subtitle-tech {
-        font-size: 0.8rem;
-        color: var(--neon-yellow);
-        letter-spacing: 2px;
-        text-transform: uppercase;
-      }
-
-      /* Main Terminal (Center) */
-      .main-terminal {
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
+      .content-area {
+        grid-column: 2;
+        grid-row: 2 / span 3;
         display: flex;
         flex-direction: column;
-        background: rgba(0, 0, 0, 0.8);
-        border: 1px solid #333;
-        box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9);
+        align-items: center;
+        pointer-events: auto;
+        gap: 40px;
+        padding-bottom: 50px;
       }
 
-      .terminal-top-bar {
-        background: #111;
-        padding: 5px 10px;
-        font-size: 10px;
-        color: #555;
+      /* =========================================
+         COMPONENTES UI
+         ========================================= */
+      
+      /* 1. PLACA (SIGN) */
+      .pixel-sign {
+        background: #e53b44;
+        padding: 15px 20px;
+        text-align: center;
+        position: relative;
+        margin-top: 20px;
+        box-shadow: 
+          -4px 0 0 0 black,
+          4px 0 0 0 black,
+          0 -4px 0 0 black,
+          0 4px 0 0 black,
+          inset -4px -4px 0 0 rgba(0,0,0,0.3),
+          4px 4px 0 0 black;
+        transform: rotate(-1deg);
+      }
+
+      .pixel-sign::before, .pixel-sign::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        width: 6px; height: 6px;
+        background: #333;
+        border-radius: 50%;
+        box-shadow: 0 2px 0 rgba(255,255,255,0.3);
+      }
+      .pixel-sign::before { left: 10px; }
+      .pixel-sign::after { right: 10px; }
+
+      .title-main {
+        font-size: 1.1rem;
+        line-height: 1.5;
+        text-shadow: 2px 2px 0px #8b0000;
+        margin: 0;
+        color: #fff;
+        text-transform: uppercase;
+      }
+
+      .title-sub {
+        display: block;
+        font-size: 0.55rem;
+        color: #ffd700;
+        margin-top: 5px;
+        text-transform: uppercase;
+      }
+
+      /* 2. MONITOR */
+      .pixel-monitor {
+        background: #0d1218;
+        width: 100%;
+        max-width: 700px;
+        padding: 4px;
+        box-shadow: 
+          0 0 0 4px #222,
+          0 0 0 8px #444,
+          8px 12px 0 4px rgba(0,0,0,0.5);
+        position: relative;
+        margin-top: 20px;
+      }
+
+      .monitor-screen {
+        background: #162423;
+        color: #44d65c;
+        padding: 20px;
+        font-size: 0.75rem;
+        line-height: 1.8;
+        min-height: 220px;
+        position: relative;
+        overflow: hidden;
+        font-family: "Press Start 2P", monospace;
+      }
+
+      .monitor-screen::after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+        background-size: 100% 4px;
+        pointer-events: none;
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 10px;
+        height: 14px;
+        background: #44d65c;
+        animation: blink 1s steps(2, start) infinite;
+        vertical-align: middle;
+      }
+
+      /* 3. PRANCHETAS */
+      .clipboard-row {
         display: flex;
-        justify-content: space-between;
-        border-bottom: 1px solid #333;
+        gap: 20px;
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
       }
 
-      .terminal-content {
-        padding: 30px;
-        flex-grow: 1;
-        overflow-y: auto;
-        color: #ddd;
-        font-size: 0.95rem;
+      .pixel-clipboard {
+        flex: 1;
+        min-width: 300px;
+        background: #f2eecb;
+        color: #3e3a38;
+        padding: 15px;
+        position: relative;
+        font-size: 0.65rem;
+        line-height: 1.6;
+        box-shadow: 
+          -2px 0 0 0 black,
+          2px 0 0 0 black,
+          0 -2px 0 0 black,
+          0 2px 0 0 black,
+          4px 4px 0 0 rgba(0,0,0,0.4);
+      }
+
+      .pixel-clipboard::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 12px;
+        background: #888;
+        border: 2px solid black;
+      }
+
+      .clip-title {
+        background: #333;
+        color: #fff;
+        padding: 4px;
+        text-align: center;
+        margin: -5px -5px 10px -5px;
+        font-size: 0.6rem;
+        text-transform: uppercase;
+      }
+
+      .check-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .check-list li {
+        margin-bottom: 10px;
+        padding-left: 12px;
+        position: relative;
+      }
+      
+      .check-list li::before {
+        content: ">";
+        position: absolute;
+        left: 0;
+        font-weight: bold;
+      }
+
+      /* 4. CAIXA (RODAPÉ) */
+      .pixel-crate {
+        background: #5c4033;
+        padding: 15px;
+        text-align: center;
+        border: 4px solid #2e1e17;
+        color: #e0cda8;
+        font-size: 0.55rem;
+        width: 100%;
+        margin-top: 20px;
+        position: relative;
         line-height: 1.6;
       }
 
-      .highlight-text { color: var(--neon-cyan); font-weight: bold; }
-      .warning-text { color: var(--neon-magenta); }
-
-      /* Side Modules */
-      .side-left { grid-column: 1 / 2; grid-row: 2 / 3; display: flex; flex-direction: column; gap: 20px; }
-      .side-right { grid-column: 3 / 4; grid-row: 2 / 3; display: flex; flex-direction: column; gap: 20px; }
-
-      .stat-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-        font-size: 0.75rem;
-        border-bottom: 1px dashed rgba(255,255,255,0.1);
-        padding-bottom: 2px;
+      .pixel-crate::after {
+        content: "/////////";
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        color: rgba(0,0,0,0.2);
+        font-size: 20px;
+        pointer-events: none;
       }
 
-      /* Footer */
-      .footer-module {
-        grid-column: 1 / -1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-      }
-
-      /* Botão Complexo */
-      .cyber-btn {
-        background: transparent;
-        border: 1px solid var(--neon-cyan);
-        color: var(--neon-cyan);
-        padding: 10px 30px;
-        font-family: var(--font-display);
-        font-size: 1.2rem;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition: 0.3s;
+      .btn-pixel {
+        display: inline-block;
+        background: #ffcd75;
+        color: #000;
+        padding: 10px 15px;
+        margin-top: 15px;
         text-decoration: none;
+        border: 2px solid #000;
+        box-shadow: 4px 4px 0 #000;
+        transition: transform 0.1s, box-shadow 0.1s;
+        font-size: 0.6rem;
       }
 
-      .cyber-btn::before {
-        content: '';
-        position: absolute;
-        top: 0; left: -100%;
-        width: 100%; height: 100%;
-        background: var(--neon-cyan);
-        z-index: -1;
-        transition: 0.4s;
+      .btn-pixel:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 #000;
       }
 
-      .cyber-btn:hover::before { left: 0; }
-      .cyber-btn:hover { color: #000; box-shadow: 0 0 30px var(--neon-cyan); }
-
-      /* Decorações (Greebles) */
-      .greeble {
-        position: absolute;
-        background: var(--neon-cyan);
-        opacity: 0.5;
+      @keyframes blink {
+        to { visibility: hidden; }
       }
 
-      /* Scrollbar personalizada */
-      ::-webkit-scrollbar { width: 5px; }
-      ::-webkit-scrollbar-track { background: #000; }
-      ::-webkit-scrollbar-thumb { background: var(--neon-cyan); }
-
-      /* Mobile */
-      @media (max-width: 1024px) {
-        .ui-container {
-          grid-template-columns: 1fr;
-          grid-template-rows: auto;
-          height: auto;
-          overflow-y: auto;
-          padding-bottom: 50px;
-        }
-        .side-left, .side-right, .main-terminal { grid-column: 1 / -1; grid-row: auto; }
-        h1.title-glitch { font-size: 2.5rem; }
+      @media (max-width: 700px) {
+        .grid-container { grid-template-columns: 1fr; padding: 10px; }
+        .content-area { grid-column: 1; }
+        .pixel-monitor { margin-bottom: 20px; }
       }
     </style>
   </head>
   <body>
+    
+    <div class="scene-layer"></div>
+    <div class="vignette"></div>
 
-    <!-- BOOT SEQUENCE OVERLAY -->
-    <div id="boot-screen">
-      <div class="boot-text">INITIALIZING NEURAL LINK...</div>
-      <div class="loader-bar"><div class="loader-progress"></div></div>
-      <div class="boot-text" style="margin-top: 5px; font-size: 9px; opacity: 0.7;">v.4.0.22</div>
-    </div>
-
-    <!-- SCANLINES & EFFECTS -->
-    <div class="scanlines"></div>
-    <canvas id="particle-canvas"></canvas>
-
-    <!-- 3D VIEWPORT -->
-    <div class="viewport" id="scene-wrapper">
-      <div class="bg-layer"></div>
-
-      <!-- MAIN UI CONTAINER -->
-      <div class="ui-container" id="ui-layer">
+    <div class="grid-container">
+      <div class="content-area">
         
-        <!-- HEADER -->
-        <header class="header-module">
-          <div>
-            <div class="subtitle-tech">PPGCAP // MASTER_THESIS</div>
-            <h1 class="title-glitch" data-value="LOL_PERFORMANCE">LOL_PERFORMANCE</h1>
-          </div>
-          <div style="text-align: right;">
-            <div class="subtitle-tech">SYS_STATUS: <span style="color:var(--neon-cyan)">ONLINE</span></div>
-            <div style="font-size: 10px; opacity: 0.6;">ID: 8492-X</div>
-          </div>
-        </header>
+        <!-- 1. OUTDOOR SIGN -->
+        <div class="pixel-sign">
+          <h1 class="title-main">LOL PERFORMANCE</h1>
+          <span class="title-sub">AI MASTER'S DISSERTATION</span>
+        </div>
 
-        <!-- LEFT COLUMN -->
-        <aside class="side-left">
-          <div class="hud-panel">
-            <div class="greeble" style="top:0; right:0; width: 20px; height: 20px; border-top: 2px solid var(--neon-cyan); border-right: 2px solid var(--neon-cyan); background:none;"></div>
-            <h3 style="margin-top:0; color:var(--neon-yellow)">/// OBJECTIVES</h3>
-            <ul style="list-style:none; padding:0; font-size: 0.8rem; line-height: 1.8;">
-              <li>[x] MATCH_V5 COLLECTION</li>
-              <li>[~] DEEP LEARNING MODEL</li>
-              <li>[ ] WIN_RATE PREDICTION</li>
-              <li>[ ] ACADEMIC PUBLISH</li>
+        <!-- 2. MONITOR (INTRO & OVERVIEW) -->
+        <div class="pixel-monitor">
+          <div class="monitor-screen" id="console-text">
+            <!-- Javascript will type here -->
+          </div>
+        </div>
+
+        <!-- 3. DATA SHEETS -->
+        <div class="clipboard-row">
+          
+          <!-- LEFT: PROJECT GOALS -->
+          <div class="pixel-clipboard">
+            <div class="clip-title">PROJECT GOALS</div>
+            <ul class="check-list">
+              <li>Collect historical ranked match data.</li>
+              <li>Build structured datasets (gold, XP, objectives).</li>
+              <li>Train and evaluate predictive models.</li>
+              <li>Produce aggregated, anonymized statistics.</li>
             </ul>
           </div>
 
-          <div class="hud-panel">
-            <h3 style="margin-top:0; color:var(--neon-yellow)">/// TECH_STACK</h3>
-            <div class="stat-row"><span>LANG</span> <span>PYTHON 3.9</span></div>
-            <div class="stat-row"><span>LIB</span> <span>PYTORCH</span></div>
-            <div class="stat-row"><span>DATA</span> <span>PANDAS</span></div>
-            <div class="stat-row"><span>ENV</span> <span>JUPYTER</span></div>
-          </div>
-        </aside>
-
-        <!-- CENTER TERMINAL -->
-        <section class="main-terminal hud-panel">
-          <div class="terminal-top-bar">
-            <span>ROOT_ACCESS // GRANTED</span>
-            <span>ENC: AES-256</span>
-          </div>
-          <div class="terminal-content" id="typing-container">
-            <!-- O texto será digitado via JS aqui -->
-          </div>
-        </section>
-
-        <!-- RIGHT COLUMN -->
-        <aside class="side-right">
-          <div class="hud-panel">
-            <h3 style="margin-top:0; color:var(--neon-yellow)">/// RIOT_API_STREAM</h3>
-            <div style="height: 100px; overflow: hidden; position: relative;">
-              <canvas id="matrix-rain" style="width:100%; height:100%; opacity: 0.5;"></canvas>
-              <div style="position: absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:bold; text-shadow:0 0 5px black;">
-                LINK ESTABLISHED
-              </div>
+          <!-- RIGHT: TECH & ETHICS -->
+          <div class="pixel-clipboard" style="background: #d3e0e6; color: #222;">
+            <div class="clip-title">TECH STACK</div>
+            <ul class="check-list">
+              <li><strong>LANG:</strong> Python (Data/ML)</li>
+              <li><strong>ENV:</strong> Jupyter Notebooks</li>
+              <li><strong>API:</strong> Riot Games (match-v5)</li>
+              <li><strong>DATA:</strong> Data Dragon (Static)</li>
+            </ul>
+            <hr style="border: 1px dashed #666; margin: 10px 0;">
+            <div style="font-size: 0.55rem;">
+              <strong>ETHICS:</strong> Data analyzed in aggregate. Individual players are not identified.
             </div>
-            <div class="stat-row" style="margin-top:10px;"><span>LATENCY</span> <span>24ms</span></div>
-            <div class="stat-row"><span>PACKETS</span> <span>4.2TB</span></div>
           </div>
+        
+        </div>
 
-          <div class="hud-panel warning-panel" style="border-color: var(--neon-magenta);">
-            <h3 style="margin-top:0; color:var(--neon-magenta)">/// DISCLAIMER</h3>
-            <p style="font-size: 0.7rem; margin:0;">
-              NON-COMMERCIAL USE ONLY.<br>
-              NOT ENDORSED BY RIOT GAMES.<br>
-              ACADEMIC RESEARCH PURPOSE.
-            </p>
-          </div>
-        </aside>
-
-        <!-- FOOTER -->
-        <footer class="footer-module">
-          <a href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance" target="_blank" class="cyber-btn">
-            ACCESS_REPOSITORY
+        <!-- 4. FOOTER CRATE (LEGAL) -->
+        <div class="pixel-crate">
+          <p>
+            This project isn’t endorsed by Riot Games and doesn’t reflect the views or opinions of Riot Games or anyone officially involved in producing or managing Riot Games properties. Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
+          </p>
+          <p style="margin-top:10px; color:#ffcd75;">NON-COMMERCIAL, ACADEMIC-ONLY USE.</p>
+          
+          <a href="https://github.com/HenryAiroso/Master-Degree-PPGCAP-LoLPerformance" target="_blank" class="btn-pixel">
+            VIEW REPO ON GITHUB
           </a>
-        </footer>
+        </div>
 
       </div>
     </div>
 
-    <!-- COMPUTE SHADERS & ANIMATION LOGIC -->
     <script>
-      // ==============================================
-      // 1. GSAP BOOT SEQUENCE & INTRO
-      // ==============================================
-      const tl = gsap.timeline();
+      // TEXTO EM INGLÊS PARA O CONSOLE
+      const text = `
+> INITIALIZING SYSTEM...
+> LOADING PROJECT: Master-Degree-PPGCAP-LoLPerformance
+> CONTEXT: Applied Computing Master’s Dissertation
 
-      // Barra de carregamento
-      tl.to(".loader-progress", { width: "100%", duration: 1.5, ease: "power2.inOut" })
-        .to("#boot-screen", { y: "-100%", duration: 0.8, ease: "expo.inOut" })
-        .from(".bg-layer", { scale: 1.5, opacity: 0, duration: 2 }, "-=0.5")
-        .from(".ui-container", { opacity: 0, scale: 0.9, duration: 1 }, "-=1.5")
-        .from(".hud-panel", { 
-          y: 50, 
-          opacity: 0, 
-          stagger: 0.1, 
-          duration: 0.8, 
-          ease: "back.out(1.7)" 
-        }, "-=0.5");
+ANALYSIS TARGET:
+League of Legends matches using Machine Learning and Deep Learning to model team and player performance over time.
 
-      // ==============================================
-      // 2. TEXT SCRAMBLE EFFECT (Hacker Style)
-      // ==============================================
-      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_#$@%";
+DATA SOURCE:
+Using Riot Games API (match-v5, account-v1, summoner-v4) to build datasets for non-commercial research.
 
-      document.querySelector(".title-glitch").onmouseover = event => {  
-        let iteration = 0;
-        const interval = setInterval(() => {
-          event.target.innerText = event.target.innerText
-            .split("")
-            .map((letter, index) => {
-              if(index < iteration) {
-                return event.target.dataset.value[index];
-              }
-              return letters[Math.floor(Math.random() * 26)]
-            })
-            .join("");
-          
-          if(iteration >= event.target.dataset.value.length){ 
-            clearInterval(interval);
-          }
-          iteration += 1 / 3;
-        }, 30);
-      }
-
-      // ==============================================
-      // 3. TYPEWRITER EFFECT FOR TERMINAL
-      // ==============================================
-      const textToType = `
-> INITIATING DISSERTATION PROTOCOL...
-> LOADING MODULE: Master-Degree-PPGCAP-LoLPerformance
-> STATUS: ACADEMIC RESEARCH // UFSCAR
-
-Este projeto foca na <span class="highlight-text">Inteligência Artificial de Desempenho</span> no League of Legends. 
-Através da análise massiva de partidas históricas (Big Data), utilizamos algoritmos de 
-<span class="highlight-text">Deep Learning</span> para modelar padrões de vitória e performance de jogadores.
-
-O objetivo é criar modelos preditivos capazes de entender a complexidade do MOBA, 
-traduzindo ouro, experiência e objetivos em probabilidades matemáticas.
-
-> END OF TRANSMISSION... _
+STATUS: ACADEMIC RESEARCH IN PROGRESS...
       `;
 
+      const consoleDiv = document.getElementById('console-text');
       let i = 0;
-      const speed = 20; // velocidade de digitação
-      const container = document.getElementById("typing-container");
 
-      // Função simples de typing que respeita HTML tags
-      function typeWriter() {
-        // Simulação simples inserindo HTML diretamente para manter classes
-        // Em um cenário real complexo, faríamos parsing de tokens
-        container.innerHTML = textToType; 
-        
-        // Animação de "Reveal" usando GSAP no texto já inserido
-        gsap.fromTo("#typing-container", 
-          { opacity: 0 }, 
-          { opacity: 1, duration: 2, ease: "power2.in" }
-        );
-      }
-      // Executa após o boot
-      setTimeout(typeWriter, 2500);
-
-
-      // ==============================================
-      // 4. INTERACTIVE 3D PARALLAX (Mouse Movement)
-      // ==============================================
-      document.addEventListener("mousemove", (e) => {
-        const x = (window.innerWidth / 2 - e.pageX) / 50;
-        const y = (window.innerHeight / 2 - e.pageY) / 50;
-
-        gsap.to("#ui-layer", {
-          rotationY: -x, // Inverte para efeito espelho
-          rotationX: y,
-          duration: 1,
-          ease: "power2.out"
-        });
-
-        gsap.to(".bg-layer", {
-          x: x * 2, // Fundo move mais devagar
-          y: y * 2,
-          duration: 1.5,
-          ease: "power2.out"
-        });
-      });
-
-
-      // ==============================================
-      // 5. CANVAS PARTICLES (Digital Dust & Matrix)
-      // ==============================================
-      const canvas = document.getElementById('particle-canvas');
-      const ctx = canvas.getContext('2d');
-      let width, height;
-
-      function resize() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-      }
-      window.addEventListener('resize', resize);
-      resize();
-
-      const particles = [];
-      for(let j=0; j<100; j++) {
-        particles.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          size: Math.random() * 2,
-          speedY: Math.random() * 0.5 + 0.1,
-          opacity: Math.random()
-        });
+      function type() {
+        if (i < text.length) {
+          if(text.charAt(i) === '\n') {
+            consoleDiv.innerHTML += '<br>';
+          } else {
+            consoleDiv.innerHTML += text.charAt(i);
+          }
+          i++;
+          setTimeout(type, 25); 
+        } else {
+          consoleDiv.innerHTML += '<span class="cursor"></span>';
+        }
       }
 
-      function animateParticles() {
-        ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = "rgba(0, 243, 255, 0.5)";
-        
-        particles.forEach(p => {
-          p.y -= p.speedY;
-          if (p.y < 0) p.y = height;
-          
-          ctx.globalAlpha = p.opacity;
-          ctx.fillRect(p.x, p.y, p.size, p.size);
-        });
-        requestAnimationFrame(animateParticles);
-      }
-      animateParticles();
-
-      // Mini Matrix Rain para o painel lateral
-      const mCanvas = document.getElementById('matrix-rain');
-      const mCtx = mCanvas.getContext('2d');
-      // Ajustar tamanho interno do canvas pequeno
-      mCanvas.width = 200; mCanvas.height = 100;
-      
-      const mCols = Math.floor(mCanvas.width / 10);
-      const mYpos = Array(mCols).fill(0);
-
-      function matrix() {
-        mCtx.fillStyle = '#0001';
-        mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-        mCtx.fillStyle = '#0f0';
-        mCtx.font = '10px monospace';
-
-        mYpos.forEach((y, ind) => {
-          const text = String.fromCharCode(Math.random() * 128);
-          const x = ind * 10;
-          mCtx.fillText(text, x, y);
-          if (y > 100 + Math.random() * 10000) mYpos[ind] = 0;
-          else mYpos[ind] = y + 10;
-        });
-      }
-      setInterval(matrix, 50);
-
+      setTimeout(type, 1000);
     </script>
   </body>
 </html>
